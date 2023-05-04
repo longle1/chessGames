@@ -1,0 +1,12 @@
+E:\lập trình c#\chessgames\chessgames\bin\Debug\chessgames.exe.config
+E:\lập trình c#\chessgames\chessgames\bin\Debug\chessgames.exe
+E:\lập trình c#\chessgames\chessgames\bin\Debug\chessgames.pdb
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.csproj.AssemblyReference.cache
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.csproj.SuggestedBindingRedirects.cache
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.Properties.Resources.resources
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.csproj.GenerateResource.cache
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCompileInputs.cache
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.exe
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.pdb
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.userControlClick.resources
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.Form1.resources
