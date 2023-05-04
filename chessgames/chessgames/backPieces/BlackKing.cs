@@ -8,8 +8,7 @@ namespace chessgames.backPieces
 {
     internal class BlackKing
     {
-        typeOfMovesChess type = new typeOfMovesChess();
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn, bool castlingBlackKing, bool castlingBlackRock1, bool castlingBlackRock2)
         {
             if (whiteTurn || otherPlayerTurn)
                 return possibleMoves;
@@ -100,6 +99,37 @@ namespace chessgames.backPieces
                     {
                         possibleMoves[i + 1, j + 1] = 2;
                     }
+                }
+            }
+
+            //xử lý cho việc nhập thành
+            //nhập thành xa
+            if (castlingBlackKing && castlingBlackRock1)
+            {
+                if (board[0, 1] == 0 && board[0, 2] == 0 && board[0, 3]  == 0)
+                {
+                    for (int pos = 1; pos < 8; pos++)
+                    {
+                        if (j - pos >= 0)
+                        {
+                            possibleMoves[i, j - pos] = 2;
+                        }
+                    }
+                }
+            }
+            //nhập thành gần
+            if (castlingBlackKing && castlingBlackRock2)
+            {
+                if (board[0, 5] == 0 && board[0, 6] == 0)
+                {
+                    for (int pos = 1; pos < 8; pos++)
+                    {
+                        if (j + pos < 8)
+                        {
+                            possibleMoves[i, j + pos] = 2;
+                        }
+                    }
+
                 }
             }
             return possibleMoves;

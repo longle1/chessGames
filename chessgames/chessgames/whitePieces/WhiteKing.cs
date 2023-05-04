@@ -8,8 +8,7 @@ namespace chessgames.whitePieces
 {
     internal class WhiteKing
     {
-        typeOfMovesChess type = new typeOfMovesChess();
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn, bool castlingWhiteKing, bool castlingWhiteRock1, bool castlingWhiteRock2)
         {
             if (!whiteTurn || otherPlayerTurn)
                 return possibleMoves;
@@ -41,6 +40,37 @@ namespace chessgames.whitePieces
             if (i + 1 < 8)
                 if (j + 1 < 8)
                     if (board[i + 1, j + 1] == 0 || board[i + 1, j + 1] < 10) possibleMoves[i + 1, j + 1] = 2;
+
+            //xử lý cho việc nhập thành
+            //nhập thành xa
+            if (castlingWhiteKing && castlingWhiteRock1)
+            {
+                if (board[7, 1] == 0 && board[7, 2] == 0 && board[7, 3] == 0)
+                {
+                    for (int pos = 1; pos < 8; pos++)
+                    {
+                        if (j - pos >= 0)
+                        {
+                            possibleMoves[i, j - pos] = 2;
+                        }
+                    }
+                }
+            }
+            //nhập thành gần
+            if (castlingWhiteKing && castlingWhiteRock2)
+            {
+                if (board[7, 5] == 0 && board[7, 6] == 0)
+                {
+                    for (int pos = 1; pos < 8; pos++)
+                    {
+                        if (j + pos < 8)
+                        {
+                            possibleMoves[i, j + pos] = 2;
+                        }
+                    }
+
+                }
+            }
             return possibleMoves;
         }
     }

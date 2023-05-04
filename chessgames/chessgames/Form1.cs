@@ -39,6 +39,13 @@ namespace chessgames
         public bool whiteTurn = true;
         public bool otherPlayerTurn = false;
         public bool gameOver = false;
+        public bool castlingBlackRock1 = true;
+        public bool castlingBlackRock2 = true;
+        public bool castlingBlackKing = true;
+        public bool castlingWhiteRock1 = true;
+        public bool castlingWhiteRock2 = true;
+        public bool castlingWhiteKing = true;
+
         #endregion
         #region integers
         int beforeMove_X;
@@ -230,7 +237,7 @@ namespace chessgames
                     chessboard.PossibleMoves = blackQueen.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
                     break;
                 case 6:
-                    chessboard.PossibleMoves = blackKing.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
+                    chessboard.PossibleMoves = blackKing.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn, castlingBlackKing, castlingBlackRock1, castlingBlackRock2);
                     break;
                 case 7:
                     chessboard.PossibleMoves = blackRock2.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
@@ -257,7 +264,7 @@ namespace chessgames
                     chessboard.PossibleMoves = whiteQueen.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
                     break;
                 case 16:
-                    chessboard.PossibleMoves = whiteKing.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
+                    chessboard.PossibleMoves = whiteKing.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn, castlingWhiteKing, castlingWhiteRock1, castlingWhiteRock2);
                     break;
                 case 17:
                     chessboard.PossibleMoves = whiteRock2.getPossibleMoves(chessboard.Board, chessboard.PossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
@@ -287,7 +294,7 @@ namespace chessgames
                     {
                         tableBackground[i, j].BackColor = Color.Yellow;
                         move++;
-                    }    
+                    }
                     if (chessboard.PossibleMoves[i, j] == 3)
                         tableBackground[i, j].BackColor = Color.Blue;
                 }
@@ -314,12 +321,60 @@ namespace chessgames
             chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
         }
 
-        //xảy ra khi người dùng chọn đúng vào nước đi hợp lệ
+        //hàm thực hiện việc di chuyển khi người dùng chọn đúng vào nước đi hợp lệ
         public void succesfulMove(int posX, int posY)
         {
             //đây là vị trí cũ nơi mà ta sẽ gửi quân cờ đến vị trí mới
             chessboard.Board[posY, posX] = chessboard.Board[beforeMove_Y, beforeMove_X];
-            //dùng cho việc nhập thành
+            //dùng cho việc nhập thành và khi quân tốt đến cuối bàn cờ địch thì sẽ được chọn quân mới
+            castlingAndPawnPromotionChecker(posY, posX);
+
+
+            //quân đen nhập thành
+            if (chessboard.Board[beforeMove_Y, beforeMove_X] == 06)
+            {
+                if(posY == 0 && posX == 0)
+                {
+                    //hoán đổi vị trí của quân vua
+                    chessboard.Board[0, 2] = 06;
+                    chessboard.Board[beforeMove_Y, beforeMove_X] = 00;
+                    //hoán đổi vị trí của quân xe
+                    chessboard.Board[0, 3] = 02;
+                    chessboard.Board[0, 0] = 00;
+                }
+                if (posY == 0 && posX == 7)
+                {
+                    //hoán đổi vị trí của quân vua
+                    chessboard.Board[0, 6] = 06;
+                    chessboard.Board[beforeMove_Y, beforeMove_X] = 00;
+                    //hoán đổi vị trí của quân xe
+                    chessboard.Board[0, 5] = 07;
+                    chessboard.Board[0, 7] = 00;
+                }
+            }
+            //quân trắng nhập thành
+            if (chessboard.Board[beforeMove_Y, beforeMove_Y] == 16)
+            {
+                if(posY == 7 && posX == 0)
+                {
+                    //hoán đổi vị trí của quân vua
+                    chessboard.Board[7, 2] = 16;
+                    chessboard.Board[beforeMove_Y, beforeMove_X] = 00;
+                    //hoán đổi vị trí của quân xe
+                    chessboard.Board[7, 3] = 12;
+                    chessboard.Board[7, 0] = 00;
+                }
+                if(posY == 7 && posX == 7)
+                {
+                    //hoán đổi vị trí của quân vua
+                    chessboard.Board[7, 6] = 16;
+                    chessboard.Board[beforeMove_Y, beforeMove_X] = 00;
+                    //hoán đổi vị trí của quân xe
+                    chessboard.Board[7, 5] = 17;
+                    chessboard.Board[7, 7] = 00;
+                }
+            }
+
 
             //thiết lập vị trí cũ quân cờ là 0
             chessboard.Board[beforeMove_Y, beforeMove_X] = 0;
@@ -342,7 +397,34 @@ namespace chessgames
                 MessageBox.Show("You win");
             }
         }
+        //hàm được sử dụng cho việc nhập thành và khi quân tốt đến cuối bàn cờ địch thì sẽ được chọn quân mới
+        public void castlingAndPawnPromotionChecker(int i, int j)
+        {
+            //khi người chơi tiến hành di chuyển quân xe hoặc vua của mình thì sẽ không thể nhập thành nữa
+            switch(chessboard.Board[beforeMove_Y, beforeMove_X])
+            {
+                case 2:
+                    castlingBlackRock1 = false;
+                    break;
+                case 6:
+                    castlingBlackKing = false;
+                    break;
+                case 7:
+                    castlingBlackRock2 = false;
+                    break;
+                case 12:
+                    castlingWhiteRock1 = false;
+                    break;
+                case 16:
+                    castlingWhiteKing = false;
+                    break; 
+                case 17:
+                    castlingWhiteRock2 = false;
+                    break;
+            }
 
+            //Xử lý việc chọn quân cờ khi quân tốt ra khỏi bàn cờ vua
+        }
         public void everyPossibleMoves()
         {
             chessboard.AllPossibleMoves = new int[8, 8];
@@ -373,7 +455,7 @@ namespace chessgames
                                     chessboard.AllPossibleMoves = blackQueen.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
                                     break;
                                 case 6:
-                                    chessboard.AllPossibleMoves = blackKing.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
+                                    chessboard.AllPossibleMoves = blackKing.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn, castlingBlackKing, castlingBlackRock1, castlingBlackRock2);
                                     break;
                                 case 7:
                                     chessboard.AllPossibleMoves = blackRock2.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
@@ -400,7 +482,7 @@ namespace chessgames
                                     chessboard.AllPossibleMoves = whiteQueen.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
                                     break;
                                 case 16:
-                                    chessboard.AllPossibleMoves = whiteKing.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
+                                    chessboard.AllPossibleMoves = whiteKing.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn, castlingWhiteKing, castlingWhiteRock1, castlingWhiteRock2);
                                     break;
                                 case 17:
                                     chessboard.AllPossibleMoves = whiteRock2.getPossibleMoves(chessboard.Board, chessboard.AllPossibleMoves, posX, posY, whiteTurn, otherPlayerTurn);
@@ -432,6 +514,7 @@ namespace chessgames
                         // mô phỏng vị trí mới của quân cờ
                         chessboard.Board[i, j] = numberOfPiece;
                         chessboard.Board[posY, posX] = 0;
+                        //cập nhật lại các đường đi cho các mảng cũ
                         staleArrays();
                         //2 điều kiện này sẽ kiểm tra trong mảng cũ có chứa quân vua hay không
                         if (chessboard.notValidMoveChecker(chessboard.Board, WhiteStaleArray, BlackStaleArray) == 1 && whiteTurn)   //đây là trường hợp dành cho quân trắng
@@ -441,6 +524,8 @@ namespace chessgames
                         //thiết lập về lại vị trí ban đầu của quân cờ
                         chessboard.Board[i, j] = selectPiece;
                         chessboard.Board[posY, posX] = numberOfPiece;
+
+                        //cập nhật lại các đường đi cho các mảng cũ
                         staleArrays();
                     }
                 }
