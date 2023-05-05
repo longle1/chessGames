@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -44,18 +45,28 @@ namespace chessgames
         public bool castlingBlackKing = true;
         public bool castlingWhiteRock1 = true;
         public bool castlingWhiteRock2 = true;
+        public bool checkEnable = false;
         public bool castlingWhiteKing = true;
-
         #endregion
         #region integers
         int beforeMove_X;
         int beforeMove_Y;
+        int getChangMove_X;
+        int getChangMove_Y;
         int move;
         #endregion
         ChessBoard chessboard = new ChessBoard();
         userControlClick[,] tableBackground;
         public int[,] WhiteStaleArray = new int[8, 8];
         public int[,] BlackStaleArray = new int[8, 8];
+
+        List<Button> buttonList = new List<Button>();
+        button btn = new button();
+        Button oldButton = new Button()
+        {
+            Height = 0,
+            Width = 0
+        };
         public Form1()
         {
             InitializeComponent();
@@ -111,39 +122,43 @@ namespace chessgames
                     else
                         chessboard.PossibleMoves[i, j] = 0;
         }
-
+        public Image choose(int i, int j)
+        {
+            switch (chessboard.Board[i, j])
+            {
+                case 00: tableBackground[i, j].BackgroundImage = null; break;
+                //Đây là trường hợp của các quân cờ đen
+                case 01: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackPawn.png"); break;
+                case 02: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackRock.png"); break;
+                case 03: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKnight.png"); break;
+                case 04: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackBiShop.png"); break;
+                case 05: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackQueen.png"); break;
+                case 06: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKing.png"); break;
+                case 07: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackRock.png"); break;
+                case 08: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKnight.png"); break;
+                case 09: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackBiShop.png"); break;
+                //đây là trường hợp của các quân cờ trắng
+                case 11: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhitePawn.png"); break;
+                case 12: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteRock.png"); break;
+                case 13: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKnight.png"); break;
+                case 14: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteBiShop.png"); break;
+                case 15: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteQueen.png"); break;
+                case 16: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKing.png"); break;
+                case 17: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteRock.png"); break;
+                case 18: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKnight.png"); break;
+                case 19: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteBiShop.png"); break;
+            }
+            return tableBackground[i, j].BackgroundImage;
+        }
         //hàm hiển thị các quân cờ lên bàn cờ
-        void displayPieces()
+        public void displayPieces()
         {
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
                     //hiển thị các quân cờ lên trên giao diện
-                    switch (chessboard.Board[i, j])
-                    {
-                        case 00: tableBackground[i, j].BackgroundImage = null; break;
-                        //Đây là trường hợp của các quân cờ đen
-                        case 01: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackPawn.png"); break;
-                        case 02: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackRock.png"); break;
-                        case 03: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKnight.png"); break;
-                        case 04: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackBiShop.png"); break;
-                        case 05: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackQueen.png"); break;
-                        case 06: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKing.png"); break;
-                        case 07: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackRock.png"); break;
-                        case 08: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackKnight.png"); break;
-                        case 09: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\BlackBiShop.png"); break;
-                        //đây là trường hợp của các quân cờ trắng
-                        case 11: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhitePawn.png"); break;
-                        case 12: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteRock.png"); break;
-                        case 13: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKnight.png"); break;
-                        case 14: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteBiShop.png"); break;
-                        case 15: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteQueen.png"); break;
-                        case 16: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKing.png"); break;
-                        case 17: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteRock.png"); break;
-                        case 18: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteKnight.png"); break;
-                        case 19: tableBackground[i, j].BackgroundImage = Image.FromFile("Resources\\WhiteBiShop.png"); break;
-                    }
+                    choose(i, j);
                 }
             }
             //lưu lại tất cả các nước di chuyển của các quân cờ
@@ -324,16 +339,37 @@ namespace chessgames
         //hàm thực hiện việc di chuyển khi người dùng chọn đúng vào nước đi hợp lệ
         public void succesfulMove(int posX, int posY)
         {
-            //đây là vị trí cũ nơi mà ta sẽ gửi quân cờ đến vị trí mới
-            chessboard.Board[posY, posX] = chessboard.Board[beforeMove_Y, beforeMove_X];
+            if (choose(posY, posX) != null)
+            {
+                //đưa quân cờ bị ăn vào trong panel
+                Button btn1 = null;
+                if (buttonList.Count % 5 == 0)
+                {
+                    if (buttonList.Count != 0)
+                        oldButton.Location = new Point(0, 30 + oldButton.Location.Y + 10);
+                    btn1 = btn.createButton(oldButton, pnlContainPieces, choose(posY, posX), chessboard.Board[posY, posX].ToString(), whiteTurn);
+                    btn1.Click += Btn1_Click;
+                }
+                else
+                {
+                    btn1 = btn.createButton(buttonList[buttonList.Count - 1], pnlContainPieces, choose(posY, posX), chessboard.Board[posY, posX].ToString(), whiteTurn);
+                    btn1.Click += Btn1_Click;
+                }
+                btn.numberOfPiece = chessboard.Board[posY, posX];
+                buttonList.Add(btn1);
+            }
             //dùng cho việc nhập thành và khi quân tốt đến cuối bàn cờ địch thì sẽ được chọn quân mới
             castlingAndPawnPromotionChecker(posY, posX);
+
+            //đây là vị trí cũ nơi mà ta sẽ gửi quân cờ đến vị trí mới
+            chessboard.Board[posY, posX] = chessboard.Board[beforeMove_Y, beforeMove_X];
+
 
 
             //quân đen nhập thành
             if (chessboard.Board[beforeMove_Y, beforeMove_X] == 06)
             {
-                if(posY == 0 && posX == 0)
+                if (posY == 0 && posX == 0)
                 {
                     //hoán đổi vị trí của quân vua
                     chessboard.Board[0, 2] = 06;
@@ -355,7 +391,7 @@ namespace chessgames
             //quân trắng nhập thành
             if (chessboard.Board[beforeMove_Y, beforeMove_Y] == 16)
             {
-                if(posY == 7 && posX == 0)
+                if (posY == 7 && posX == 0)
                 {
                     //hoán đổi vị trí của quân vua
                     chessboard.Board[7, 2] = 16;
@@ -364,7 +400,7 @@ namespace chessgames
                     chessboard.Board[7, 3] = 12;
                     chessboard.Board[7, 0] = 00;
                 }
-                if(posY == 7 && posX == 7)
+                if (posY == 7 && posX == 7)
                 {
                     //hoán đổi vị trí của quân vua
                     chessboard.Board[7, 6] = 16;
@@ -388,6 +424,9 @@ namespace chessgames
             //chuyển lượt người chơi
             whiteTurn = !whiteTurn;
         }
+
+        
+
         //hiển thị bị chiếu tướng và kết thúc game
         public void checkmateChecker(int i, int j)
         {
@@ -401,7 +440,7 @@ namespace chessgames
         public void castlingAndPawnPromotionChecker(int i, int j)
         {
             //khi người chơi tiến hành di chuyển quân xe hoặc vua của mình thì sẽ không thể nhập thành nữa
-            switch(chessboard.Board[beforeMove_Y, beforeMove_X])
+            switch (chessboard.Board[beforeMove_Y, beforeMove_X])
             {
                 case 2:
                     castlingBlackRock1 = false;
@@ -417,13 +456,95 @@ namespace chessgames
                     break;
                 case 16:
                     castlingWhiteKing = false;
-                    break; 
+                    break;
                 case 17:
                     castlingWhiteRock2 = false;
                     break;
             }
 
             //Xử lý việc chọn quân cờ khi quân tốt ra khỏi bàn cờ vua
+            if (chessboard.Board[beforeMove_Y, beforeMove_X] == 11) //kiểm tra xem tốt trắng đã lên cuối hàng hay chưa
+            {
+                if (i == 0)
+                {
+                    checkEnable = true;
+                    getChangMove_X = j;
+                    getChangMove_Y = i;
+                    for (int index = 0; index < buttonList.Count; index++)
+                    {
+                        if (int.Parse(buttonList[index].Text) > 11)
+                        {
+                            buttonList[index].BackColor = Color.Red;
+                        }
+                    }
+                    MessageBox.Show("Vui lòng chọn 1 quân trắng để thay thế");
+                }
+            }
+            else if (chessboard.Board[beforeMove_Y, beforeMove_X] == 01) //kiểm tra xem tốt đen đã xuống cuối hàng hay chưa
+            {
+                if (i == 7)
+                {
+                    checkEnable = true;
+                    getChangMove_X = j;
+                    getChangMove_Y = i;
+                    for (int index = 0; index < buttonList.Count; index++)
+                    {
+                        if (int.Parse(buttonList[index].Text) < 10 && int.Parse(buttonList[index].Text) > 1)
+                        {
+                            buttonList[index].BackColor = Color.Red;
+                        }
+                    }
+                    MessageBox.Show("Vui lòng chọn 1 quân đen để thay thế");
+                }
+            }
+        }
+        //sự kiện người dùng chọn quân cờ mới để thay thế quân tốt
+        private void Btn1_Click(object sender, EventArgs e)
+        {
+            Button btn = sender as Button;
+            if (checkEnable)
+            {
+                btn.BackColor = Color.Red;
+                // đây là trường hợp dành cho quân trắng đi trước
+                if (int.Parse(btn.Text) == 01 || int.Parse(btn.Text) == 11)
+                {
+                    MessageBox.Show("Bạn không được chọn quân tốt làm quân thay thế ");
+                    return;
+                }
+                if (btn.BackColor == Color.Red)
+                {
+                    chessboard.Board[getChangMove_Y, getChangMove_X] = int.Parse(btn.Text);
+                    //thực hiện việc xóa các nút có màu đỏ
+                    for(int i = 0;i< buttonList.Count;i++)
+                    {
+                        if (buttonList[i].BackColor == Color.Red)
+                            buttonList[i].BackColor = Color.Transparent;
+                    }
+                    //thay thế quân cờ đã chọn bằng quân tốt
+                    if(btn.TabIndex == 1) //tương đương với quân tốt đen
+                    {
+                        btn.Image = null;
+                        btn.BackgroundImage = Image.FromFile("Resources\\BlackPawn.png");
+                        btn.BackgroundImageLayout = ImageLayout.Stretch;
+                        btn.Text = "01";
+                        MessageBox.Show("Thay đổi thành công");
+                    }else if(btn.TabIndex == 0) //tương đương với quân tốt trắng
+                    {
+                        btn.Image = null;
+                        btn.BackgroundImage = Image.FromFile("Resources\\WhitePawn.png");
+                        btn.BackgroundImageLayout = ImageLayout.Stretch;
+                        btn.Text = "11";
+                        MessageBox.Show("Thay đổi thành công");
+                    }
+                    checkEnable = false;
+                    displayPieces();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Bạn không thể thực hiện thao tác này");
+                return;
+            }
         }
         public void everyPossibleMoves()
         {

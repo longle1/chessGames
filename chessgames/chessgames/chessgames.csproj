@@ -55,6 +55,7 @@
     <Compile Include="backPieces\BlackRock1.cs" />
     <Compile Include="backPieces\BlackRock2.cs" />
     <Compile Include="backPieces\BlackKnight1.cs" />
+    <Compile Include="button.cs" />
     <Compile Include="ChessBoard.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

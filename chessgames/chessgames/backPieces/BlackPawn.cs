@@ -18,7 +18,10 @@ namespace chessgames.backPieces
             //Trường hợp quân cờ đi được 1 nút
             if (board[i + 1, j] == 0)
             {
-                possibleMoves[i + 1, j] = 2;
+                if (i + 1 < 8)
+                {
+                    possibleMoves[i + 1, j] = 2;
+                }
             }
             //đây là trường hợp ăn quân cờ của đối phương theo đường chéo bên trái
             if (j - 1 >= 0)
@@ -56,15 +59,15 @@ namespace chessgames.backPieces
                 {
                     if (board[i, j] == 01)
                     {
-                        if(i - 1 >= 0)
+                        if (i - 1 >= 0)
                             //Hất quân cờ của đối phương sang trái
                             if (j - 1 >= 0)
                                 if (board[i + 1, j - 1] > 10)
                                     possibleMoves[i + 1, j - 1] = 2;
-                            //Hất quân cờ của đối phương sang phải
-                            if (j + 1 < 8)
-                                if (board[i + 1, j + 1] > 10)
-                                    possibleMoves[i + 1, j + 1] = 2;
+                        //Hất quân cờ của đối phương sang phải
+                        if (j + 1 < 8)
+                            if (board[i + 1, j + 1] > 10)
+                                possibleMoves[i + 1, j + 1] = 2;
                     }
                 }
             }
