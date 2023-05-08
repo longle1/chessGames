@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.pnlContainPieces = new System.Windows.Forms.Panel();
+            this.txtUsername = new System.Windows.Forms.TextBox();
+            this.txtPort = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // pnlContainPieces
@@ -39,21 +43,62 @@
             this.pnlContainPieces.Size = new System.Drawing.Size(274, 434);
             this.pnlContainPieces.TabIndex = 0;
             // 
+            // txtUsername
+            // 
+            this.txtUsername.Location = new System.Drawing.Point(15, 579);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Size = new System.Drawing.Size(158, 22);
+            this.txtUsername.TabIndex = 1;
+            // 
+            // txtPort
+            // 
+            this.txtPort.Location = new System.Drawing.Point(15, 630);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(158, 22);
+            this.txtPort.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(15, 560);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(70, 16);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Username";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(15, 611);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(31, 16);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Port";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1084, 765);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtPort);
+            this.Controls.Add(this.txtUsername);
             this.Controls.Add(this.pnlContainPieces);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Panel pnlContainPieces;
+        private System.Windows.Forms.TextBox txtUsername;
+        private System.Windows.Forms.TextBox txtPort;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

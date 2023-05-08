@@ -8,9 +8,9 @@ namespace chessgames.whitePieces
 {
     internal class WhiteKing
     {
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn, bool castlingWhiteKing, bool castlingWhiteRock1, bool castlingWhiteRock2)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool castlingWhiteKing, bool castlingWhiteRock1, bool castlingWhiteRock2)
         {
-            if (!whiteTurn || otherPlayerTurn)
+            if (!whiteTurn)
                 return possibleMoves;
             //di chuyển thẳng lên trên
             if (i - 1 >= 0)
@@ -51,7 +51,12 @@ namespace chessgames.whitePieces
                     {
                         if (j - pos >= 0)
                         {
-                            possibleMoves[i, j - pos] = 2;
+                            if (pos == 1 && board[i, j - pos] == 0)
+                            {
+                                possibleMoves[i, j - pos] = 2;
+                                continue;
+                            }
+                            possibleMoves[i, j - pos] = 4;
                         }
                     }
                 }
@@ -65,7 +70,12 @@ namespace chessgames.whitePieces
                     {
                         if (j + pos < 8)
                         {
-                            possibleMoves[i, j + pos] = 2;
+                            if (pos == 1 && board[i, j + pos] == 0)
+                            {
+                                possibleMoves[i, j + pos] = 2;
+                                continue;
+                            }
+                            possibleMoves[i, j + pos] = 4;
                         }
                     }
 

@@ -9,12 +9,10 @@ namespace chessgames.backPieces
 {
     internal class BlackPawn
     {
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool blackTurn)
         {
-            if (whiteTurn || otherPlayerTurn)
-            {
+            if (!blackTurn)
                 return possibleMoves;
-            }
             //Trường hợp quân cờ đi được 1 nút
             if (board[i + 1, j] == 0)
             {

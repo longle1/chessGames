@@ -10,9 +10,9 @@ namespace chessgames.whitePieces
     internal class WhitePawn
     {
         typeOfMovesChess type = new typeOfMovesChess();
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn)
         {
-            if (!whiteTurn || otherPlayerTurn)
+            if (!whiteTurn)
                 return possibleMoves;
             if (i - 1 >= 0)
                 //đối với trường hợp di chuyển 1 ô lên trên

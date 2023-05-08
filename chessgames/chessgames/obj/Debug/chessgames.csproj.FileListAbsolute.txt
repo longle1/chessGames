@@ -10,3 +10,4 @@ E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.exe
 E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.pdb
 E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.userControlClick.resources
 E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.Form1.resources
+E:\lập trình c#\chessgames\chessgames\obj\Debug\chessgames.Dashboard.resources

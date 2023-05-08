@@ -9,9 +9,9 @@ namespace chessgames.backPieces
     internal class BlackBiShop2
     {
         typeOfMovesChess type = new typeOfMovesChess();
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool blackTurn)
         {
-            if (whiteTurn || otherPlayerTurn)
+            if (!blackTurn)
                 return possibleMoves;
             possibleMoves = type.BlackDiagonalMoves(board, possibleMoves, i, j);
             return possibleMoves;

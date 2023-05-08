@@ -9,9 +9,9 @@ namespace chessgames.whitePieces
     internal class WhiteKnight2
     {
         typeOfMovesChess type = new typeOfMovesChess();
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn)
         {
-            if (!whiteTurn || otherPlayerTurn)
+            if (!whiteTurn)
                 return possibleMoves;
             possibleMoves = type.WhiteHorseMove(board, possibleMoves, i, j);
             return possibleMoves;

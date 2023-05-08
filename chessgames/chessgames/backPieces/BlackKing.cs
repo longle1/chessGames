@@ -8,9 +8,9 @@ namespace chessgames.backPieces
 {
     internal class BlackKing
     {
-        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool whiteTurn, bool otherPlayerTurn, bool castlingBlackKing, bool castlingBlackRock1, bool castlingBlackRock2)
+        public int[,] getPossibleMoves(int[,] board, int[,] possibleMoves, int j, int i, bool blackTurn, bool castlingBlackKing, bool castlingBlackRock1, bool castlingBlackRock2)
         {
-            if (whiteTurn || otherPlayerTurn)
+            if (!blackTurn)
                 return possibleMoves;
 
             //di chuyển quân vua sang trái
@@ -112,7 +112,12 @@ namespace chessgames.backPieces
                     {
                         if (j - pos >= 0)
                         {
-                            possibleMoves[i, j - pos] = 2;
+                            if(pos == 1 && board[i, j - pos] == 0)
+                            {
+                                possibleMoves[i, j - pos] = 2;
+                                continue;
+                            }
+                            possibleMoves[i, j - pos] = 4;
                         }
                     }
                 }
@@ -126,7 +131,12 @@ namespace chessgames.backPieces
                     {
                         if (j + pos < 8)
                         {
-                            possibleMoves[i, j + pos] = 2;
+                            if (pos == 1 && board[i, j + pos] == 0)
+                            {
+                                possibleMoves[i, j + pos] = 2;
+                                continue;
+                            }
+                            possibleMoves[i, j + pos] = 4;
                         }
                     }
 
