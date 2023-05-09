@@ -212,18 +212,18 @@ namespace chessgames
             // hiển thị danh sách các quân cờ
             displayPieces();
         }
-        private void updateData(string msg)
-        {
-            try
-            {
-                MethodInvoker invoker = new MethodInvoker(delegate { txtCountTime.Text = msg; });
-                this.Invoke(invoker);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
-            }
-        }
+        //private void updateData(string msg)
+        //{
+        //    try
+        //    {
+        //        MethodInvoker invoker = new MethodInvoker(delegate { txtCountTime.Text = msg; });
+        //        this.Invoke(invoker);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+        //    }
+        //}
         private void Timer_Tick(object sender, EventArgs e)
         {
             if(setUpTimer)
@@ -232,19 +232,26 @@ namespace chessgames
             }    
             txtCountTime.Text = countTime.ToString();
             sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+
+            countTime--;
             if (countTime == 0)
             {
                 whiteTurn = !whiteTurn;
                 blackTurn = !blackTurn;
                 countTime = setUpTime;
                 clearMove();
+                //thực hiện việc xóa các nút có màu đỏ trong list view nếu có
+                for (int i = 0; i < buttonList.Count; i++)
+                {
+                    if (buttonList[i].BackColor == Color.Red)
+                        buttonList[i].BackColor = Color.Transparent;
+                }
             }
-            if(setUpTimerThread)
+            if (setUpTimerThread)
             {
                 timer.Interval = 1;
                 setUpTimerThread = false;
             }
-            countTime--;
         }
 
         public void waitingAnotherClient()
@@ -373,7 +380,7 @@ namespace chessgames
                         } 
                         else
                         {
-                            if (buffers[9] == 0)
+                            if (buffers[9] - 1 == 0)
                             {
                                 whiteTurn = !whiteTurn;
                                 blackTurn = !blackTurn;
@@ -614,11 +621,18 @@ namespace chessgames
                 }
 
 
-                //cập nhật lại thời gian
-                setUpTimer = true;
-                timer.Interval = 1;
-                countTime = setUpTime;
-                sendMove(posY, posX, 1, setUpTime);
+                if (timer != null)
+                {
+                    //cập nhật lại thời gian
+                    setUpTimer = true;
+                    timer.Interval = 1;
+                    countTime = setUpTime;
+                }
+                else
+                {
+                    //cập nhật lại thời gian
+                    sendMove(0, 0, 1, setUpTime);
+                }
 
                 //vẽ lại bàn cờ
                 displayPieces();
@@ -1015,6 +1029,18 @@ namespace chessgames
                         btn.BackgroundImage = Image.FromFile("Resources\\WhitePawn.png");
                         btn.BackgroundImageLayout = ImageLayout.Stretch;
                         btn.Text = "11";
+                    }
+                    if (timer != null)
+                    {
+                        //cập nhật lại thời gian
+                        setUpTimer = true;
+                        timer.Interval = 1;
+                        countTime = setUpTime;
+                    }
+                    else
+                    {
+                        //cập nhật lại thời gian
+                        sendMove(0, 0, 1, setUpTime);
                     }
                     checkEnable = false;
                     //chuyển lượt người chơi
