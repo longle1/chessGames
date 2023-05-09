@@ -33,6 +33,7 @@
             this.txtPort = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.txtCountTime = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // pnlContainPieces
@@ -75,11 +76,24 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "Port";
             // 
+            // txtCountTime
+            // 
+            this.txtCountTime.BackColor = System.Drawing.Color.LemonChiffon;
+            this.txtCountTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtCountTime.Location = new System.Drawing.Point(408, 12);
+            this.txtCountTime.Multiline = true;
+            this.txtCountTime.Name = "txtCountTime";
+            this.txtCountTime.ReadOnly = true;
+            this.txtCountTime.Size = new System.Drawing.Size(152, 47);
+            this.txtCountTime.TabIndex = 5;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.LemonChiffon;
             this.ClientSize = new System.Drawing.Size(1084, 765);
+            this.Controls.Add(this.txtCountTime);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtPort);
@@ -99,6 +113,7 @@
         private System.Windows.Forms.TextBox txtPort;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtCountTime;
     }
 }
 
