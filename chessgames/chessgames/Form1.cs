@@ -58,6 +58,8 @@ namespace chessgames
         public bool isWin = false;
         public bool canNotMove = false; // ngăn không cho đối phương di chuyển khi user chọn thành công quân cờ mới
         public bool isChoose = true; //trường này khi quân tốt di chuyển tới cuối bàn cờ thì nếu chọn quân mới rồi mới được quyền đánh
+        public bool setUpTimer = false;
+        public bool setUpTimerThread = false;
         #endregion
 
         #region integers
@@ -71,7 +73,8 @@ namespace chessgames
         public int castlingPiece = 0;
         public int changePieceValue = 0;
         public int piece = -1;
-        public int countTime = 60;
+        public int countTime = 10;
+        public int setUpTime = 10;
         #endregion
 
         #region infoUser
@@ -156,19 +159,6 @@ namespace chessgames
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            if (countTime == 0)
-            {
-                whiteTurn = !whiteTurn;
-                blackTurn = !blackTurn;
-                countTime = 60;
-            }
-            sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
-            txtCountTime.Text = countTime.ToString();
-            countTime--;
-        }
-
         public Form1(string userName, int port, bool isCreated, bool turn, int piece) : this()
         {
             this.isCreated = isCreated;
@@ -203,10 +193,11 @@ namespace chessgames
                     clientRcvData.Start();
                     timer = new System.Windows.Forms.Timer();
                     timer.Tick += Timer_Tick;
-                    timer.Interval = 1000;
+                    timer.Interval = 1;
+                    setUpTimer = true;
+                    setUpTimerThread = true;
                     timer.Start();
                     user.players += 1;
-                    sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                 }
                 catch (Exception ex)
                 {
@@ -220,6 +211,40 @@ namespace chessgames
             getPiecesOnBoard();
             // hiển thị danh sách các quân cờ
             displayPieces();
+        }
+        private void updateData(string msg)
+        {
+            try
+            {
+                MethodInvoker invoker = new MethodInvoker(delegate { txtCountTime.Text = msg; });
+                this.Invoke(invoker);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+            }
+        }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if(setUpTimer)
+            {
+                timer.Interval = 1000;
+            }    
+            txtCountTime.Text = countTime.ToString();
+            sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+            if (countTime == 0)
+            {
+                whiteTurn = !whiteTurn;
+                blackTurn = !blackTurn;
+                countTime = setUpTime;
+                clearMove();
+            }
+            if(setUpTimerThread)
+            {
+                timer.Interval = 1;
+                setUpTimerThread = false;
+            }
+            countTime--;
         }
 
         public void waitingAnotherClient()
@@ -340,9 +365,11 @@ namespace chessgames
                             MessageBox.Show(userName + " đã thua");
                     }else if (buffers[8] == 1)
                     {
-                        if (buffers[10] == 60)
+                        if (buffers[10] == setUpTime)
                         {
-                            countTime = buffers[10];
+                            countTime = buffers[10] + 1;
+                            setUpTimerThread = true;
+                            setUpTimer = true;
                         } 
                         else
                         {
@@ -350,6 +377,7 @@ namespace chessgames
                             {
                                 whiteTurn = !whiteTurn;
                                 blackTurn = !blackTurn;
+                                clearMove();
                             }
                             //hiển thị lên giao diện
                             txtCountTime.Text = buffers[9].ToString();
@@ -587,7 +615,10 @@ namespace chessgames
 
 
                 //cập nhật lại thời gian
-                sendMove(posY, posX, 1, 60);
+                setUpTimer = true;
+                timer.Interval = 1;
+                countTime = setUpTime;
+                sendMove(posY, posX, 1, setUpTime);
 
                 //vẽ lại bàn cờ
                 displayPieces();
@@ -799,11 +830,14 @@ namespace chessgames
             if (timer != null)
             {
                 //cập nhật lại thời gian
-                countTime = 60;
+                setUpTimer = true;
+                timer.Interval = 1;
+                countTime = setUpTime;
             }
             else 
             {
-                sendMove(0, 0, 1, 60);
+                //cập nhật lại thời gian
+                sendMove(0, 0, 1, setUpTime);
             }
 
             //lưu lại nước di chuyển để gửi cho đối phương
