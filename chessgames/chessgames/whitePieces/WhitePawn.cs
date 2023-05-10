@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace chessgames.whitePieces
 {
@@ -14,16 +15,22 @@ namespace chessgames.whitePieces
             if (!whiteTurn)
                 return possibleMoves;
             if (i - 1 >= 0)
+            {
                 //đối với trường hợp di chuyển 1 ô lên trên
                 if (board[i - 1, j] == 0) possibleMoves[i - 1, j] = 2;
                 //trường hợp ăn quân cờ chéo bên trái
                 if (j - 1 >= 0)
+                {
                     if (board[i - 1, j - 1] < 10 && board[i - 1, j - 1] != 0)
                         possibleMoves[i - 1, j - 1] = 2;
+                }    
                 //trường hợp ăn quân cờ chéo bên phải
                 if (j + 1 < 8)
+                {
                     if (board[i - 1, j + 1] < 10 && board[i - 1, j + 1] != 0)
                         possibleMoves[i - 1, j + 1] = 2;
+                }    
+            }    
             //trường hợp quân cờ di chuyển 2 ô nhưng khi ở vị trí đầu tiên
             if (i == 6)
                 if (board[i - 2, j] == 0 && board[i - 1, j] == 0) possibleMoves[i - 2, j] = 2;

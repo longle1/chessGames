@@ -73,8 +73,8 @@ namespace chessgames
         public int castlingPiece = 0;
         public int changePieceValue = 0;
         public int piece = -1;
-        public int countTime = 10;
-        public int setUpTime = 10;
+        public int countTime = 60;
+        public int setUpTime = 60;
         #endregion
 
         #region infoUser
@@ -210,7 +210,7 @@ namespace chessgames
             // hàm kiểm tra ô nào chứa quân cờ
             getPiecesOnBoard();
             // hiển thị danh sách các quân cờ
-            displayPieces();
+            //displayPieces();
         }
         //private void updateData(string msg)
         //{
@@ -226,10 +226,10 @@ namespace chessgames
         //}
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if(setUpTimer)
+            if (setUpTimer)
             {
                 timer.Interval = 1000;
-            }    
+            }
             txtCountTime.Text = countTime.ToString();
             sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
@@ -288,18 +288,9 @@ namespace chessgames
                     {
                         //chứa danh sách các quân cờ sau khi bị loại khỏi danh sách
                         listPieceKilled(buffers[3], buffers[4], buffers[1], buffers[2]);
-                        if (chessboard.Board[buffers[1], buffers[2]] == 01 && buffers[3] == 7 && buffers[7] == 0)
-                        {
-                        }
-                        else if (chessboard.Board[buffers[1], buffers[2]] == 11 && buffers[3] == 0 && buffers[7] == 0)
-                        {
-                        }
-                        else
-                        {
-                            //đổi lượt
-                            whiteTurn = !whiteTurn;
-                            blackTurn = !blackTurn;
-                        }
+                        //đổi lượt
+                        whiteTurn = !whiteTurn;
+                        blackTurn = !blackTurn;
                         if (buffers[6] == 0)
                         {
                             //thay đổi lại vị trí của người chơi cũ
@@ -355,7 +346,7 @@ namespace chessgames
                         if (buffers[7] != 0)
                             chessboard.Board[buffers[3], buffers[4]] = buffers[7];
 
-                        displayPieces();
+                        //displayPieces();
                         staleArrays();
 
                         for (int i = 0; i < 8; i++)
@@ -370,14 +361,15 @@ namespace chessgames
 
                         if (buffers[5] == 0)
                             MessageBox.Show(userName + " đã thua");
-                    }else if (buffers[8] == 1)
+                    }
+                    else if (buffers[8] == 1)
                     {
                         if (buffers[10] == setUpTime)
                         {
                             countTime = buffers[10] + 1;
                             setUpTimerThread = true;
                             setUpTimer = true;
-                        } 
+                        }
                         else
                         {
                             if (buffers[9] - 1 == 0)
@@ -463,7 +455,7 @@ namespace chessgames
             return tableBackground[i, j].BackgroundImage;
         }
         //hàm hiển thị các quân cờ lên bàn cờ
-        public void displayPieces()
+        public void displayPieces(int posY, int posX, int beforeY, int beforeX)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -635,7 +627,7 @@ namespace chessgames
                 }
 
                 //vẽ lại bàn cờ
-                displayPieces();
+                //displayPieces();
                 clearMove();
                 everyPossibleMoves();
                 //kiểm tra xem có bị chiếu tướng hay không
@@ -848,7 +840,7 @@ namespace chessgames
                 timer.Interval = 1;
                 countTime = setUpTime;
             }
-            else 
+            else
             {
                 //cập nhật lại thời gian
                 sendMove(0, 0, 1, setUpTime);
@@ -897,7 +889,7 @@ namespace chessgames
             chessboard.Board[beforeMove_Y, beforeMove_X] = 0;
 
             //vẽ lại bàn cờ
-            displayPieces();
+            displayPieces(posY, posX, beforeMove_Y, beforeMove_Y);
             clearMove();
             everyPossibleMoves();
             //kiểm tra xem có bị chiếu tướng hay không
@@ -959,16 +951,38 @@ namespace chessgames
                     checkEnable = true;
                     getChangMove_X = j;
                     getChangMove_Y = i;
+                    bool checkCanChange = false;
                     for (int index = 0; index < buttonList.Count; index++)
                     {
                         if (int.Parse(buttonList[index].Text) > 11)
                         {
                             buttonList[index].BackColor = Color.Red;
+                            checkCanChange = true;
                         }
                     }
-                    canNotMove = true;
-                    isChoose = false;
-                    MessageBox.Show("Vui lòng chọn 1 quân trắng để thay thế");
+                    if (checkCanChange)
+                    {
+                        canNotMove = true;
+                        isChoose = false;
+                        MessageBox.Show("Vui lòng chọn 1 quân trắng để thay thế");
+                    }
+                    else
+                    {
+                        isChoose = true;
+                        if (timer != null)
+                        {
+                            //cập nhật lại thời gian
+                            setUpTimer = true;
+                            timer.Interval = 1;
+                            countTime = setUpTime;
+                        }
+                        else
+                        {
+                            //cập nhật lại thời gian
+                            sendMove(0, 0, 1, setUpTime);
+                        }
+                        checkEnable = false;
+                    }
                 }
             }
             else if (chessboard.Board[beforeMove_Y, beforeMove_X] == 01) //kiểm tra xem tốt đen đã xuống cuối hàng hay chưa
@@ -978,16 +992,38 @@ namespace chessgames
                     checkEnable = true;
                     getChangMove_X = j;
                     getChangMove_Y = i;
+                    bool checkCanChange = false;
                     for (int index = 0; index < buttonList.Count; index++)
                     {
                         if (int.Parse(buttonList[index].Text) < 10 && int.Parse(buttonList[index].Text) > 1)
                         {
                             buttonList[index].BackColor = Color.Red;
+                            checkCanChange = true;
                         }
                     }
-                    canNotMove = true;
-                    isChoose = false;
-                    MessageBox.Show("Vui lòng chọn 1 quân đen để thay thế");
+                    if (checkCanChange)
+                    {
+                        canNotMove = true;
+                        isChoose = false;
+                        MessageBox.Show("Vui lòng chọn 1 quân đen để thay thế");
+                    }
+                    else
+                    {
+                        isChoose = true;
+                        if (timer != null)
+                        {
+                            //cập nhật lại thời gian
+                            setUpTimer = true;
+                            timer.Interval = 1;
+                            countTime = setUpTime;
+                        }
+                        else
+                        {
+                            //cập nhật lại thời gian
+                            sendMove(0, 0, 1, setUpTime);
+                        }
+                        checkEnable = false;
+                    }
                 }
             }
         }
@@ -997,7 +1033,6 @@ namespace chessgames
             Button btn = sender as Button;
             if (checkEnable)
             {
-                btn.BackColor = Color.Red;
                 // đây là trường hợp dành cho quân trắng đi trước
                 if (int.Parse(btn.Text) == 01 || int.Parse(btn.Text) == 11)
                 {
@@ -1055,7 +1090,8 @@ namespace chessgames
 
                     canNotMove = false;//cập nhật lại sau khi chọn
 
-                    displayPieces();
+
+                    //displayPieces();
                 }
             }
             else
