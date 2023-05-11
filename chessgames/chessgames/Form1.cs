@@ -210,20 +210,15 @@ namespace chessgames
             // hàm kiểm tra ô nào chứa quân cờ
             getPiecesOnBoard();
             // hiển thị danh sách các quân cờ
-            //displayPieces();
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    //hiển thị các quân cờ lên trên giao diện
+                    choose(i, j);
+                }
+            }
         }
-        //private void updateData(string msg)
-        //{
-        //    try
-        //    {
-        //        MethodInvoker invoker = new MethodInvoker(delegate { txtCountTime.Text = msg; });
-        //        this.Invoke(invoker);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
-        //    }
-        //}
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (setUpTimer)
@@ -309,6 +304,11 @@ namespace chessgames
                                 //hoán đổi vị trí của quân xe
                                 chessboard.Board[0, 3] = 02;
                                 chessboard.Board[0, 0] = 00;
+
+                                //vẽ lại vị trí của quân vua
+                                displayPieces(0, 2, buffers[1], buffers[2]);
+                                //vẽ lại vị trí của quân xe
+                                displayPieces(0, 3, 0, 0);
                             }
                             if (buffers[3] == 0 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 07)
                             {
@@ -318,7 +318,15 @@ namespace chessgames
                                 //hoán đổi vị trí của quân xe
                                 chessboard.Board[0, 5] = 07;
                                 chessboard.Board[0, 7] = 00;
+
+                                //vẽ lại vị trí của quân vua
+                                displayPieces(0, 6, buffers[1], buffers[2]);
+                                //vẽ lại vị trí của quân xe
+                                displayPieces(0, 5, 0, 7);
                             }
+                            staleArrays();
+                            chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
+                            continue;
                         }
                         else if (buffers[6] == 2)//dành cho nhập thành quân trắng
                         {
@@ -330,6 +338,11 @@ namespace chessgames
                                 //hoán đổi vị trí của quân xe
                                 chessboard.Board[7, 3] = 12;
                                 chessboard.Board[7, 0] = 00;
+
+                                //vẽ lại vị trí của quân vua
+                                displayPieces(7, 2, buffers[1], buffers[2]);
+                                //vẽ lại vị trí của quân xe
+                                displayPieces(7, 3, 7, 0);
                             }
                             if (buffers[3] == 7 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 17)
                             {
@@ -339,14 +352,24 @@ namespace chessgames
                                 //hoán đổi vị trí của quân xe
                                 chessboard.Board[7, 5] = 17;
                                 chessboard.Board[7, 7] = 00;
+
+                                //vẽ lại vị trí của quân vua
+                                displayPieces(7, 6, buffers[1], buffers[2]);
+                                //vẽ lại vị trí của quân xe
+                                displayPieces(7, 5, 7, 7);
+
                             }
+
+                            staleArrays();
+                            chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
+                            continue;
                         }
 
                         //dùng cho việc hoán đổi quân cờ khi quân tốt di chuyển đến cuối bàn cờ
                         if (buffers[7] != 0)
                             chessboard.Board[buffers[3], buffers[4]] = buffers[7];
 
-                        //displayPieces();
+                        displayPieces(buffers[3], buffers[4], buffers[1], buffers[2]);
                         staleArrays();
 
                         for (int i = 0; i < 8; i++)
@@ -386,7 +409,6 @@ namespace chessgames
             }
         }
 
-        // hàm kiểm tra ô nào chứa quân cờ
         public void getPiecesOnBoard()
         {
             for (int i = 0; i < 8; i++)
@@ -458,13 +480,10 @@ namespace chessgames
         public void displayPieces(int posY, int posX, int beforeY, int beforeX)
         {
             for (int i = 0; i < 8; i++)
-            {
                 for (int j = 0; j < 8; j++)
-                {
-                    //hiển thị các quân cờ lên trên giao diện
-                    choose(i, j);
-                }
-            }
+                    if ((posY == i && posX == j) || ((beforeY == i && beforeX == j)))
+                        //hiển thị các quân cờ lên trên giao diện
+                        choose(i, j);
             //lưu lại tất cả các nước di chuyển của các quân cờ
             staleArrays();
             //kiểm tra xem quân vua có đang bị chiếu tướng hay không
@@ -574,6 +593,11 @@ namespace chessgames
                         //hoán đổi vị trí của quân xe
                         chessboard.Board[0, 3] = 02;
                         chessboard.Board[0, 0] = 00;
+
+                        //vẽ lại bàn cờ vị trí quân vua
+                        displayPieces(0, 2, beforeMove_Y, beforeMove_X);
+                        //vẽ lại vị trí quân xe
+                        displayPieces(0, 3, 0, 0);
                     }
                     if (posY == 0 && posX == 7 && chessboard.Board[posY, posX] == 07)
                     {
@@ -583,6 +607,10 @@ namespace chessgames
                         //hoán đổi vị trí của quân xe
                         chessboard.Board[0, 5] = 07;
                         chessboard.Board[0, 7] = 00;
+                        //vẽ lại bàn cờ vị trí quân vua
+                        displayPieces(0, 6, beforeMove_Y, beforeMove_X);
+                        //vẽ lại vị trí quân xe
+                        displayPieces(0, 5, 0, 7);
                     }
                 }
                 //quân trắng nhập thành
@@ -600,6 +628,11 @@ namespace chessgames
                         //hoán đổi vị trí của quân xe
                         chessboard.Board[7, 3] = 12;
                         chessboard.Board[7, 0] = 00;
+
+                        //vẽ lại bàn cờ vị trí quân vua
+                        displayPieces(7, 2, beforeMove_Y, beforeMove_X);
+                        //vẽ lại vị trí quân xe
+                        displayPieces(7, 3, 7, 0);
                     }
                     if (posY == 7 && posX == 7 && chessboard.Board[posY, posX] == 17)
                     {
@@ -609,6 +642,11 @@ namespace chessgames
                         //hoán đổi vị trí của quân xe
                         chessboard.Board[7, 5] = 17;
                         chessboard.Board[7, 7] = 00;
+
+                        //vẽ lại bàn cờ vị trí quân vua
+                        displayPieces(7, 6, beforeMove_Y, beforeMove_X);
+                        //vẽ lại vị trí quân xe
+                        displayPieces(7, 5, 7, 7);
                     }
                 }
 
@@ -625,9 +663,6 @@ namespace chessgames
                     //cập nhật lại thời gian
                     sendMove(0, 0, 1, setUpTime);
                 }
-
-                //vẽ lại bàn cờ
-                //displayPieces();
                 clearMove();
                 everyPossibleMoves();
                 //kiểm tra xem có bị chiếu tướng hay không
@@ -787,13 +822,17 @@ namespace chessgames
             }
             //thay đổi lại màu của bàn cờ sau khi người dùng hủy việc chọn quân cờ
             for (int i = 0; i < 8; i++)
+            {
                 for (int j = 0; j < 8; j++)
+                {
                     if (i % 2 == 0)
                         if (j % 2 == 1) tableBackground[i, j].BackColor = Color.Brown;
                         else tableBackground[i, j].BackColor = Color.White;
                     else
                         if (j % 2 == 1) tableBackground[i, j].BackColor = Color.White;
                     else tableBackground[i, j].BackColor = Color.Brown;
+                }
+            }
             chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
         }
 
@@ -887,16 +926,15 @@ namespace chessgames
 
             //thiết lập vị trí cũ quân cờ là 0
             chessboard.Board[beforeMove_Y, beforeMove_X] = 0;
-
             //vẽ lại bàn cờ
-            displayPieces(posY, posX, beforeMove_Y, beforeMove_Y);
+            displayPieces(posY, posX, beforeMove_Y, beforeMove_X);
             clearMove();
             everyPossibleMoves();
-            //kiểm tra xem có bị chiếu tướng hay không
+            ////kiểm tra xem có bị chiếu tướng hay không
             checkmateChecker(posY, posX);
 
-            //sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
-            if (!gameOver)
+            ////sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
+            if (!gameOver && !canNotMove)
                 sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
             if (!canNotMove)
             {
@@ -914,6 +952,7 @@ namespace chessgames
             {
                 MessageBox.Show(userName + " đã thắng");
                 gameOver = true;
+                timer.Stop();
                 sendMove(i, j, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
             }
         }
@@ -1089,9 +1128,8 @@ namespace chessgames
                     sendMove(getChangMove_Y, getChangMove_X, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
                     canNotMove = false;//cập nhật lại sau khi chọn
-
-
-                    //displayPieces();
+                    MessageBox.Show(getChangMove_Y + ", " + ", " + getChangMove_X + ", " + beforeMove_Y + ", " + beforeMove_X);
+                    displayPieces(getChangMove_Y, getChangMove_X, beforeMove_Y, beforeMove_X);
                 }
             }
             else
@@ -1222,17 +1260,11 @@ namespace chessgames
                         chessboard.Board[posY, posX] = 0;
                         staleArrays();
                         if (chessboard.notValidMoveChecker(chessboard.Board, WhiteStaleArray, BlackStaleArray) == 1 && whiteTurn && !blackTurn)
-                        {
                             chessboard.AllPossibleMoves[i, j] = 0;
-                        }
                         if (chessboard.notValidMoveChecker(chessboard.Board, WhiteStaleArray, BlackStaleArray) == 2 && blackTurn && !whiteTurn)
-                        {
                             chessboard.AllPossibleMoves[i, j] = 0;
-                        }
                         if (chessboard.notValidMoveChecker(chessboard.Board, WhiteStaleArray, BlackStaleArray) == 0)
-                        {
                             move++;
-                        }
                         chessboard.Board[i, j] = lastHitPiece;
                         chessboard.Board[posY, posX] = numberOfPiece;
                         staleArrays();
