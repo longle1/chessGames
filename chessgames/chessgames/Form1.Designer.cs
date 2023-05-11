@@ -34,14 +34,18 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.txtCountTime = new System.Windows.Forms.TextBox();
+            this.listChat = new System.Windows.Forms.RichTextBox();
+            this.txtMessage = new System.Windows.Forms.TextBox();
+            this.btnSendIcon = new System.Windows.Forms.Button();
+            this.btnSendData = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pnlContainPieces
             // 
             this.pnlContainPieces.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.pnlContainPieces.Location = new System.Drawing.Point(648, 64);
+            this.pnlContainPieces.Location = new System.Drawing.Point(28, 60);
             this.pnlContainPieces.Name = "pnlContainPieces";
-            this.pnlContainPieces.Size = new System.Drawing.Size(274, 434);
+            this.pnlContainPieces.Size = new System.Drawing.Size(290, 497);
             this.pnlContainPieces.TabIndex = 0;
             // 
             // txtUsername
@@ -80,19 +84,63 @@
             // 
             this.txtCountTime.BackColor = System.Drawing.Color.LemonChiffon;
             this.txtCountTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCountTime.Location = new System.Drawing.Point(408, 12);
+            this.txtCountTime.Location = new System.Drawing.Point(702, 12);
             this.txtCountTime.Multiline = true;
             this.txtCountTime.Name = "txtCountTime";
             this.txtCountTime.ReadOnly = true;
             this.txtCountTime.Size = new System.Drawing.Size(152, 47);
             this.txtCountTime.TabIndex = 5;
             // 
+            // listChat
+            // 
+            this.listChat.Location = new System.Drawing.Point(1061, 60);
+            this.listChat.Name = "listChat";
+            this.listChat.Size = new System.Drawing.Size(356, 447);
+            this.listChat.TabIndex = 0;
+            this.listChat.Text = "";
+            // 
+            // txtMessage
+            // 
+            this.txtMessage.Location = new System.Drawing.Point(1061, 505);
+            this.txtMessage.Multiline = true;
+            this.txtMessage.Name = "txtMessage";
+            this.txtMessage.Size = new System.Drawing.Size(261, 42);
+            this.txtMessage.TabIndex = 1;
+            // 
+            // btnSendIcon
+            // 
+            this.btnSendIcon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.btnSendIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSendIcon.Location = new System.Drawing.Point(1318, 505);
+            this.btnSendIcon.Name = "btnSendIcon";
+            this.btnSendIcon.Size = new System.Drawing.Size(51, 42);
+            this.btnSendIcon.TabIndex = 6;
+            this.btnSendIcon.Text = "...";
+            this.btnSendIcon.UseVisualStyleBackColor = false;
+            this.btnSendIcon.Click += new System.EventHandler(this.btnSendIcon_Click);
+            // 
+            // btnSendData
+            // 
+            this.btnSendData.BackColor = System.Drawing.Color.Red;
+            this.btnSendData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSendData.Location = new System.Drawing.Point(1366, 505);
+            this.btnSendData.Name = "btnSendData";
+            this.btnSendData.Size = new System.Drawing.Size(51, 42);
+            this.btnSendData.TabIndex = 7;
+            this.btnSendData.Text = ">";
+            this.btnSendData.UseVisualStyleBackColor = false;
+            this.btnSendData.Click += new System.EventHandler(this.btnSendData_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LemonChiffon;
-            this.ClientSize = new System.Drawing.Size(1084, 765);
+            this.ClientSize = new System.Drawing.Size(1442, 765);
+            this.Controls.Add(this.btnSendData);
+            this.Controls.Add(this.btnSendIcon);
+            this.Controls.Add(this.txtMessage);
+            this.Controls.Add(this.listChat);
             this.Controls.Add(this.txtCountTime);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -114,6 +162,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtCountTime;
+        private System.Windows.Forms.RichTextBox listChat;
+        private System.Windows.Forms.TextBox txtMessage;
+        private System.Windows.Forms.Button btnSendIcon;
+        private System.Windows.Forms.Button btnSendData;
     }
 }
 

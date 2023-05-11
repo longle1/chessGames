@@ -80,6 +80,7 @@ namespace chessgames
         #region infoUser
         public string userName;
         public int port;
+        public int portDif;
         #endregion
 
         #region variable
@@ -100,6 +101,9 @@ namespace chessgames
             Height = 0,
             Width = 0
         };
+        UdpClient clientUDP = null;
+        Thread rcvDataUDPThread = null;
+        IPEndPoint ipEndPoint = null;
         System.Windows.Forms.Timer timer = null;
         #endregion
         public void displayAnncount(bool turn)
@@ -143,7 +147,7 @@ namespace chessgames
                 {
                     tableBackground[i, j] = new userControlClick();
                     tableBackground[i, j].Parent = this;
-                    tableBackground[i, j].Location = new Point(j * 50 + 50, i * 50 + 50);
+                    tableBackground[i, j].Location = new Point(j * 50 + 310, i * 50 + 50);
                     tableBackground[i, j].posX = j;
                     tableBackground[i, j].posY = i;
                     tableBackground[i, j].Size = new Size(50, 50);
@@ -158,14 +162,19 @@ namespace chessgames
                 }
             }
         }
-
-        public Form1(string userName, int port, bool isCreated, bool turn, int piece) : this()
+        public Form1(string userName, int port, int portDif, bool isCreated, bool turn, int piece) : this()
         {
             this.isCreated = isCreated;
             this.userName = userName;
             this.port = port;
+            this.portDif = portDif;
             txtUsername.Text = userName;
             txtPort.Text = port.ToString();
+            clientUDP = new UdpClient(port);
+            listChat.ReadOnly = true;
+            ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            rcvDataUDPThread = new Thread(new ThreadStart(rcvDataUDP));
+            rcvDataUDPThread.Start();
             if (isCreated) // đây là người tạo phòng cũng tương đương với server
             {
                 //đây là lượt mà chủ phòng sẽ được đánh trước
@@ -177,6 +186,7 @@ namespace chessgames
                 server.Start();
                 threadWaiting = new Thread(new ThreadStart(waitingAnotherClient));
                 threadWaiting.Start();
+       
             }
             else //đây sẽ là người sẽ tham gia vào phòng chơi
             {
@@ -205,7 +215,6 @@ namespace chessgames
                     this.Close();
                     return;
                 }
-
             }
             // hàm kiểm tra ô nào chứa quân cờ
             getPiecesOnBoard();
@@ -219,6 +228,49 @@ namespace chessgames
                 }
             }
         }
+        public void rcvDataUDP()
+        {
+            try
+            {
+                while (true)
+                {
+                    ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
+                    string receiveMsg = Encoding.UTF8.GetString(receive_buffer);
+                    writeData(receiveMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Đã ngừng chat");
+                return;
+            }
+        }
+        private void writeData(string msg)
+        {
+            try
+            {
+                if (msg.Trim() == "")
+                {
+                    return;
+                }
+                MethodInvoker invoker = new MethodInvoker(delegate {
+                    if (msg.Contains(userName))
+                    {
+                        listChat.SelectionAlignment = HorizontalAlignment.Right;
+                    }else
+                    {
+                        listChat.SelectionAlignment = HorizontalAlignment.Left;
+                    }
+                    listChat.AppendText(msg + Environment.NewLine);
+                });
+                this.Invoke(invoker);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+            }
+        }
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (setUpTimer)
@@ -226,7 +278,7 @@ namespace chessgames
                 timer.Interval = 1000;
             }
             txtCountTime.Text = countTime.ToString();
-            sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+            sendMove(0, 0, 1, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
             countTime--;
             if (countTime == 0)
@@ -253,7 +305,8 @@ namespace chessgames
         {
             while (true)
             {
-                if (user.players == 2)
+   
+                if(user.players == 2)
                 {
                     client = server.AcceptTcpClient();
                     serverRcvData = new Thread(new ThreadStart(rcvData));
@@ -262,13 +315,24 @@ namespace chessgames
                 }
             }
         }
-        public void sendMove(int posY, int posX, int mode, int countAgain)
+        public void sendMove(int posY, int posX, int mode, int countAgain, string msg)
         {
-            //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
-            //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
-            byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain };
-            stream = client.GetStream();
-            stream.Write(dataSends, 0, dataSends.Length);
+            if (mode != 2)
+            {
+
+                //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
+                //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
+                byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain };
+                stream = client.GetStream();
+                stream.Write(dataSends, 0, dataSends.Length);
+            }    
+            else
+            {
+                byte[] dataSends = Encoding.UTF8.GetBytes(msg);
+                MessageBox.Show(msg);
+                stream = client.GetStream();
+                stream.Write(dataSends, 0, dataSends.Length);
+            }
         }
         public void rcvData()
         {
@@ -277,7 +341,7 @@ namespace chessgames
                 byte[] buffers = new byte[11];
                 stream = client.GetStream();
                 int length = stream.Read(buffers, 0, buffers.Length);
-                if (length > 0)
+                if(length > 0)
                 {
                     if (buffers[8] == 0)
                     {
@@ -369,7 +433,7 @@ namespace chessgames
                         if (buffers[7] != 0)
                         {
                             chessboard.Board[buffers[3], buffers[4]] = buffers[7];
-                        }    
+                        }
 
                         displayPieces(buffers[3], buffers[4], buffers[1], buffers[2]);
                         staleArrays();
@@ -385,7 +449,10 @@ namespace chessgames
                         chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
 
                         if (buffers[5] == 0)
+                        {
                             MessageBox.Show(userName + " đã thua");
+                            StopGame();
+                        }
                     }
                     else if (buffers[8] == 1)
                     {
@@ -410,7 +477,31 @@ namespace chessgames
                 }
             }
         }
+        public void StopGame()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    chessboard.PossibleMoves[i, j] = 0;
+                }
+            }
+            //kết thúc timer
+            if (timer != null)
+                timer.Stop();
+            //đóng server
+            if (server != null)
+                server.Stop();
+            if (client != null)
+                client.Close();
+            if (serverRcvData != null)
+                serverRcvData.Abort();
+            if (clientRcvData != null)
+                clientRcvData.Abort();
+            if (threadWaiting != null)
+                threadWaiting.Abort();
 
+        }
         public void getPiecesOnBoard()
         {
             for (int i = 0; i < 8; i++)
@@ -566,7 +657,6 @@ namespace chessgames
                 }
             }
         }
-
         public void handleCastling(int posX, int posY)
         {
 
@@ -586,7 +676,7 @@ namespace chessgames
                     castlingPiece = 1; //quân đen nhập thành
                     //sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
                     if (!gameOver)
-                        sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                        sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                     if (posY == 0 && posX == 0 && chessboard.Board[posY, posX] == 02)
                     {
                         //hoán đổi vị trí của quân vua
@@ -621,7 +711,7 @@ namespace chessgames
                     castlingPiece = 2; //quân trắng nhập thành
                     //sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
                     if (!gameOver)
-                        sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                        sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                     if (posY == 7 && posX == 0 && chessboard.Board[posY, posX] == 12)
                     {
                         //hoán đổi vị trí của quân vua
@@ -663,7 +753,7 @@ namespace chessgames
                 else
                 {
                     //cập nhật lại thời gian
-                    sendMove(0, 0, 1, setUpTime);
+                    sendMove(0, 0, 1, setUpTime, "");
                 }
                 clearMove();
                 everyPossibleMoves();
@@ -674,7 +764,6 @@ namespace chessgames
                 blackTurn = !blackTurn;
             }
         }
-
         //numberOfPiece là số kí hiệu của quân cờ trên bàn cờ và X, Y là vị trí của quân cờ đó trên bàn cờ
         void possibleMovesByPieces(int numberOfPiece, int posX, int posY)
         {
@@ -837,7 +926,6 @@ namespace chessgames
             }
             chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
         }
-
         public void listPieceKilled(int posY, int posX, int beforeMove_Y, int beforeMove_X)
         {
             //loại bỏ trường hợp khi nhập thành
@@ -868,7 +956,6 @@ namespace chessgames
                 }
             }
         }
-
         //hàm thực hiện việc di chuyển khi người dùng chọn đúng vào nước đi hợp lệ
         public void succesfulMove(int posX, int posY)
         {
@@ -884,7 +971,7 @@ namespace chessgames
             else
             {
                 //cập nhật lại thời gian
-                sendMove(0, 0, 1, setUpTime);
+                sendMove(0, 0, 1, setUpTime, "");
             }
 
             //lưu lại nước di chuyển để gửi cho đối phương
@@ -937,7 +1024,7 @@ namespace chessgames
 
             ////sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
             if (!gameOver && !canNotMove)
-                sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
             if (!canNotMove)
             {
                 //chuyển lượt người chơi
@@ -946,7 +1033,6 @@ namespace chessgames
             }
 
         }
-
         //hiển thị bị chiếu tướng và kết thúc game
         public void checkmateChecker(int i, int j)
         {
@@ -954,8 +1040,8 @@ namespace chessgames
             {
                 MessageBox.Show(userName + " đã thắng");
                 gameOver = true;
-                timer.Stop();
-                sendMove(i, j, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                sendMove(i, j, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                StopGame();
             }
         }
         //hàm được sử dụng cho việc nhập thành và khi quân tốt đến cuối bàn cờ địch thì sẽ được chọn quân mới
@@ -1020,7 +1106,7 @@ namespace chessgames
                         else
                         {
                             //cập nhật lại thời gian
-                            sendMove(0, 0, 1, setUpTime);
+                            sendMove(0, 0, 1, setUpTime, "");
                         }
                         checkEnable = false;
                     }
@@ -1061,7 +1147,7 @@ namespace chessgames
                         else
                         {
                             //cập nhật lại thời gian
-                            sendMove(0, 0, 1, setUpTime);
+                            sendMove(0, 0, 1, setUpTime, "");
                         }
                         checkEnable = false;
                     }
@@ -1116,7 +1202,7 @@ namespace chessgames
                     else
                     {
                         //cập nhật lại thời gian
-                        sendMove(0, 0, 1, setUpTime);
+                        sendMove(0, 0, 1, setUpTime, "");
                     }
                     checkEnable = false;
                     //chuyển lượt người chơi
@@ -1126,7 +1212,7 @@ namespace chessgames
                     isChoose = true;
 
                     //gửi giá trị trị này tới bàn cờ đối phương
-                    sendMove(getChangMove_Y, getChangMove_X, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                    sendMove(getChangMove_Y, getChangMove_X, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
                     canNotMove = false;//cập nhật lại sau khi chọn
                     displayPieces(getChangMove_Y, getChangMove_X, beforeMove_Y, beforeMove_X);
@@ -1272,6 +1358,22 @@ namespace chessgames
                 }
             }
             chessboard.AllPossibleMoves = new int[8, 8];
+        }
+        private void btnSendIcon_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnSendData_Click(object sender, EventArgs e)
+        {
+            if (txtMessage.Text.Trim() == "")
+                return;
+            string data = userName + Environment.NewLine + txtMessage.Text;
+            ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+            byte[] send_buffer = Encoding.UTF8.GetBytes(data);
+            clientUDP.Send(send_buffer, send_buffer.Length, ipEndPoint);
+            writeData($"{userName}" + Environment.NewLine + txtMessage.Text);
+            txtMessage.Clear();
         }
     }
 }
