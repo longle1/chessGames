@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace chessgames
 {
@@ -228,24 +229,7 @@ namespace chessgames
                 }
             }
         }
-        public void rcvDataUDP()
-        {
-            try
-            {
-                while (true)
-                {
-                    ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
-                    string receiveMsg = Encoding.UTF8.GetString(receive_buffer);
-                    writeData(receiveMsg);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Đã ngừng chat");
-                return;
-            }
-        }
+
         private void writeData(string msg)
         {
             try
@@ -278,7 +262,7 @@ namespace chessgames
                 timer.Interval = 1000;
             }
             txtCountTime.Text = countTime.ToString();
-            sendMove(0, 0, 1, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+            sendMove(0, 0, 1, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
             countTime--;
             if (countTime == 0)
@@ -315,24 +299,13 @@ namespace chessgames
                 }
             }
         }
-        public void sendMove(int posY, int posX, int mode, int countAgain, string msg)
+        public void sendMove(int posY, int posX, int mode, int countAgain)
         {
-            if (mode != 2)
-            {
-
-                //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
-                //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
-                byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain };
-                stream = client.GetStream();
-                stream.Write(dataSends, 0, dataSends.Length);
-            }    
-            else
-            {
-                byte[] dataSends = Encoding.UTF8.GetBytes(msg);
-                MessageBox.Show(msg);
-                stream = client.GetStream();
-                stream.Write(dataSends, 0, dataSends.Length);
-            }
+            //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
+            //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
+            byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain };
+            stream = client.GetStream();
+            stream.Write(dataSends, 0, dataSends.Length);
         }
         public void rcvData()
         {
@@ -676,7 +649,7 @@ namespace chessgames
                     castlingPiece = 1; //quân đen nhập thành
                     //sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
                     if (!gameOver)
-                        sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                        sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                     if (posY == 0 && posX == 0 && chessboard.Board[posY, posX] == 02)
                     {
                         //hoán đổi vị trí của quân vua
@@ -711,7 +684,7 @@ namespace chessgames
                     castlingPiece = 2; //quân trắng nhập thành
                     //sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
                     if (!gameOver)
-                        sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                        sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                     if (posY == 7 && posX == 0 && chessboard.Board[posY, posX] == 12)
                     {
                         //hoán đổi vị trí của quân vua
@@ -753,7 +726,7 @@ namespace chessgames
                 else
                 {
                     //cập nhật lại thời gian
-                    sendMove(0, 0, 1, setUpTime, "");
+                    sendMove(0, 0, 1, setUpTime);
                 }
                 clearMove();
                 everyPossibleMoves();
@@ -971,7 +944,7 @@ namespace chessgames
             else
             {
                 //cập nhật lại thời gian
-                sendMove(0, 0, 1, setUpTime, "");
+                sendMove(0, 0, 1, setUpTime);
             }
 
             //lưu lại nước di chuyển để gửi cho đối phương
@@ -1024,7 +997,7 @@ namespace chessgames
 
             ////sau khi đã lưu lại nước di chuyển thì sẽ gửi cho đối phương
             if (!gameOver && !canNotMove)
-                sendMove(posY, posX, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                sendMove(posY, posX, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
             if (!canNotMove)
             {
                 //chuyển lượt người chơi
@@ -1040,7 +1013,7 @@ namespace chessgames
             {
                 MessageBox.Show(userName + " đã thắng");
                 gameOver = true;
-                sendMove(i, j, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                sendMove(i, j, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                 StopGame();
             }
         }
@@ -1106,7 +1079,7 @@ namespace chessgames
                         else
                         {
                             //cập nhật lại thời gian
-                            sendMove(0, 0, 1, setUpTime, "");
+                            sendMove(0, 0, 1, setUpTime);
                         }
                         checkEnable = false;
                     }
@@ -1147,7 +1120,7 @@ namespace chessgames
                         else
                         {
                             //cập nhật lại thời gian
-                            sendMove(0, 0, 1, setUpTime, "");
+                            sendMove(0, 0, 1, setUpTime);
                         }
                         checkEnable = false;
                     }
@@ -1202,7 +1175,7 @@ namespace chessgames
                     else
                     {
                         //cập nhật lại thời gian
-                        sendMove(0, 0, 1, setUpTime, "");
+                        sendMove(0, 0, 1, setUpTime);
                     }
                     checkEnable = false;
                     //chuyển lượt người chơi
@@ -1212,7 +1185,7 @@ namespace chessgames
                     isChoose = true;
 
                     //gửi giá trị trị này tới bàn cờ đối phương
-                    sendMove(getChangMove_Y, getChangMove_X, 0, 0, ""); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
+                    sendMove(getChangMove_Y, getChangMove_X, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
                     canNotMove = false;//cập nhật lại sau khi chọn
                     displayPieces(getChangMove_Y, getChangMove_X, beforeMove_Y, beforeMove_X);
@@ -1359,20 +1332,90 @@ namespace chessgames
             }
             chessboard.AllPossibleMoves = new int[8, 8];
         }
+        private void writeData1(Image image, string data)
+        {
+            try
+            {
+                MethodInvoker invoker = new MethodInvoker(delegate {
+                    if (data == userName)
+                    {
+                        listChat.SelectionAlignment = HorizontalAlignment.Right;
+                    }
+                    else
+                    {
+                        listChat.SelectionAlignment = HorizontalAlignment.Left;
+                    }
+                    listChat.AppendText(data + '\n');
+                    listChat.ReadOnly = false;
+                    // Hiển thị hình ảnh trong giao diện người dùng
+                    PictureBox pictureBox = new PictureBox();
+                    pictureBox.Image = image; // Thay thế yourImage bằng hình ảnh bạn muốn hiển thị
+                    pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+                    Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+                    pictureBox.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox.Width, pictureBox.Height));
+                    Clipboard.SetImage(bitmap);
+                    listChat.Paste();
+                    listChat.ReadOnly = true;
+                    listChat.AppendText("\n");
+                });
+                this.Invoke(invoker);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+            }
+        }
+        public void rcvDataUDP()
+        {
+            while (true)
+            {
+                //ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                //byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
+                //string receiveMsg = Encoding.UTF8.GetString(receive_buffer);
+                //writeData(receiveMsg);
+
+                ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
+                string data = Encoding.UTF8.GetString(receive_buffer);
+                string[] strs = data.Split(':');
+                string imageData = strs[1];
+                byte[] convertedBytes = Convert.FromBase64String(imageData);
+                // Chuyển đổi mảng byte thành hình ảnh
+                using (MemoryStream stream = new MemoryStream(convertedBytes))
+                {
+                    Image image = Image.FromStream(stream);
+                    writeData1(image, strs[0]);
+                }
+            }
+        }
         private void btnSendIcon_Click(object sender, EventArgs e)
         {
+            ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.ShowDialog();
+            string path = openFileDialog.FileName;
+            byte[] imageBytes = File.ReadAllBytes(path);
+            byte[] data = Encoding.UTF8.GetBytes(userName + ":" + Convert.ToBase64String(imageBytes));
 
+            clientUDP.Send(data, data.Length, ipEndPoint);
+            listChat.ReadOnly = false;
+
+            writeData1(Image.FromFile(path), userName);
+            listChat.ReadOnly = true;
         }
 
         private void btnSendData_Click(object sender, EventArgs e)
         {
-            if (txtMessage.Text.Trim() == "")
-                return;
-            string data = userName + Environment.NewLine + txtMessage.Text;
-            ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
-            byte[] send_buffer = Encoding.UTF8.GetBytes(data);
-            clientUDP.Send(send_buffer, send_buffer.Length, ipEndPoint);
-            writeData($"{userName}" + Environment.NewLine + txtMessage.Text);
+            if(user.players == 2)
+            {
+                if (txtMessage.Text.Trim() == "")
+                    return;
+                string data = userName + Environment.NewLine + txtMessage.Text;
+                ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+                byte[] send_buffer = Encoding.UTF8.GetBytes(data);
+                clientUDP.Send(send_buffer, send_buffer.Length, ipEndPoint);
+                writeData($"{userName}" + Environment.NewLine + txtMessage.Text);
+            }
             txtMessage.Clear();
         }
     }
