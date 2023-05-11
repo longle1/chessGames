@@ -367,7 +367,9 @@ namespace chessgames
 
                         //dùng cho việc hoán đổi quân cờ khi quân tốt di chuyển đến cuối bàn cờ
                         if (buffers[7] != 0)
+                        {
                             chessboard.Board[buffers[3], buffers[4]] = buffers[7];
+                        }    
 
                         displayPieces(buffers[3], buffers[4], buffers[1], buffers[2]);
                         staleArrays();
@@ -871,7 +873,7 @@ namespace chessgames
         public void succesfulMove(int posX, int posY)
         {
             castlingPiece = 0;
-
+            changePieceValue = 0;
             if (timer != null)
             {
                 //cập nhật lại thời gian
@@ -1120,7 +1122,6 @@ namespace chessgames
                     //chuyển lượt người chơi
                     whiteTurn = !whiteTurn;
                     blackTurn = !blackTurn;
-
                     //sau khi đã chọn quân mới
                     isChoose = true;
 
@@ -1128,7 +1129,6 @@ namespace chessgames
                     sendMove(getChangMove_Y, getChangMove_X, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
 
                     canNotMove = false;//cập nhật lại sau khi chọn
-                    MessageBox.Show(getChangMove_Y + ", " + ", " + getChangMove_X + ", " + beforeMove_Y + ", " + beforeMove_X);
                     displayPieces(getChangMove_Y, getChangMove_X, beforeMove_Y, beforeMove_X);
                 }
             }

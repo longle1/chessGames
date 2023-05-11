@@ -14,30 +14,30 @@ namespace chessgames.backPieces
             if (!blackTurn)
                 return possibleMoves;
             //Trường hợp quân cờ đi được 1 nút
-            if (board[i + 1, j] == 0)
+            if (i + 1 < 8)
             {
-                if (i + 1 < 8)
+                if (board[i + 1, j] == 0)
                 {
                     possibleMoves[i + 1, j] = 2;
                 }
+                //đây là trường hợp ăn quân cờ của đối phương theo đường chéo bên trái
+                if (j - 1 >= 0)
+                {
+                    if (board[i + 1, j - 1] > 10 && board[i + 1, j - 1] != 0)
+                    {
+                        possibleMoves[i + 1, j - 1] = 2;
+                    }
+                }
+                //Đây là trường hợp ăn quân cờ ở đường chéo bên phải
+                if (j + 1 < 8)
+                {
+                    if (board[i + 1, j + 1] > 10 && board[i + 1, j + 1] != 0)
+                    {
+                        possibleMoves[i + 1, j + 1] = 2;
+                    }
+                }
             }
-            //đây là trường hợp ăn quân cờ của đối phương theo đường chéo bên trái
-            if (j - 1 >= 0)
-            {
 
-                if (board[i + 1, j - 1] > 10)
-                {
-                    possibleMoves[i + 1, j - 1] = 2;
-                }
-            }
-            //Đây là trường hợp ăn quân cờ ở đường chéo bên phải
-            if (j + 1 < 8)
-            {
-                if (board[i + 1, j + 1] > 10)
-                {
-                    possibleMoves[i + 1, j + 1] = 2;
-                }
-            }
             //Đây là trường hợp quân tốt đi được 2 ô 
             if (i == 1)
             {
