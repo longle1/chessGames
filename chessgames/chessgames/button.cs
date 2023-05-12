@@ -37,7 +37,7 @@ namespace chessgames
             
             btn.Padding = new Padding(30, 3, 3, 3);
             btn.FlatStyle = FlatStyle.Flat;
-            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderSize = 0;
             btn.BackgroundImage = img;
             btn.Text = text;
             btn.TabIndex = whiteTurn == true ? 1 : 0;   //tương đương với quân trắng là 0 và quân đen là 1

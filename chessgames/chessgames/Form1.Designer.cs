@@ -38,6 +38,7 @@
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnSendIcon = new System.Windows.Forms.Button();
             this.btnSendData = new System.Windows.Forms.Button();
+            this.pnlContainsIcon = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // pnlContainPieces
@@ -93,15 +94,15 @@
             // 
             // listChat
             // 
-            this.listChat.Location = new System.Drawing.Point(1062, 128);
+            this.listChat.Location = new System.Drawing.Point(1033, 128);
             this.listChat.Name = "listChat";
-            this.listChat.Size = new System.Drawing.Size(356, 447);
+            this.listChat.Size = new System.Drawing.Size(380, 447);
             this.listChat.TabIndex = 0;
             this.listChat.Text = "";
             // 
             // txtMessage
             // 
-            this.txtMessage.Location = new System.Drawing.Point(1062, 573);
+            this.txtMessage.Location = new System.Drawing.Point(1033, 573);
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.Size = new System.Drawing.Size(261, 42);
@@ -111,9 +112,9 @@
             // 
             this.btnSendIcon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.btnSendIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendIcon.Location = new System.Drawing.Point(1319, 573);
+            this.btnSendIcon.Location = new System.Drawing.Point(1290, 573);
             this.btnSendIcon.Name = "btnSendIcon";
-            this.btnSendIcon.Size = new System.Drawing.Size(51, 42);
+            this.btnSendIcon.Size = new System.Drawing.Size(58, 42);
             this.btnSendIcon.TabIndex = 6;
             this.btnSendIcon.Text = "...";
             this.btnSendIcon.UseVisualStyleBackColor = false;
@@ -123,20 +124,28 @@
             // 
             this.btnSendData.BackColor = System.Drawing.Color.Red;
             this.btnSendData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendData.Location = new System.Drawing.Point(1367, 573);
+            this.btnSendData.Location = new System.Drawing.Point(1348, 573);
             this.btnSendData.Name = "btnSendData";
-            this.btnSendData.Size = new System.Drawing.Size(51, 42);
+            this.btnSendData.Size = new System.Drawing.Size(65, 42);
             this.btnSendData.TabIndex = 7;
             this.btnSendData.Text = ">";
             this.btnSendData.UseVisualStyleBackColor = false;
             this.btnSendData.Click += new System.EventHandler(this.btnSendData_Click);
+            // 
+            // pnlContainsIcon
+            // 
+            this.pnlContainsIcon.Location = new System.Drawing.Point(1031, 262);
+            this.pnlContainsIcon.Name = "pnlContainsIcon";
+            this.pnlContainsIcon.Size = new System.Drawing.Size(382, 313);
+            this.pnlContainsIcon.TabIndex = 8;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LemonChiffon;
-            this.ClientSize = new System.Drawing.Size(1442, 765);
+            this.ClientSize = new System.Drawing.Size(1443, 765);
+            this.Controls.Add(this.pnlContainsIcon);
             this.Controls.Add(this.btnSendData);
             this.Controls.Add(this.btnSendIcon);
             this.Controls.Add(this.txtMessage);
@@ -166,6 +175,7 @@
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnSendIcon;
         private System.Windows.Forms.Button btnSendData;
+        private System.Windows.Forms.Panel pnlContainsIcon;
     }
 }
 

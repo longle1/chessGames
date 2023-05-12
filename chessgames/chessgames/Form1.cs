@@ -75,6 +75,7 @@ namespace chessgames
         public int piece = -1;
         public int countTime = 60;
         public int setUpTime = 60;
+        public int iconNumbers = 29;
         #endregion
 
         #region infoUser
@@ -95,6 +96,7 @@ namespace chessgames
         TcpClient client = null;
         TcpListener server = null;
         List<Button> buttonList = new List<Button>();
+        List<Button> buttonListIcons = new List<Button>();
         button btn = new button();
         Button oldButton = new Button()
         {
@@ -159,6 +161,7 @@ namespace chessgames
         public Form1()
         {
             InitializeComponent();
+            pnlContainsIcon.Hide();
             txtCountTime.ReadOnly = true;
             txtCountTime.BorderStyle = BorderStyle.None;
             txtCountTime.Text = countTime.ToString();
@@ -1406,7 +1409,7 @@ namespace chessgames
                             listChat.SelectionAlignment = HorizontalAlignment.Right;
                         else
                             listChat.SelectionAlignment = HorizontalAlignment.Left;
-                        listChat.AppendText(msg + '\n');
+                        listChat.AppendText(userName + '\n');
                         listChat.ReadOnly = false;
                         // Hiển thị hình ảnh trong giao diện người dùng
                         PictureBox pictureBox = new PictureBox();
@@ -1456,20 +1459,55 @@ namespace chessgames
 
         private void btnSendIcon_Click(object sender, EventArgs e)
         {
-            ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.ShowDialog();
-            if (openFileDialog.FileName == "") return;
+            if(pnlContainsIcon.Visible)
+            {
+                pnlContainsIcon.Hide();
+                buttonListIcons.Clear();
+            }
+            else
+            {
+                buttonListIcons = new List<Button>();
+                for (int i = 0; i < iconNumbers; i++)
+                {
+                    //đưa quân cờ bị ăn vào trong panel
+                    Button btn2 = null;
+                    if (buttonListIcons.Count % 7 == 0)
+                    {
+                        if (buttonListIcons.Count != 0)
+                            oldButton.Location = new Point(0, 30 + oldButton.Location.Y + 10);
+                        btn2 = btn.createButton(oldButton, pnlContainsIcon, Image.FromFile($"Resources\\{i + 1}.png"), Convert.ToString($"Resources\\{i + 1}.png"), true);
+                        btn2.Click += Btn2_Click;
+                    }
+                    else
+                    {
+                        btn2 = btn.createButton(buttonListIcons[buttonListIcons.Count - 1], pnlContainsIcon, Image.FromFile($"Resources\\{i + 1}.png"), Convert.ToString($"Resources\\{i + 1}.png"), true);
+                        btn2.Click += Btn2_Click;
+                    }
+                    buttonListIcons.Add(btn2);
+                }
+                pnlContainsIcon.Show();
+            }
 
-            string path = openFileDialog.FileName;
-            byte[] imageBytes = File.ReadAllBytes(path);
-            byte[] data = Encoding.UTF8.GetBytes(userName + "(2):" + Convert.ToBase64String(imageBytes));
+        }
 
-            clientUDP.Send(data, data.Length, ipEndPoint);
-            listChat.ReadOnly = false;
+        private void Btn2_Click(object sender, EventArgs e)
+        {
+            if(user.players == 2)
+            {
+                ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+                Button btn = (Button)sender;
+                string path = btn.Text;
+                byte[] imageBytes = File.ReadAllBytes(path);
+                byte[] data = Encoding.UTF8.GetBytes(userName + "(2):" + Convert.ToBase64String(imageBytes));
 
-            writeData(Image.FromFile(path), "", 2, userName);
-            listChat.ReadOnly = true;
+                clientUDP.Send(data, data.Length, ipEndPoint);
+                listChat.ReadOnly = false;
+
+                writeData(Image.FromFile(path), "", 2, userName);
+                listChat.ReadOnly = true;
+            }
+            pnlContainsIcon.Hide();
+            buttonListIcons.Clear();
         }
 
         private void btnSendData_Click(object sender, EventArgs e)
