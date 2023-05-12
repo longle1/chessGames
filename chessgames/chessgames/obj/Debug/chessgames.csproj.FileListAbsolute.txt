@@ -24,3 +24,16 @@ D:\github mới nhất\chessGames\chessgames\chessgames\obj\Debug\chessgames.csp
 D:\github mới nhất\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCompileInputs.cache
 D:\github mới nhất\chessGames\chessgames\chessgames\obj\Debug\chessgames.exe
 D:\github mới nhất\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.AssemblyReference.cache
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.SuggestedBindingRedirects.cache
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.Dashboard.resources
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.Form1.resources
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.Properties.Resources.resources
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.userControlClick.resources
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.GenerateResource.cache
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCompileInputs.cache
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.exe
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb
+E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe.config
+E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe
+E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.pdb

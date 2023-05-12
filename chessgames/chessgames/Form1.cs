@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace chessgames
 {
@@ -187,7 +186,7 @@ namespace chessgames
                 server.Start();
                 threadWaiting = new Thread(new ThreadStart(waitingAnotherClient));
                 threadWaiting.Start();
-       
+
             }
             else //đây sẽ là người sẽ tham gia vào phòng chơi
             {
@@ -230,31 +229,7 @@ namespace chessgames
             }
         }
 
-        private void writeData(string msg)
-        {
-            try
-            {
-                if (msg.Trim() == "")
-                {
-                    return;
-                }
-                MethodInvoker invoker = new MethodInvoker(delegate {
-                    if (msg.Contains(userName))
-                    {
-                        listChat.SelectionAlignment = HorizontalAlignment.Right;
-                    }else
-                    {
-                        listChat.SelectionAlignment = HorizontalAlignment.Left;
-                    }
-                    listChat.AppendText(msg + Environment.NewLine);
-                });
-                this.Invoke(invoker);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
-            }
-        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (setUpTimer)
@@ -289,8 +264,8 @@ namespace chessgames
         {
             while (true)
             {
-   
-                if(user.players == 2)
+
+                if (user.players == 2)
                 {
                     client = server.AcceptTcpClient();
                     serverRcvData = new Thread(new ThreadStart(rcvData));
@@ -314,7 +289,7 @@ namespace chessgames
                 byte[] buffers = new byte[11];
                 stream = client.GetStream();
                 int length = stream.Read(buffers, 0, buffers.Length);
-                if(length > 0)
+                if (length > 0)
                 {
                     if (buffers[8] == 0)
                     {
@@ -1332,89 +1307,110 @@ namespace chessgames
             }
             chessboard.AllPossibleMoves = new int[8, 8];
         }
-        private void writeData1(Image image, string data)
+        private void writeData(Image image, string msg, int mode, string userName)
         {
             try
             {
-                MethodInvoker invoker = new MethodInvoker(delegate {
-                    if (data == userName)
+
+                if (mode == 1)
+                {
+                    if (msg.Trim() == "")
+                        return;
+                    MethodInvoker invoker = new MethodInvoker(delegate
                     {
-                        listChat.SelectionAlignment = HorizontalAlignment.Right;
-                    }
-                    else
+                        if (userName == this.userName)
+                            listChat.SelectionAlignment = HorizontalAlignment.Right;
+                        else
+                            listChat.SelectionAlignment = HorizontalAlignment.Left;
+                        listChat.AppendText(userName + "\n" + msg + "\n");
+                    });
+                    this.Invoke(invoker);
+                }
+                else
+                {
+                    MethodInvoker invoker = new MethodInvoker(delegate
                     {
-                        listChat.SelectionAlignment = HorizontalAlignment.Left;
-                    }
-                    listChat.AppendText(data + '\n');
-                    listChat.ReadOnly = false;
-                    // Hiển thị hình ảnh trong giao diện người dùng
-                    PictureBox pictureBox = new PictureBox();
-                    pictureBox.Image = image; // Thay thế yourImage bằng hình ảnh bạn muốn hiển thị
-                    pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
-                    Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
-                    pictureBox.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox.Width, pictureBox.Height));
-                    Clipboard.SetImage(bitmap);
-                    listChat.Paste();
-                    listChat.ReadOnly = true;
-                    listChat.AppendText("\n");
-                });
-                this.Invoke(invoker);
+                        if (userName == this.userName)
+                            listChat.SelectionAlignment = HorizontalAlignment.Right;
+                        else
+                            listChat.SelectionAlignment = HorizontalAlignment.Left;
+                        listChat.AppendText(msg + '\n');
+                        listChat.ReadOnly = false;
+                        // Hiển thị hình ảnh trong giao diện người dùng
+                        PictureBox pictureBox = new PictureBox();
+                        pictureBox.Image = image; // Thay thế yourImage bằng hình ảnh bạn muốn hiển thị
+                        pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+                        Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+                        pictureBox.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox.Width, pictureBox.Height));
+                        Clipboard.SetImage(bitmap);
+                        listChat.Paste();
+                        listChat.ReadOnly = true;
+                        listChat.AppendText("\n");
+                    });
+                    this.Invoke(invoker);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+                return;
             }
         }
         public void rcvDataUDP()
         {
             while (true)
             {
-                //ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                //byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
-                //string receiveMsg = Encoding.UTF8.GetString(receive_buffer);
-                //writeData(receiveMsg);
-
                 ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
                 byte[] receive_buffer = clientUDP.Receive(ref ipEndPoint);
                 string data = Encoding.UTF8.GetString(receive_buffer);
                 string[] strs = data.Split(':');
-                string imageData = strs[1];
-                byte[] convertedBytes = Convert.FromBase64String(imageData);
-                // Chuyển đổi mảng byte thành hình ảnh
-                using (MemoryStream stream = new MemoryStream(convertedBytes))
+                if (strs[0].Contains("(1)"))    //đây là chat 
                 {
-                    Image image = Image.FromStream(stream);
-                    writeData1(image, strs[0]);
+                    writeData(null, strs[1], 1, strs[0].Substring(0, strs[0].Length - 3));
+                }
+                else if (strs[0].Contains("(2)")) // đây là gửi icon
+                {
+                    string imageData = strs[1];
+                    byte[] convertedBytes = Convert.FromBase64String(imageData);
+                    // Chuyển đổi mảng byte thành hình ảnh
+                    using (MemoryStream stream = new MemoryStream(convertedBytes))
+                    {
+                        Image image = Image.FromStream(stream);
+                        writeData(image, "", 2, strs[0].Substring(0, strs[0].Length - 3));
+                    }
                 }
             }
         }
+
         private void btnSendIcon_Click(object sender, EventArgs e)
         {
             ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.ShowDialog();
+            if (openFileDialog.FileName == "") return;
+
             string path = openFileDialog.FileName;
             byte[] imageBytes = File.ReadAllBytes(path);
-            byte[] data = Encoding.UTF8.GetBytes(userName + ":" + Convert.ToBase64String(imageBytes));
+            byte[] data = Encoding.UTF8.GetBytes(userName + "(2):" + Convert.ToBase64String(imageBytes));
 
             clientUDP.Send(data, data.Length, ipEndPoint);
             listChat.ReadOnly = false;
 
-            writeData1(Image.FromFile(path), userName);
+            writeData(Image.FromFile(path), "", 2, userName);
             listChat.ReadOnly = true;
         }
 
         private void btnSendData_Click(object sender, EventArgs e)
         {
-            if(user.players == 2)
+            if (user.players == 2)
             {
                 if (txtMessage.Text.Trim() == "")
                     return;
-                string data = userName + Environment.NewLine + txtMessage.Text;
+                string data = $"{userName}(1):" + txtMessage.Text;
                 ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
                 byte[] send_buffer = Encoding.UTF8.GetBytes(data);
                 clientUDP.Send(send_buffer, send_buffer.Length, ipEndPoint);
-                writeData($"{userName}" + Environment.NewLine + txtMessage.Text);
+                writeData(null, txtMessage.Text, 1, userName);
             }
             txtMessage.Clear();
         }
