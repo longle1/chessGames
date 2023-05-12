@@ -113,28 +113,52 @@ namespace chessgames
             else
                 MessageBox.Show("Đến lượt của đối thủ");
         }
-        public void addTextBoxIntoPanel(Panel pnl)
+        public void addTextBoxIntoPanelHorizontal(Panel pnl)
         {
             for (int i = 0; i < 8; i++)
             {
+                int posX = i == 0 ? 0 : i * 50;
+                int posY = pnl.Height / 2 - 15 / 2;
                 TextBox tb = new TextBox()
                 {
-                    Size = new Size(50, 50),
-                    Location = new Point(i * 50 + 50, pnl.Height / 2 - 15 / 2),
+                    Size = new Size(50, 15),
+                    Location = new Point(posX, posY),
                 };
                 tb.TextAlign = HorizontalAlignment.Center;
                 tb.BorderStyle = BorderStyle.None;
+                tb.Font = new Font(tb.Font, FontStyle.Bold);
                 tb.Text = Convert.ToString((char)('A' + i));
                 tb.BackColor = Color.LemonChiffon;
+                tb.ReadOnly = true;
                 pnl.Controls.Add(tb);
             }
         }
+        public void addTextBoxIntoPanelVertical(Panel pnl)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                int posX = i == 0 ? 0 : i * 50;
+                int posY = pnl.Width / 2 - 15 / 2;
+                Button btn = new Button()
+                {
+                    Size = new Size(15, 50),
+                    Location = new Point(posY, posX),
+                };
+                btn.FlatAppearance.MouseOverBackColor = Color.Transparent;
+                btn.Font = new Font(btn.Font, FontStyle.Bold);
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderSize = 0;
+                btn.BackColor = Color.LemonChiffon;
+                btn.Text = Convert.ToString(1 + i);
+                btn.Enabled = true;
+                pnl.Controls.Add(btn);
+            }
+        }
+
+
         public Form1()
         {
             InitializeComponent();
-
-
-
             txtCountTime.ReadOnly = true;
             txtCountTime.BorderStyle = BorderStyle.None;
             txtCountTime.Text = countTime.ToString();
@@ -156,20 +180,39 @@ namespace chessgames
             tableBackground = new userControlClick[8, 8];
 
             CheckForIllegalCrossThreadCalls = false;
+            //horizontal
             Panel pnl = new Panel()
             {
-                Size = new Size(500, 15),
-                Location = new Point(260, 80)
+                Size = new Size(400, 15),
+                Location = new Point(310, 80)
             };
             Panel pnl1 = new Panel()
             {
-                Size = new Size(500, 15),
+                Size = new Size(pnl.Size.Width, pnl.Size.Height),
                 Location = new Point(pnl.Location.X , pnl.Location.Y + 50 * 8 + 25)
             };
-            addTextBoxIntoPanel(pnl);
-            addTextBoxIntoPanel(pnl1);
+            addTextBoxIntoPanelHorizontal(pnl);
+            addTextBoxIntoPanelHorizontal(pnl1);
             Controls.Add(pnl);
             Controls.Add(pnl1);
+
+            //vertical
+            Panel pnl2 = new Panel()
+            {
+                Size = new Size(pnl.Size.Height, pnl.Size.Width),
+                Location = new Point(290, 100)
+            };
+            
+            Panel pnl3 = new Panel()
+            {
+                Size = new Size(pnl.Size.Height, pnl.Size.Width),
+                Location = new Point(pnl2.Location.X + 50 * 8 + 25, pnl2.Location.Y)
+            };
+            addTextBoxIntoPanelVertical(pnl2);
+            addTextBoxIntoPanelVertical(pnl3);
+            Controls.Add(pnl2);
+            Controls.Add(pnl3);
+
             for (int i = 0; i < 8; i++) // tượng trưng cho các dòng
             {
                 for (int j = 0; j < 8; j++) //tượng trưng cho các cột

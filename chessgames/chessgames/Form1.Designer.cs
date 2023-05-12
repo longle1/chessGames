@@ -43,21 +43,21 @@
             // pnlContainPieces
             // 
             this.pnlContainPieces.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.pnlContainPieces.Location = new System.Drawing.Point(28, 60);
+            this.pnlContainPieces.Location = new System.Drawing.Point(25, 128);
             this.pnlContainPieces.Name = "pnlContainPieces";
             this.pnlContainPieces.Size = new System.Drawing.Size(290, 497);
             this.pnlContainPieces.TabIndex = 0;
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(15, 579);
+            this.txtUsername.Location = new System.Drawing.Point(22, 21);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(158, 22);
             this.txtUsername.TabIndex = 1;
             // 
             // txtPort
             // 
-            this.txtPort.Location = new System.Drawing.Point(15, 630);
+            this.txtPort.Location = new System.Drawing.Point(22, 66);
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(158, 22);
             this.txtPort.TabIndex = 2;
@@ -65,7 +65,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 560);
+            this.label1.Location = new System.Drawing.Point(22, 2);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(70, 16);
             this.label1.TabIndex = 3;
@@ -74,7 +74,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(15, 611);
+            this.label2.Location = new System.Drawing.Point(22, 47);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(31, 16);
             this.label2.TabIndex = 4;
@@ -93,7 +93,7 @@
             // 
             // listChat
             // 
-            this.listChat.Location = new System.Drawing.Point(1061, 60);
+            this.listChat.Location = new System.Drawing.Point(1062, 128);
             this.listChat.Name = "listChat";
             this.listChat.Size = new System.Drawing.Size(356, 447);
             this.listChat.TabIndex = 0;
@@ -101,7 +101,7 @@
             // 
             // txtMessage
             // 
-            this.txtMessage.Location = new System.Drawing.Point(1061, 505);
+            this.txtMessage.Location = new System.Drawing.Point(1062, 573);
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.Size = new System.Drawing.Size(261, 42);
@@ -111,7 +111,7 @@
             // 
             this.btnSendIcon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.btnSendIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendIcon.Location = new System.Drawing.Point(1318, 505);
+            this.btnSendIcon.Location = new System.Drawing.Point(1319, 573);
             this.btnSendIcon.Name = "btnSendIcon";
             this.btnSendIcon.Size = new System.Drawing.Size(51, 42);
             this.btnSendIcon.TabIndex = 6;
@@ -123,7 +123,7 @@
             // 
             this.btnSendData.BackColor = System.Drawing.Color.Red;
             this.btnSendData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendData.Location = new System.Drawing.Point(1366, 505);
+            this.btnSendData.Location = new System.Drawing.Point(1367, 573);
             this.btnSendData.Name = "btnSendData";
             this.btnSendData.Size = new System.Drawing.Size(51, 42);
             this.btnSendData.TabIndex = 7;
