@@ -113,6 +113,22 @@ namespace chessgames
             else
                 MessageBox.Show("Đến lượt của đối thủ");
         }
+        public void addTextBoxIntoPanel(Panel pnl)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                TextBox tb = new TextBox()
+                {
+                    Size = new Size(50, 50),
+                    Location = new Point(i * 50 + 50, pnl.Height / 2 - 15 / 2),
+                };
+                tb.TextAlign = HorizontalAlignment.Center;
+                tb.BorderStyle = BorderStyle.None;
+                tb.Text = Convert.ToString((char)('A' + i));
+                tb.BackColor = Color.LemonChiffon;
+                pnl.Controls.Add(tb);
+            }
+        }
         public Form1()
         {
             InitializeComponent();
@@ -140,14 +156,27 @@ namespace chessgames
             tableBackground = new userControlClick[8, 8];
 
             CheckForIllegalCrossThreadCalls = false;
-
+            Panel pnl = new Panel()
+            {
+                Size = new Size(500, 15),
+                Location = new Point(260, 80)
+            };
+            Panel pnl1 = new Panel()
+            {
+                Size = new Size(500, 15),
+                Location = new Point(pnl.Location.X , pnl.Location.Y + 50 * 8 + 25)
+            };
+            addTextBoxIntoPanel(pnl);
+            addTextBoxIntoPanel(pnl1);
+            Controls.Add(pnl);
+            Controls.Add(pnl1);
             for (int i = 0; i < 8; i++) // tượng trưng cho các dòng
             {
                 for (int j = 0; j < 8; j++) //tượng trưng cho các cột
                 {
                     tableBackground[i, j] = new userControlClick();
                     tableBackground[i, j].Parent = this;
-                    tableBackground[i, j].Location = new Point(j * 50 + 310, i * 50 + 50);
+                    tableBackground[i, j].Location = new Point(j * 50 + 310, i * 50 + 100);
                     tableBackground[i, j].posX = j;
                     tableBackground[i, j].posY = i;
                     tableBackground[i, j].Size = new Size(50, 50);
