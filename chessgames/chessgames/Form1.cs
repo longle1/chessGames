@@ -108,12 +108,15 @@ namespace chessgames
         IPEndPoint ipEndPoint = null;
         System.Windows.Forms.Timer timer = null;
         #endregion
-        public void displayAnncount(bool turn)
+        public void displayAnncount(bool whiteTurn, bool blackTurn)
         {
-            if (turn)
-                MessageBox.Show("Đến lượt bạn");
-            else
-                MessageBox.Show("Đến lượt của đối thủ");
+            if(whiteTurn && !blackTurn) //quân trắng được di chuyển trước
+            {
+                txtTurnUser.BackColor = Color.White;
+            }else
+            {
+                txtTurnUser.BackColor = Color.Black;
+            }
         }
         public void addTextBoxIntoPanelHorizontal(Panel pnl)
         {
@@ -255,6 +258,7 @@ namespace chessgames
                 //đây là lượt mà chủ phòng sẽ được đánh trước
                 whiteTurn = turn;
                 blackTurn = !turn;
+                displayAnncount(whiteTurn, blackTurn);
                 //chủ phòng sẽ là cờ trắng và biến piece = 0
                 this.piece = piece;
                 server = new TcpListener(IPAddress.Any, portConnect);
@@ -270,6 +274,7 @@ namespace chessgames
                     //đây là lượt mà người còn lại sẽ được đánh
                     blackTurn = turn;
                     whiteTurn = !turn;
+                    displayAnncount(whiteTurn, blackTurn);
                     //người chơi sẽ là cờ đen và biến piece = 1
                     this.piece = piece;
                     client = new TcpClient();
@@ -303,8 +308,6 @@ namespace chessgames
                 }
             }
         }
-
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (setUpTimer)
@@ -319,6 +322,7 @@ namespace chessgames
             {
                 whiteTurn = !whiteTurn;
                 blackTurn = !blackTurn;
+                displayAnncount(whiteTurn, blackTurn);
                 countTime = setUpTime;
                 clearMove();
                 //thực hiện việc xóa các nút có màu đỏ trong list view nếu có
@@ -334,7 +338,6 @@ namespace chessgames
                 setUpTimerThread = false;
             }
         }
-
         public void waitingAnotherClient()
         {
             while (true)
@@ -359,159 +362,166 @@ namespace chessgames
         }
         public void rcvData()
         {
-            while (true)
+            try
             {
-                byte[] buffers = new byte[11];
-                stream = client.GetStream();
-                int length = stream.Read(buffers, 0, buffers.Length);
-                if (length > 0)
+                while (true)
                 {
-                    if (buffers[8] == 0)
+                    byte[] buffers = new byte[11];
+                    stream = client.GetStream();
+                    int length = stream.Read(buffers, 0, buffers.Length);
+                    if (length > 0)
                     {
-                        //chứa danh sách các quân cờ sau khi bị loại khỏi danh sách
-                        listPieceKilled(buffers[3], buffers[4], buffers[1], buffers[2]);
-                        //đổi lượt
-                        whiteTurn = !whiteTurn;
-                        blackTurn = !blackTurn;
-                        if (buffers[6] == 0)
+                        if (buffers[8] == 0)
                         {
-                            //thay đổi lại vị trí của người chơi cũ
-                            chessboard.Board[buffers[1], buffers[2]] = 0;
-                            //cập nhật lại vị trí mới
-                            chessboard.Board[buffers[3], buffers[4]] = buffers[0];
-                        }
-                        //dùng cho việc nhập thành
-                        if (buffers[6] == 1) //dành cho nhập thành quân đen
-                        {
-                            if (buffers[3] == 0 && buffers[4] == 0 && chessboard.Board[buffers[3], buffers[4]] == 02)
+                            //chứa danh sách các quân cờ sau khi bị loại khỏi danh sách
+                            listPieceKilled(buffers[3], buffers[4], buffers[1], buffers[2]);
+                            //đổi lượt
+                            whiteTurn = !whiteTurn;
+                            blackTurn = !blackTurn;
+                            displayAnncount(whiteTurn, blackTurn);
+                            if (buffers[6] == 0)
                             {
-                                //hoán đổi vị trí của quân vua
-                                chessboard.Board[0, 2] = 06;
-                                chessboard.Board[buffers[1], buffers[2]] = 00;
-                                //hoán đổi vị trí của quân xe
-                                chessboard.Board[0, 3] = 02;
-                                chessboard.Board[0, 0] = 00;
-
-                                //vẽ lại vị trí của quân vua
-                                displayPieces(0, 2, buffers[1], buffers[2]);
-                                //vẽ lại vị trí của quân xe
-                                displayPieces(0, 3, 0, 0);
+                                //thay đổi lại vị trí của người chơi cũ
+                                chessboard.Board[buffers[1], buffers[2]] = 0;
+                                //cập nhật lại vị trí mới
+                                chessboard.Board[buffers[3], buffers[4]] = buffers[0];
                             }
-                            if (buffers[3] == 0 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 07)
+                            //dùng cho việc nhập thành
+                            if (buffers[6] == 1) //dành cho nhập thành quân đen
                             {
-                                //hoán đổi vị trí của quân vua
-                                chessboard.Board[0, 6] = 06;
-                                chessboard.Board[buffers[1], buffers[2]] = 00;
-                                //hoán đổi vị trí của quân xe
-                                chessboard.Board[0, 5] = 07;
-                                chessboard.Board[0, 7] = 00;
+                                if (buffers[3] == 0 && buffers[4] == 0 && chessboard.Board[buffers[3], buffers[4]] == 02)
+                                {
+                                    //hoán đổi vị trí của quân vua
+                                    chessboard.Board[0, 2] = 06;
+                                    chessboard.Board[buffers[1], buffers[2]] = 00;
+                                    //hoán đổi vị trí của quân xe
+                                    chessboard.Board[0, 3] = 02;
+                                    chessboard.Board[0, 0] = 00;
 
-                                //vẽ lại vị trí của quân vua
-                                displayPieces(0, 6, buffers[1], buffers[2]);
-                                //vẽ lại vị trí của quân xe
-                                displayPieces(0, 5, 0, 7);
+                                    //vẽ lại vị trí của quân vua
+                                    displayPieces(0, 2, buffers[1], buffers[2]);
+                                    //vẽ lại vị trí của quân xe
+                                    displayPieces(0, 3, 0, 0);
+                                }
+                                if (buffers[3] == 0 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 07)
+                                {
+                                    //hoán đổi vị trí của quân vua
+                                    chessboard.Board[0, 6] = 06;
+                                    chessboard.Board[buffers[1], buffers[2]] = 00;
+                                    //hoán đổi vị trí của quân xe
+                                    chessboard.Board[0, 5] = 07;
+                                    chessboard.Board[0, 7] = 00;
+
+                                    //vẽ lại vị trí của quân vua
+                                    displayPieces(0, 6, buffers[1], buffers[2]);
+                                    //vẽ lại vị trí của quân xe
+                                    displayPieces(0, 5, 0, 7);
+                                }
+                                staleArrays();
+                                chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
+                                continue;
                             }
+                            else if (buffers[6] == 2)//dành cho nhập thành quân trắng
+                            {
+                                if (buffers[3] == 7 && buffers[4] == 0 && chessboard.Board[buffers[3], buffers[4]] == 12)
+                                {
+                                    //hoán đổi vị trí của quân vua
+                                    chessboard.Board[7, 2] = 16;
+                                    chessboard.Board[buffers[1], buffers[2]] = 00;
+                                    //hoán đổi vị trí của quân xe
+                                    chessboard.Board[7, 3] = 12;
+                                    chessboard.Board[7, 0] = 00;
+
+                                    //vẽ lại vị trí của quân vua
+                                    displayPieces(7, 2, buffers[1], buffers[2]);
+                                    //vẽ lại vị trí của quân xe
+                                    displayPieces(7, 3, 7, 0);
+                                }
+                                if (buffers[3] == 7 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 17)
+                                {
+                                    //hoán đổi vị trí của quân vua
+                                    chessboard.Board[7, 6] = 16;
+                                    chessboard.Board[buffers[1], buffers[2]] = 00;
+                                    //hoán đổi vị trí của quân xe
+                                    chessboard.Board[7, 5] = 17;
+                                    chessboard.Board[7, 7] = 00;
+
+                                    //vẽ lại vị trí của quân vua
+                                    displayPieces(7, 6, buffers[1], buffers[2]);
+                                    //vẽ lại vị trí của quân xe
+                                    displayPieces(7, 5, 7, 7);
+
+                                }
+
+                                staleArrays();
+                                chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
+                                continue;
+                            }
+
+                            //dùng cho việc hoán đổi quân cờ khi quân tốt di chuyển đến cuối bàn cờ
+                            if (buffers[7] != 0)
+                            {
+                                chessboard.Board[buffers[3], buffers[4]] = buffers[7];
+                            }
+
+                            displayPieces(buffers[3], buffers[4], buffers[1], buffers[2]);
                             staleArrays();
+
+                            for (int i = 0; i < 8; i++)
+                                for (int j = 0; j < 8; j++)
+                                    if (i % 2 == 0)
+                                        if (j % 2 == 1) tableBackground[i, j].BackColor = Color.Brown;
+                                        else tableBackground[i, j].BackColor = Color.White;
+                                    else
+                                        if (j % 2 == 1) tableBackground[i, j].BackColor = Color.White;
+                                    else tableBackground[i, j].BackColor = Color.Brown;
                             chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
-                            continue;
-                        }
-                        else if (buffers[6] == 2)//dành cho nhập thành quân trắng
-                        {
-                            if (buffers[3] == 7 && buffers[4] == 0 && chessboard.Board[buffers[3], buffers[4]] == 12)
+
+                            if (buffers[5] == 0)
                             {
-                                //hoán đổi vị trí của quân vua
-                                chessboard.Board[7, 2] = 16;
-                                chessboard.Board[buffers[1], buffers[2]] = 00;
-                                //hoán đổi vị trí của quân xe
-                                chessboard.Board[7, 3] = 12;
-                                chessboard.Board[7, 0] = 00;
-
-                                //vẽ lại vị trí của quân vua
-                                displayPieces(7, 2, buffers[1], buffers[2]);
-                                //vẽ lại vị trí của quân xe
-                                displayPieces(7, 3, 7, 0);
+                                MessageBox.Show(userName + " đã thua");
+                                StopGame();
                             }
-                            if (buffers[3] == 7 && buffers[4] == 7 && chessboard.Board[buffers[3], buffers[4]] == 17)
+                        }
+                        else if (buffers[8] == 1)
+                        {
+                            if (buffers[10] == setUpTime)
                             {
-                                //hoán đổi vị trí của quân vua
-                                chessboard.Board[7, 6] = 16;
-                                chessboard.Board[buffers[1], buffers[2]] = 00;
-                                //hoán đổi vị trí của quân xe
-                                chessboard.Board[7, 5] = 17;
-                                chessboard.Board[7, 7] = 00;
-
-                                //vẽ lại vị trí của quân vua
-                                displayPieces(7, 6, buffers[1], buffers[2]);
-                                //vẽ lại vị trí của quân xe
-                                displayPieces(7, 5, 7, 7);
-
+                                countTime = buffers[10] + 1;
+                                setUpTimerThread = true;
+                                setUpTimer = true;
                             }
-
-                            staleArrays();
-                            chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
-                            continue;
-                        }
-
-                        //dùng cho việc hoán đổi quân cờ khi quân tốt di chuyển đến cuối bàn cờ
-                        if (buffers[7] != 0)
-                        {
-                            chessboard.Board[buffers[3], buffers[4]] = buffers[7];
-                        }
-
-                        displayPieces(buffers[3], buffers[4], buffers[1], buffers[2]);
-                        staleArrays();
-
-                        for (int i = 0; i < 8; i++)
-                            for (int j = 0; j < 8; j++)
-                                if (i % 2 == 0)
-                                    if (j % 2 == 1) tableBackground[i, j].BackColor = Color.Brown;
-                                    else tableBackground[i, j].BackColor = Color.White;
-                                else
-                                    if (j % 2 == 1) tableBackground[i, j].BackColor = Color.White;
-                                else tableBackground[i, j].BackColor = Color.Brown;
-                        chessboard.markStale(tableBackground, chessboard.Board, WhiteStaleArray, BlackStaleArray);
-
-                        if (buffers[5] == 0)
-                        {
-                            MessageBox.Show(userName + " đã thua");
-                            StopGame();
-                        }
-                    }
-                    else if (buffers[8] == 1)
-                    {
-                        if (buffers[10] == setUpTime)
-                        {
-                            countTime = buffers[10] + 1;
-                            setUpTimerThread = true;
-                            setUpTimer = true;
-                        }
-                        else
-                        {
-                            if (buffers[9] - 1 == 0)
+                            else
                             {
-                                whiteTurn = !whiteTurn;
-                                blackTurn = !blackTurn;
-                                clearMove();
+                                if (buffers[9] - 1 == 0)
+                                {
+                                    whiteTurn = !whiteTurn;
+                                    blackTurn = !blackTurn;
+                                    displayAnncount(whiteTurn, blackTurn);
+                                    clearMove();
+                                }
+                                //hiển thị lên giao diện
+                                txtCountTime.Text = buffers[9].ToString();
                             }
-                            //hiển thị lên giao diện
-                            txtCountTime.Text = buffers[9].ToString();
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+   
             }
         }
         public void StopGame()
         {
             for (int i = 0; i < 8; i++)
-            {
                 for (int j = 0; j < 8; j++)
-                {
                     chessboard.PossibleMoves[i, j] = 0;
-                }
-            }
             //kết thúc timer
             if (timer != null)
                 timer.Stop();
+            if (threadWaiting != null)
+                threadWaiting.Abort();
             //đóng server
             if (server != null)
                 server.Stop();
@@ -521,9 +531,10 @@ namespace chessgames
                 serverRcvData.Abort();
             if (clientRcvData != null)
                 clientRcvData.Abort();
-            if (threadWaiting != null)
-                threadWaiting.Abort();
 
+            clientUDP.Close();  //đóng kết nối UDP
+            rcvDataUDPThread.Abort();   //đóng luồng dữ liệu của việc nhận dữ liệu chat 
+            this.Close();
         }
         public void getPiecesOnBoard()
         {
@@ -785,6 +796,7 @@ namespace chessgames
                 //chuyển lượt người chơi
                 whiteTurn = !whiteTurn;
                 blackTurn = !blackTurn;
+                displayAnncount(whiteTurn, blackTurn);
             }
         }
         //numberOfPiece là số kí hiệu của quân cờ trên bàn cờ và X, Y là vị trí của quân cờ đó trên bàn cờ
@@ -1053,6 +1065,7 @@ namespace chessgames
                 //chuyển lượt người chơi
                 whiteTurn = !whiteTurn;
                 blackTurn = !blackTurn;
+                displayAnncount(whiteTurn, blackTurn);
             }
 
         }
@@ -1231,6 +1244,7 @@ namespace chessgames
                     //chuyển lượt người chơi
                     whiteTurn = !whiteTurn;
                     blackTurn = !blackTurn;
+                    displayAnncount(whiteTurn, blackTurn);
                     //sau khi đã chọn quân mới
                     isChoose = true;
 
@@ -1523,6 +1537,11 @@ namespace chessgames
                 writeData(null, txtMessage.Text, 1, userName);
             }
             txtMessage.Clear();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            StopGame();
         }
     }
 }

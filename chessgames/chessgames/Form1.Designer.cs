@@ -39,6 +39,8 @@
             this.btnSendIcon = new System.Windows.Forms.Button();
             this.btnSendData = new System.Windows.Forms.Button();
             this.pnlContainsIcon = new System.Windows.Forms.Panel();
+            this.txtTurnUser = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // pnlContainPieces
@@ -139,12 +141,32 @@
             this.pnlContainsIcon.Size = new System.Drawing.Size(382, 313);
             this.pnlContainsIcon.TabIndex = 8;
             // 
+            // txtTurnUser
+            // 
+            this.txtTurnUser.Enabled = false;
+            this.txtTurnUser.Location = new System.Drawing.Point(1290, 28);
+            this.txtTurnUser.Multiline = true;
+            this.txtTurnUser.Name = "txtTurnUser";
+            this.txtTurnUser.Size = new System.Drawing.Size(141, 94);
+            this.txtTurnUser.TabIndex = 9;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(1345, 9);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(57, 16);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Lượt của";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LemonChiffon;
             this.ClientSize = new System.Drawing.Size(1443, 765);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.txtTurnUser);
             this.Controls.Add(this.pnlContainsIcon);
             this.Controls.Add(this.btnSendData);
             this.Controls.Add(this.btnSendIcon);
@@ -158,6 +180,7 @@
             this.Controls.Add(this.pnlContainPieces);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -176,6 +199,8 @@
         private System.Windows.Forms.Button btnSendIcon;
         private System.Windows.Forms.Button btnSendData;
         private System.Windows.Forms.Panel pnlContainsIcon;
+        private System.Windows.Forms.TextBox txtTurnUser;
+        private System.Windows.Forms.Label label3;
     }
 }
 
