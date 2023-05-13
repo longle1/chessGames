@@ -37,3 +37,8 @@ E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb
 E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe.config
 E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe
 E:\chessGames\chessgames\chessgames\bin\Debug\chessgames.pdb
+E:\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.dll
+E:\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.xml
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.login.resources
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CopyComplete
+E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.register.resources

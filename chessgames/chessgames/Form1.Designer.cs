@@ -41,6 +41,7 @@
             this.pnlContainsIcon = new System.Windows.Forms.Panel();
             this.txtTurnUser = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.btnOutRoom = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pnlContainPieces
@@ -159,12 +160,23 @@
             this.label3.TabIndex = 10;
             this.label3.Text = "Lượt của";
             // 
+            // btnOutRoom
+            // 
+            this.btnOutRoom.Location = new System.Drawing.Point(1159, 42);
+            this.btnOutRoom.Name = "btnOutRoom";
+            this.btnOutRoom.Size = new System.Drawing.Size(125, 56);
+            this.btnOutRoom.TabIndex = 11;
+            this.btnOutRoom.Text = "Thoát phòng";
+            this.btnOutRoom.UseVisualStyleBackColor = true;
+            this.btnOutRoom.Click += new System.EventHandler(this.btnOutRoom_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LemonChiffon;
             this.ClientSize = new System.Drawing.Size(1443, 765);
+            this.Controls.Add(this.btnOutRoom);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTurnUser);
             this.Controls.Add(this.pnlContainsIcon);
@@ -201,6 +213,7 @@
         private System.Windows.Forms.Panel pnlContainsIcon;
         private System.Windows.Forms.TextBox txtTurnUser;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnOutRoom;
     }
 }
 
