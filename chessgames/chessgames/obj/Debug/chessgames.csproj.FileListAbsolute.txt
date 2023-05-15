@@ -42,3 +42,24 @@ E:\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.xml
 E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.login.resources
 E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CopyComplete
 E:\chessGames\chessgames\chessgames\obj\Debug\chessgames.register.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe.config
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\bin\Debug\chessgames.pdb
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.dll
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.xml
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.AssemblyReference.cache
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.SuggestedBindingRedirects.cache
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.authAccount.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.Dashboard.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.Form1.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.inputToken.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.login.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.Properties.Resources.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.register.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.userControlClick.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.GenerateResource.cache
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCompileInputs.cache
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CopyComplete
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.exe
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.changePassword.resources

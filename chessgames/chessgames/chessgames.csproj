@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="authAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="authAccount.Designer.cs">
+      <DependentUpon>authAccount.cs</DependentUpon>
+    </Compile>
     <Compile Include="backPieces\BlackBiShop1.cs" />
     <Compile Include="backPieces\BlackBiShop2.cs" />
     <Compile Include="backPieces\BlackKing.cs" />
@@ -59,6 +65,12 @@
     <Compile Include="backPieces\BlackRock2.cs" />
     <Compile Include="backPieces\BlackKnight1.cs" />
     <Compile Include="button.cs" />
+    <Compile Include="changePassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="changePassword.Designer.cs">
+      <DependentUpon>changePassword.cs</DependentUpon>
+    </Compile>
     <Compile Include="ChessBoard.cs" />
     <Compile Include="Dashboard.cs">
       <SubType>Form</SubType>
@@ -74,6 +86,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="infoUser.cs" />
+    <Compile Include="inputToken.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="inputToken.Designer.cs">
+      <DependentUpon>inputToken.cs</DependentUpon>
+    </Compile>
     <Compile Include="listFriends.cs" />
     <Compile Include="login.cs">
       <SubType>Form</SubType>
@@ -114,11 +132,20 @@
     <Compile Include="whitePieces\WhiteQueen.cs" />
     <Compile Include="whitePieces\WhiteRock1.cs" />
     <Compile Include="whitePieces\WhiteRock2.cs" />
+    <EmbeddedResource Include="authAccount.resx">
+      <DependentUpon>authAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="changePassword.resx">
+      <DependentUpon>changePassword.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dashboard.resx">
       <DependentUpon>Dashboard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="inputToken.resx">
+      <DependentUpon>inputToken.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="login.resx">
       <DependentUpon>login.cs</DependentUpon>

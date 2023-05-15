@@ -118,7 +118,12 @@ namespace chessgames
 
         private void forgotPasswordLabel_Click(object sender, EventArgs e)
         {
+            //click vào quên mật khẩu thì hiện form xác thực tài khoản
+            authAccount auth = new authAccount();
+            auth.Show();
 
+            //ẩn form login đi 
+            this.Hide();
         }
     }
 }
