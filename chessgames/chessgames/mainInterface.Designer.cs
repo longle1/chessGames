@@ -44,6 +44,7 @@
             this.lbUserName = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lbScore = new System.Windows.Forms.Label();
+            this.pnlContainsIcon = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).BeginInit();
             this.SuspendLayout();
@@ -198,11 +199,19 @@
             this.lbScore.Size = new System.Drawing.Size(0, 16);
             this.lbScore.TabIndex = 28;
             // 
+            // pnlContainsIcon
+            // 
+            this.pnlContainsIcon.Location = new System.Drawing.Point(21, 285);
+            this.pnlContainsIcon.Name = "pnlContainsIcon";
+            this.pnlContainsIcon.Size = new System.Drawing.Size(324, 272);
+            this.pnlContainsIcon.TabIndex = 29;
+            // 
             // mainInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1196, 662);
+            this.Controls.Add(this.pnlContainsIcon);
             this.Controls.Add(this.lbScore);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lbUserName);
@@ -247,5 +256,6 @@
         private System.Windows.Forms.Label lbUserName;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lbScore;
+        private System.Windows.Forms.Panel pnlContainsIcon;
     }
 }

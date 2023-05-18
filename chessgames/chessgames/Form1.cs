@@ -97,12 +97,13 @@ namespace chessgames
         TcpListener server = null;
         List<Button> buttonList = new List<Button>();
         List<Button> buttonListIcons = new List<Button>();
-        button btn = new button();
         Button oldButton = new Button()
         {
             Height = 0,
             Width = 0
         };
+        button btn = new button();
+     
         UdpClient clientUDP = null;
         Thread rcvDataUDPThread = null;
         IPEndPoint ipEndPoint = null;
@@ -1461,9 +1462,7 @@ namespace chessgames
                     string data = Encoding.UTF8.GetString(receive_buffer);
                     string[] strs = data.Split(':');
                     if (strs[0].Contains("(1)"))    //đây là chat 
-                    {
                         writeData(null, strs[1], 1, strs[0].Substring(0, strs[0].Length - 3));
-                    }
                     else if (strs[0].Contains("(2)")) // đây là gửi icon
                     {
                         string imageData = strs[1];
@@ -1515,7 +1514,6 @@ namespace chessgames
                 oldButton.Location = new Point(0, 0);
                 pnlContainsIcon.Show();
             }
-
         }
         private void Btn2_Click(object sender, EventArgs e)
         {
