@@ -39,8 +39,8 @@
             this.btnSendIcon = new System.Windows.Forms.Button();
             this.btnSendMessage = new System.Windows.Forms.Button();
             this.dtGridContainListRooms = new System.Windows.Forms.DataGridView();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
+            this.btnCreateRoom = new System.Windows.Forms.Button();
+            this.btnRandomRoom = new System.Windows.Forms.Button();
             this.lbUserName = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lbScore = new System.Windows.Forms.Label();
@@ -151,26 +151,27 @@
             this.dtGridContainListRooms.RowTemplate.Height = 24;
             this.dtGridContainListRooms.Size = new System.Drawing.Size(698, 375);
             this.dtGridContainListRooms.TabIndex = 22;
+            this.dtGridContainListRooms.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtGridContainListRooms_CellContentClick);
             // 
-            // button8
+            // btnCreateRoom
             // 
-            this.button8.Location = new System.Drawing.Point(1014, 545);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(154, 40);
-            this.button8.TabIndex = 24;
-            this.button8.Text = "Chọn hình ảnh";
-            this.button8.UseVisualStyleBackColor = true;
-            this.button8.Click += new System.EventHandler(this.button8_Click);
+            this.btnCreateRoom.Location = new System.Drawing.Point(1014, 545);
+            this.btnCreateRoom.Name = "btnCreateRoom";
+            this.btnCreateRoom.Size = new System.Drawing.Size(154, 40);
+            this.btnCreateRoom.TabIndex = 24;
+            this.btnCreateRoom.Text = "Tạo phòng";
+            this.btnCreateRoom.UseVisualStyleBackColor = true;
+            this.btnCreateRoom.Click += new System.EventHandler(this.btnCreateRoom_Click);
             // 
-            // button7
+            // btnRandomRoom
             // 
-            this.button7.Location = new System.Drawing.Point(854, 545);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(154, 40);
-            this.button7.TabIndex = 25;
-            this.button7.Text = "Chọn hình ảnh";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.btnRandomRoom.Location = new System.Drawing.Point(854, 545);
+            this.btnRandomRoom.Name = "btnRandomRoom";
+            this.btnRandomRoom.Size = new System.Drawing.Size(154, 40);
+            this.btnRandomRoom.TabIndex = 25;
+            this.btnRandomRoom.Text = "Tham gia ngẫu nhiên";
+            this.btnRandomRoom.UseVisualStyleBackColor = true;
+            this.btnRandomRoom.Click += new System.EventHandler(this.btnRandomRoom_Click);
             // 
             // lbUserName
             // 
@@ -205,8 +206,8 @@
             this.Controls.Add(this.lbScore);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lbUserName);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button8);
+            this.Controls.Add(this.btnRandomRoom);
+            this.Controls.Add(this.btnCreateRoom);
             this.Controls.Add(this.dtGridContainListRooms);
             this.Controls.Add(this.btnSendMessage);
             this.Controls.Add(this.btnSendIcon);
@@ -241,8 +242,8 @@
         private System.Windows.Forms.Button btnSendIcon;
         private System.Windows.Forms.Button btnSendMessage;
         private System.Windows.Forms.DataGridView dtGridContainListRooms;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button btnCreateRoom;
+        private System.Windows.Forms.Button btnRandomRoom;
         private System.Windows.Forms.Label lbUserName;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lbScore;

@@ -112,6 +112,7 @@
       <DependentUpon>mainInterface.cs</DependentUpon>
     </Compile>
     <Compile Include="match.cs" />
+    <Compile Include="matches.cs" />
     <Compile Include="matchPlayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
