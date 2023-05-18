@@ -42,6 +42,7 @@
             this.btnChangeImage = new System.Windows.Forms.Button();
             this.btnSaveInfo = new System.Windows.Forms.Button();
             this.btnEditInfo = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             this.SuspendLayout();
             // 
@@ -145,7 +146,7 @@
             // 
             // btnSaveInfo
             // 
-            this.btnSaveInfo.Location = new System.Drawing.Point(593, 337);
+            this.btnSaveInfo.Location = new System.Drawing.Point(603, 12);
             this.btnSaveInfo.Name = "btnSaveInfo";
             this.btnSaveInfo.Size = new System.Drawing.Size(180, 38);
             this.btnSaveInfo.TabIndex = 12;
@@ -155,7 +156,7 @@
             // 
             // btnEditInfo
             // 
-            this.btnEditInfo.Location = new System.Drawing.Point(407, 337);
+            this.btnEditInfo.Location = new System.Drawing.Point(417, 12);
             this.btnEditInfo.Name = "btnEditInfo";
             this.btnEditInfo.Size = new System.Drawing.Size(180, 38);
             this.btnEditInfo.TabIndex = 13;
@@ -163,11 +164,22 @@
             this.btnEditInfo.UseVisualStyleBackColor = true;
             this.btnEditInfo.Click += new System.EventHandler(this.btnEditInfo_Click);
             // 
+            // btnBack
+            // 
+            this.btnBack.Location = new System.Drawing.Point(532, 340);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(116, 38);
+            this.btnBack.TabIndex = 14;
+            this.btnBack.Text = "Quay lại";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
+            // 
             // FormInfoUser
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnEditInfo);
             this.Controls.Add(this.btnSaveInfo);
             this.Controls.Add(this.btnChangeImage);
@@ -207,5 +219,6 @@
         private System.Windows.Forms.Button btnChangeImage;
         private System.Windows.Forms.Button btnSaveInfo;
         private System.Windows.Forms.Button btnEditInfo;
+        private System.Windows.Forms.Button btnBack;
     }
 }

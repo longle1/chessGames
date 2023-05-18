@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -56,6 +57,7 @@ namespace chessgames
                 password = txtPassword.Text.Trim()
             };
             string dataJson = JsonConvert.SerializeObject(data);
+            btnLogin.Enabled = false;
             HttpClient client = new HttpClient();
             // Gửi yêu cầu POST đến apiUrl với dữ liệu jsonData
             HttpResponseMessage response = await client.PostAsync(apiUrlLogin, new StringContent(dataJson, Encoding.UTF8, "application/json"));
@@ -77,14 +79,17 @@ namespace chessgames
                     MessageBox.Show(jsonData["notify"].ToString());
 
                     //tạo ra giao diện chính
-                    mainInterface inter = new mainInterface();
+                    mainInterface inter = new mainInterface(user);
                     inter.Show();
+
+                    this.Hide();
 
                 }
                 if (statusCode == 401)
                 {
                     if (countLogin == 0)
                     {
+                        btnLogin.Enabled = true;
                         txtPassword.Enabled = false;
                         txtUserName.Enabled = false;
                         btnLogin.Enabled = false;
@@ -95,6 +100,7 @@ namespace chessgames
                         timer.Tick += Timer_Tick;
                         return;
                     }
+                    btnLogin.Enabled = true;
                     errorHideLabel.Show();
                     errorHideLabel.ForeColor = Color.Red;
                     errorHideLabel.Text = $"Bạn còn {countLogin} đăng nhập";

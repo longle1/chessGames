@@ -159,6 +159,9 @@
     <EmbeddedResource Include="login.resx">
       <DependentUpon>login.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="mainInterface.resx">
+      <DependentUpon>mainInterface.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -188,6 +191,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Images\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
