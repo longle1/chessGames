@@ -8,7 +8,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -22,6 +24,8 @@ namespace chessgames
         private string parentDirectory;
         private string apiGetListMatches = "https://chessmates.onrender.com/api/v1/matches";
         private string apiCreateRoom = "https://chessmates.onrender.com/api/v1/matches/add";
+        TcpClient client = null;
+
         private enum setting
         {
             createRoom = 0,
@@ -36,6 +40,12 @@ namespace chessgames
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+
+
+            client = new TcpClient();
+            client.Connect(System.Net.IPAddress.Parse("172.20.30.81"), 8081);
+            Thread rcvDataThread = new Thread(new ThreadStart(rcvData));
+            rcvDataThread.Start();
         }
         public mainInterface(infoUser user) : this()
         {
@@ -51,7 +61,45 @@ namespace chessgames
 
             displayListMatches();
         }
+        public void rcvData()
+        {
+            while (true)
+            {
+                NetworkStream stream = client.GetStream();
 
+                byte[] data = new byte[1024];
+                int length = stream.Read(data, 0, data.Length);
+                string message = Encoding.UTF8.GetString(data, 0, length);
+
+                writeData(message);
+            }
+        }
+        private void btnSendIcon_Click(object sender, EventArgs e)
+        {
+
+        }
+        public void writeData(string msg)
+        {
+            try
+            {
+                MethodInvoker invoker = new MethodInvoker(delegate { rtbChat.Text += msg + Environment.NewLine; });
+                this.Invoke(invoker);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ghi dữ liệu thất bại, vui lòng thực hiện lại");
+            }
+        }
+        private void btnSendMessage_Click(object sender, EventArgs e)
+        {
+            NetworkStream stream = client.GetStream();
+            string message = (int)setting.chatMulti + "***" + user.userName + ": " + txtSendMessage.Text;
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            stream.Write(data, 0, data.Length);
+
+            writeData("me: " + txtSendMessage.Text);
+            txtSendMessage.Clear();
+        }
         private async void displayListMatches()
         {
             //tạo ra đối tượng để căn giữa nội dung trong từng ô
@@ -103,6 +151,7 @@ namespace chessgames
 
             }
         }
+        
         private void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -165,15 +214,7 @@ namespace chessgames
 
         }
 
-        private void btnSendIcon_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnSendMessage_Click(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
