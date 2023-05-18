@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace chessgames
 {
-    internal class matchPlayer
+    public class matchPlayer
     {
         public string user { set; get; }
         public string resultMatch { set; get; }

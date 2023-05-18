@@ -85,6 +85,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormInfoUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormInfoUser.Designer.cs">
+      <DependentUpon>FormInfoUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="infoUser.cs" />
     <Compile Include="inputToken.cs">
       <SubType>Form</SubType>
@@ -143,6 +149,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormInfoUser.resx">
+      <DependentUpon>FormInfoUser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="inputToken.resx">
       <DependentUpon>inputToken.cs</DependentUpon>

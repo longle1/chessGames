@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace chessgames
 {
-    internal class infoUser
+    public class infoUser
     {
         public string id { get; set; }
         public string userName { get; set; }

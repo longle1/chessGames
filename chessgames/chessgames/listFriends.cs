@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace chessgames
 {
-    internal class listFriends
+    public class listFriends
     {
         public string _id { get; set; }
         public List<string> listID { get; set; }
