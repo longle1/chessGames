@@ -1491,10 +1491,12 @@ namespace chessgames
             }
             else
             {
+                //xóa hết các phần tử bên trong panel
+                pnlContainsIcon.Controls.Clear();
+                pnlContainsIcon.Padding = new Padding(0);
                 buttonListIcons = new List<Button>();
                 for (int i = 0; i < iconNumbers; i++)
                 {
-                    //đưa quân cờ bị ăn vào trong panel
                     Button btn2 = null;
                     if (buttonListIcons.Count % 7 == 0)
                     {
@@ -1510,6 +1512,7 @@ namespace chessgames
                     }
                     buttonListIcons.Add(btn2);
                 }
+                oldButton.Location = new Point(0, 0);
                 pnlContainsIcon.Show();
             }
 
