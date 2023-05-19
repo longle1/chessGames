@@ -27,6 +27,8 @@ namespace chessgames
         private string apiGetListMatches = "https://chessmates.onrender.com/api/v1/matches";
         private string apiCreateRoom = "https://chessmates.onrender.com/api/v1/matches/add";
         private string apiGetUser = "https://chessmates.onrender.com/api/v1/users/edit/";
+        private string apiGetAllUser = "https://chessmates.onrender.com/api/v1/users";
+        private string apiGetUserId = "https://chessmates.onrender.com/api/v1/users/";
         TcpClient client = null;
         List<Button> buttonListIcons = new List<Button>();
         Button oldButton = new Button()
@@ -51,6 +53,7 @@ namespace chessgames
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+            pnlListFriends.Visible = false;
             pnlContainsIcon.Hide();
             rtbChat.ReadOnly = true;
             client = new TcpClient();
@@ -273,6 +276,90 @@ namespace chessgames
             }
         }
 
+        private void displayListUsers(List<infoUser> userLists)
+        {
+            dtAllUsers.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtAllUsers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //ngăn không cho người dùng kéo giãn
+            foreach (DataGridViewColumn column in dtAllUsers.Columns)
+            {
+                column.Resizable = DataGridViewTriState.False;
+            }
+            foreach (DataGridViewRow row in dtAllUsers.Rows)
+            {
+                row.Resizable = DataGridViewTriState.False;
+            }
+            dtAllUsers.Rows.Clear();
+            dtAllUsers.Columns.Clear();
+            //xóa đi dòng cuối cùng trong dataGridView
+            dtAllUsers.AllowUserToAddRows = false;
+
+            dtAllUsers.Columns.Add("id", "ID");
+            dtAllUsers.Columns.Add("userName", "Tên người dùng");
+            DataGridViewButtonColumn buttonColumn1 = new DataGridViewButtonColumn();
+            buttonColumn1.Name = "";
+            buttonColumn1.Text = "Xem thông tin";
+            buttonColumn1.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn buttonColumn2 = new DataGridViewButtonColumn();
+            buttonColumn2.Name = "";
+            buttonColumn2.Text = "Kết bạn";
+            buttonColumn2.UseColumnTextForButtonValue = true;
+            dtAllUsers.Columns.Add(buttonColumn1);
+            dtAllUsers.Columns.Add(buttonColumn2);
+            dtAllUsers.RowHeadersVisible = false;
+            dtAllUsers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            foreach (infoUser item in userLists)
+            {
+                string[] rowData = new string[] { item.id, item.userName};
+                dtAllUsers.Rows.Add(rowData);
+            }
+            dtAllUsers.ReadOnly = true;
+        }
+        public void displayListFriends(List<infoUser> userLists)
+        {
+            dtListFriends.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtListFriends.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //ngăn không cho người dùng kéo giãn
+            foreach (DataGridViewColumn column in dtListFriends.Columns)
+            {
+                column.Resizable = DataGridViewTriState.False;
+            }
+            foreach (DataGridViewRow row in dtListFriends.Rows)
+            {
+                row.Resizable = DataGridViewTriState.False;
+            }
+            dtListFriends.Rows.Clear();
+            dtListFriends.Columns.Clear();
+            //xóa đi dòng cuối cùng trong dataGridView
+            dtListFriends.AllowUserToAddRows = false;
+
+            dtListFriends.Columns.Add("id", "ID");
+            dtListFriends.Columns.Add("userName", "Tên người dùng");
+            dtListFriends.Columns.Add("statusActive", "Trạng thái");
+            DataGridViewButtonColumn buttonColumn1 = new DataGridViewButtonColumn();
+            buttonColumn1.Name = "";
+            buttonColumn1.Text = "Xem thông tin";
+            buttonColumn1.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn buttonColumn2 = new DataGridViewButtonColumn();
+            buttonColumn2.Name = "";
+            buttonColumn2.Text = "Nhắn tin";
+            buttonColumn2.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn buttonColumn3 = new DataGridViewButtonColumn();
+            buttonColumn3.Name = "";
+            buttonColumn3.Text = "Hủy kết bạn";
+            buttonColumn3.UseColumnTextForButtonValue = true;
+            dtListFriends.Columns.Add(buttonColumn1);
+            dtListFriends.Columns.Add(buttonColumn2);
+            dtListFriends.Columns.Add(buttonColumn3);
+            dtListFriends.RowHeadersVisible = false;
+            dtListFriends.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            foreach (infoUser item in userLists)
+            {
+                string[] rowData = new string[] { item.id, item.userName };
+                dtListFriends.Rows.Add(rowData);
+            }
+            dtListFriends.ReadOnly = true;
+        }
         private void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -343,14 +430,57 @@ namespace chessgames
 
         }
 
-        private void btnMakeFriend_Click(object sender, EventArgs e)
+        private async void btnMakeFriend_Click(object sender, EventArgs e)
         {
 
+            //gọi api để hiển thị danh sách người dùng
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(apiGetAllUser);
+            string jsonData = await response.Content.ReadAsStringAsync();
+            if(response.StatusCode == HttpStatusCode.OK)
+            {
+                JObject objData = JObject.Parse(jsonData);
+                JToken tokenData = objData["data"];
+                List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
+
+                //hiển thị danh sách user này lên datagridView
+                displayListUsers(userLists);
+                List<infoUser> getFriends = new List<infoUser>();
+                foreach (listFriends item in user.lists)
+                {
+                    //tiến hành lấy ra listID
+                    List<string> listid = item.listID;
+                    if (item.status.ToLower() != "waiting")
+                    {
+                        string id = "";
+                        foreach (string id1 in listid)
+                        {
+                            if (id1 != user.id) id = id1;
+                        }
+                        string apiPath = apiGetUserId + id;
+                        HttpClient client1 = new HttpClient();
+                        HttpResponseMessage response1 = await client1.GetAsync(apiPath);
+                        string jsonObject = await response1.Content.ReadAsStringAsync();
+                        JObject objData1 = JObject.Parse(jsonObject);
+                        JToken tkData = objData1["data"];
+                        infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                        getFriends.Add(friend);
+                    }
+                }
+                displayListFriends(getFriends);
+            }
+
+            pnlListFriends.Visible = true;
         }
 
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            pnlListFriends.Visible = false;
+            txtFindUser.Clear();
+        }
         private void btnListFriend_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void btnRandomRoom_Click(object sender, EventArgs e)
@@ -402,5 +532,22 @@ namespace chessgames
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
+        private async void btnFindUser_Click(object sender, EventArgs e)
+        {
+            //nếu người dùng bấm tìm kiếm thì hiển thị lại giao diện dtAllUsers
+            string apiUrl = apiGetAllUser + txtFindUser.Text.Trim() != "" ? apiGetAllUser + "?userName=" + txtFindUser.Text.Trim() : "";
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            string jsonData = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                JObject objData = JObject.Parse(jsonData);
+                JToken tokenData = objData["data"];
+                List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
+
+                //hiển thị danh sách user này lên datagridView
+                displayListUsers(userLists);
+            }
+        }
     }
 }
