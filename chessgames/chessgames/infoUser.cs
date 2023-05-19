@@ -13,6 +13,7 @@ namespace chessgames
         public string userName { get; set; }
         public string gmail { get; set; }
         public string linkAvatar { get; set; }
+        public string statusActive { get; set; }
         public int point { get; set; }
         public int numberOfWins { get; set; }
         public int numberOfLosses { get; set; }

@@ -96,7 +96,8 @@ namespace chessgames
             {
                 userName = txtUsername.Text,
                 gmail = txtEmail.Text,
-                linkAvatar = user.linkAvatar
+                linkAvatar = user.linkAvatar,
+                statusActive = "online"
             };
             //chuyển data về kiểu json
             string jsonData = JsonConvert.SerializeObject(data);
@@ -115,8 +116,9 @@ namespace chessgames
                 MessageBox.Show(tokenData.ToString());
                 //them hinh anh vao trong kho luu tru va tien hanh xoa anh cu khoi kho luu tru
 
-                //khong tinh truong hop anh mac dinh va xoa hinh anh cu khoi kho luu tru
-                addImageIntoPath(directoryImagePath, user.linkAvatar);
+                if(user.linkAvatar != "defaultAvatar.jpg")
+                    //khong tinh truong hop anh mac dinh va xoa hinh anh cu khoi kho luu tru
+                    addImageIntoPath(directoryImagePath, user.linkAvatar);
 
                 //cập nhật lại thông tin
                 user.userName = txtUsername.Text;

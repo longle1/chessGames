@@ -25,6 +25,7 @@ namespace chessgames
         }
         public Timer timer = null;
         public string apiUrlLogin = "https://chessmates.onrender.com/api/v1/auth/login";
+        private string apiGetUser = "https://chessmates.onrender.com/api/v1/users/edit/";
         public int countLogin = 2;
         public int timeStart = 1;
         public int timeFinish = 60;
@@ -80,10 +81,23 @@ namespace chessgames
 
                     //tạo ra giao diện chính
                     mainInterface inter = new mainInterface(user);
+
+                    //cập nhật trạng thái thành hoạt động
+                    string apiUser = apiGetUser + user.id;
+                    var data1 = new
+                    {
+                        userName = user.userName,
+                        gmail = user.gmail,
+                        linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "" : user.linkAvatar,
+                        statusActive = "online",
+                    };
+                    user.statusActive = "online";
+                    string jsonData1 = JsonConvert.SerializeObject(data1);
+                    HttpClient client1 = new HttpClient();
+                    await client1.PutAsync(apiUser, new StringContent(jsonData1, Encoding.UTF8, "application/json"));
                     inter.Show();
-
                     this.Hide();
-
+                    btnLogin.Enabled = true;
                 }
                 if (statusCode == 401)
                 {

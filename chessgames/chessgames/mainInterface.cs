@@ -26,6 +26,7 @@ namespace chessgames
         private string parentDirectory;
         private string apiGetListMatches = "https://chessmates.onrender.com/api/v1/matches";
         private string apiCreateRoom = "https://chessmates.onrender.com/api/v1/matches/add";
+        private string apiGetUser = "https://chessmates.onrender.com/api/v1/users/edit/";
         TcpClient client = null;
         List<Button> buttonListIcons = new List<Button>();
         Button oldButton = new Button()
@@ -43,7 +44,8 @@ namespace chessgames
             joinRoom = 3,
             chatOne = 4,
             chatMulti = 5,
-            outRoom = 6
+            outRoom = 6,
+            logout = 7
         }
         public mainInterface()
         {
@@ -56,6 +58,12 @@ namespace chessgames
             Thread rcvDataThread = new Thread(new ThreadStart(rcvData));
             rcvDataThread.Start();
         }
+        public void sendData(string msg)
+        {
+            NetworkStream stream = client.GetStream();
+            byte[] data = Encoding.UTF8.GetBytes(msg);
+            stream.Write(data, 0, data.Length); 
+        }
         public mainInterface(infoUser user) : this()
         {
             parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
@@ -67,6 +75,10 @@ namespace chessgames
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             showInter = this;
+
+            //gửi thông điệp login lên server
+            string message = user.userName;
+            sendData(message);
 
             displayListMatches();
         }
@@ -193,10 +205,7 @@ namespace chessgames
             string path = btn.Text;
             byte[] imageBytes = File.ReadAllBytes(path);
             string message = (int)setting.chatMulti + "*" + user.userName + "(2):" + Convert.ToBase64String(imageBytes);
-            byte[] data = Encoding.UTF8.GetBytes(message);
-
-            NetworkStream stream = client.GetStream();
-            stream.Write(data, 0, data.Length);
+            sendData(message);
             rtbChat.ReadOnly = false;
 
             writeData(Image.FromFile(path), "", 2, user.userName);
@@ -205,15 +214,10 @@ namespace chessgames
             buttonListIcons.Clear();
         }
 
-
-
-
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
-            NetworkStream stream = client.GetStream();
             string message = (int)setting.chatMulti + "*" + user.userName + "(1):" + txtSendMessage.Text;
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            stream.Write(data, 0, data.Length);
+            sendData(message);
             writeData(null, txtSendMessage.Text, 1, user.userName);
             txtSendMessage.Clear();
         }
@@ -308,12 +312,30 @@ namespace chessgames
             info.Show();
         }
 
-        private void btnLogout_Click(object sender, EventArgs e)
+        private async void btnLogout_Click(object sender, EventArgs e)
         {
+            apiGetUser += user.id;
+            //cập nhật trạng thái thành offline
+            var data = new
+            {
+                userName = user.userName,
+                gmail = user.gmail,
+                linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "" : user.linkAvatar,
+                statusActive = "offline",
+            };
+
+
+            //gửi thông điệp logout lên server
+            string message = (int)setting.logout + "*" + user.userName;
+            sendData(message);
+
+
+            string jsonData = JsonConvert.SerializeObject(data);
+            HttpClient client = new HttpClient();
+            await client.PutAsync(apiGetUser, new StringContent(jsonData, Encoding.UTF8, "application/json"));
+            login.showFormAgain.Show();
             //tiến hành đóng form lại
             this.Close();
-
-            login.showFormAgain.Show();
         }
 
         private void btnRank_Click(object sender, EventArgs e)
