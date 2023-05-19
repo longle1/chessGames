@@ -65,7 +65,7 @@ namespace chessgames
         {
             NetworkStream stream = client.GetStream();
             byte[] data = Encoding.UTF8.GetBytes(msg);
-            stream.Write(data, 0, data.Length); 
+            stream.Write(data, 0, data.Length);
         }
         public mainInterface(infoUser user) : this()
         {
@@ -310,7 +310,7 @@ namespace chessgames
             dtAllUsers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             foreach (infoUser item in userLists)
             {
-                string[] rowData = new string[] { item.id, item.userName};
+                string[] rowData = new string[] { item.id, item.userName };
                 dtAllUsers.Rows.Add(rowData);
             }
             dtAllUsers.ReadOnly = true;
@@ -355,10 +355,44 @@ namespace chessgames
             dtListFriends.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             foreach (infoUser item in userLists)
             {
-                string[] rowData = new string[] { item.id, item.userName };
+                string[] rowData = new string[] { item.id, item.userName, item.statusActive };
                 dtListFriends.Rows.Add(rowData);
             }
             dtListFriends.ReadOnly = true;
+        }
+        public void displayListWaitingAccept(List<infoUser> userLists)
+        {
+            dtAcceptFriend.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtAcceptFriend.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //ngăn không cho người dùng kéo giãn
+            foreach (DataGridViewColumn column in dtAcceptFriend.Columns)
+            {
+                column.Resizable = DataGridViewTriState.False;
+            }
+            foreach (DataGridViewRow row in dtAcceptFriend.Rows)
+            {
+                row.Resizable = DataGridViewTriState.False;
+            }
+            dtAcceptFriend.Rows.Clear();
+            dtAcceptFriend.Columns.Clear();
+            //xóa đi dòng cuối cùng trong dataGridView
+            dtAcceptFriend.AllowUserToAddRows = false;
+
+            dtAcceptFriend.Columns.Add("id", "ID");
+            dtAcceptFriend.Columns.Add("userName", "Tên người dùng");
+            DataGridViewButtonColumn buttonColumn1 = new DataGridViewButtonColumn();
+            buttonColumn1.Name = "";
+            buttonColumn1.Text = "Chấp nhận";
+            buttonColumn1.UseColumnTextForButtonValue = true;
+            dtAcceptFriend.Columns.Add(buttonColumn1);
+            dtAcceptFriend.RowHeadersVisible = false;
+            dtAcceptFriend.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            foreach (infoUser item in userLists)
+            {
+                string[] rowData = new string[] { item.id, item.userName };
+                dtAcceptFriend.Rows.Add(rowData);
+            }
+            dtAcceptFriend.ReadOnly = true;
         }
         private void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -437,7 +471,7 @@ namespace chessgames
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(apiGetAllUser);
             string jsonData = await response.Content.ReadAsStringAsync();
-            if(response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
                 JObject objData = JObject.Parse(jsonData);
                 JToken tokenData = objData["data"];
@@ -446,28 +480,30 @@ namespace chessgames
                 //hiển thị danh sách user này lên datagridView
                 displayListUsers(userLists);
                 List<infoUser> getFriends = new List<infoUser>();
+                List<infoUser> userListsWaiting = new List<infoUser>();
                 foreach (listFriends item in user.lists)
                 {
                     //tiến hành lấy ra listID
                     List<string> listid = item.listID;
-                    if (item.status.ToLower() != "waiting")
+                    string idUser1 = "";
+                    foreach (string id1 in listid)
                     {
-                        string id = "";
-                        foreach (string id1 in listid)
-                        {
-                            if (id1 != user.id) id = id1;
-                        }
-                        string apiPath = apiGetUserId + id;
-                        HttpClient client1 = new HttpClient();
-                        HttpResponseMessage response1 = await client1.GetAsync(apiPath);
-                        string jsonObject = await response1.Content.ReadAsStringAsync();
-                        JObject objData1 = JObject.Parse(jsonObject);
-                        JToken tkData = objData1["data"];
-                        infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
-                        getFriends.Add(friend);
+                        if (id1 != user.id) idUser1 = id1;
                     }
+                    string apiPath = apiGetUserId + idUser1;
+                    HttpClient client1 = new HttpClient();
+                    HttpResponseMessage response1 = await client1.GetAsync(apiPath);
+                    string jsonObject = await response1.Content.ReadAsStringAsync();
+                    JObject objData1 = JObject.Parse(jsonObject);
+                    JToken tkData = objData1["data"];
+                    infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                    if (item.status.ToLower() != "waiting")
+                        getFriends.Add(friend);
+                    else
+                        userListsWaiting.Add(friend);
                 }
                 displayListFriends(getFriends);
+                displayListWaitingAccept(userListsWaiting);
             }
 
             pnlListFriends.Visible = true;
@@ -480,7 +516,7 @@ namespace chessgames
         }
         private void btnListFriend_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void btnRandomRoom_Click(object sender, EventArgs e)

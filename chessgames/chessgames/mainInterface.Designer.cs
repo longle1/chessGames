@@ -55,6 +55,7 @@
             this.tbFriends = new System.Windows.Forms.TabPage();
             this.tbAccept = new System.Windows.Forms.TabPage();
             this.dtListFriends = new System.Windows.Forms.DataGridView();
+            this.dtAcceptFriend = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).BeginInit();
             this.pnlListFriends.SuspendLayout();
@@ -62,7 +63,9 @@
             this.tbFindUser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAllUsers)).BeginInit();
             this.tbFriends.SuspendLayout();
+            this.tbAccept.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).BeginInit();
             this.SuspendLayout();
             // 
             // btnContainInfoUser
@@ -305,6 +308,7 @@
             // 
             // tbAccept
             // 
+            this.tbAccept.Controls.Add(this.dtAcceptFriend);
             this.tbAccept.Location = new System.Drawing.Point(4, 25);
             this.tbAccept.Name = "tbAccept";
             this.tbAccept.Padding = new System.Windows.Forms.Padding(3);
@@ -322,6 +326,16 @@
             this.dtListFriends.RowTemplate.Height = 24;
             this.dtListFriends.Size = new System.Drawing.Size(770, 469);
             this.dtListFriends.TabIndex = 0;
+            // 
+            // dtAcceptFriend
+            // 
+            this.dtAcceptFriend.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtAcceptFriend.Location = new System.Drawing.Point(87, 41);
+            this.dtAcceptFriend.Name = "dtAcceptFriend";
+            this.dtAcceptFriend.RowHeadersWidth = 51;
+            this.dtAcceptFriend.RowTemplate.Height = 24;
+            this.dtAcceptFriend.Size = new System.Drawing.Size(688, 429);
+            this.dtAcceptFriend.TabIndex = 0;
             // 
             // mainInterface
             // 
@@ -357,7 +371,9 @@
             this.tbFindUser.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAllUsers)).EndInit();
             this.tbFriends.ResumeLayout(false);
+            this.tbAccept.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -392,5 +408,6 @@
         private System.Windows.Forms.Button btnFindUser;
         private System.Windows.Forms.TextBox txtFindUser;
         private System.Windows.Forms.DataGridView dtListFriends;
+        private System.Windows.Forms.DataGridView dtAcceptFriend;
     }
 }
