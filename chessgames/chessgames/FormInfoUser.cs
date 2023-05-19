@@ -29,6 +29,7 @@ namespace chessgames
         private string directoryImagePath;
         private string pathImage;
         private string preLinkAvatar;
+        private bool checkModify;
         private void FormInfoUser_Load(object sender, EventArgs e)
         {
             txtDefeats.ReadOnly = true;
@@ -37,14 +38,25 @@ namespace chessgames
             txtUsername.ReadOnly = true;
             txtWins.ReadOnly = true;
         }
-        public FormInfoUser(infoUser user) : this()
+        public FormInfoUser(infoUser user, bool checkModify) : this()
         {
             try
             {
                 directoryImagePath = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
+                this.checkModify = checkModify;
+                if (checkModify)
+                {
+                    btnChangeImage.Enabled = false;
+                    btnSaveInfo.Enabled = false;
+                }
+                else
+                {
+                    btnChangeImage.Visible = false;
+                    btnSaveInfo.Visible = false;
+                    btnEditInfo.Visible = false;    
+                }
                 this.user = user;
-                btnChangeImage.Enabled = false;
-                btnSaveInfo.Enabled = false;
+
                 //hien thi hinh anh len giao dien
                 ptboxAvatar.Image = Image.FromFile($"{directoryImagePath}\\" + user.linkAvatar);
                 ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
@@ -116,7 +128,7 @@ namespace chessgames
                 MessageBox.Show(tokenData.ToString());
                 //them hinh anh vao trong kho luu tru va tien hanh xoa anh cu khoi kho luu tru
 
-                if(user.linkAvatar != "defaultAvatar.jpg")
+                if (user.linkAvatar != "defaultAvatar.jpg")
                     //khong tinh truong hop anh mac dinh va xoa hinh anh cu khoi kho luu tru
                     addImageIntoPath(directoryImagePath, user.linkAvatar);
 
@@ -153,11 +165,16 @@ namespace chessgames
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
-            mainInterface.showInter.Close();
+            if (checkModify)
+            {
+                mainInterface.showInter.Close();
 
-            //tạo lại form mới
-            mainInterface mainInter = new mainInterface(user);
-            mainInter.Show();
+                //tạo lại form mới
+                mainInterface mainInter = new mainInterface(user);
+                mainInter.Show();
+            }
+            else
+                mainInterface.showInter.Show();
         }
     }
 }

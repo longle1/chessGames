@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,7 +15,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace chessgames
 {
@@ -29,6 +29,7 @@ namespace chessgames
         private string apiGetUser = "https://chessmates.onrender.com/api/v1/users/edit/";
         private string apiGetAllUser = "https://chessmates.onrender.com/api/v1/users";
         private string apiGetUserId = "https://chessmates.onrender.com/api/v1/users/";
+        private string apiMakeFriend = "https://chessmates.onrender.com/api/v1/listFriends/add";
         TcpClient client = null;
         List<Button> buttonListIcons = new List<Button>();
         Button oldButton = new Button()
@@ -73,8 +74,6 @@ namespace chessgames
             this.user = user;
             lbUserName.Text = user.userName;
             lbScore.Text = user.point.ToString();
-            if (user.linkAvatar == "")
-                user.linkAvatar = "defaultAvatar.jpg";
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             showInter = this;
@@ -85,7 +84,7 @@ namespace chessgames
 
             displayListMatches();
         }
-        public void rcvData()
+        public async void rcvData()
         {
             while (true)
             {
@@ -97,12 +96,32 @@ namespace chessgames
                 string[] listMsg = message.Split('*');
                 switch (int.Parse(listMsg[0]))
                 {
+                    case 1:
+                        List<infoUser> lists = new List<infoUser>();
+                        foreach (listFriends item in user.lists)
+                        {
+                            //tiến hành lấy ra listID
+                            List<string> listid = item.listID;
+                            if (listid[0] != user.id)    //nghĩa là đây đúng là người gửi
+                            {
+                                string apiPath = apiGetUserId + listid[0];
+                                HttpClient client1 = new HttpClient();
+                                HttpResponseMessage response1 = await client1.GetAsync(apiPath);
+                                string jsonObject = await response1.Content.ReadAsStringAsync();
+                                JObject objData1 = JObject.Parse(jsonObject);
+                                JToken tkData = objData1["data"];
+                                infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                                lists.Add(friend);
+                            }
+
+
+                        }
+                        displayListWaitingAccept(lists);
+                        break;
                     case 5:
                         string[] msg = listMsg[1].Split(':');
                         if (listMsg[1].Contains("(1)"))
-                        {
                             writeData(null, msg[1], 1, msg[0].Substring(0, msg[0].Length - 3));
-                        }
                         else
                         {
                             string imageData = msg[1];
@@ -353,10 +372,13 @@ namespace chessgames
             dtListFriends.Columns.Add(buttonColumn3);
             dtListFriends.RowHeadersVisible = false;
             dtListFriends.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            foreach (infoUser item in userLists)
+            if (userLists != null)
             {
-                string[] rowData = new string[] { item.id, item.userName, item.statusActive };
-                dtListFriends.Rows.Add(rowData);
+                foreach (infoUser item in userLists)
+                {
+                    string[] rowData = new string[] { item.id, item.userName, item.statusActive };
+                    dtListFriends.Rows.Add(rowData);
+                }
             }
             dtListFriends.ReadOnly = true;
         }
@@ -387,10 +409,13 @@ namespace chessgames
             dtAcceptFriend.Columns.Add(buttonColumn1);
             dtAcceptFriend.RowHeadersVisible = false;
             dtAcceptFriend.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            foreach (infoUser item in userLists)
+            if (userLists != null)
             {
-                string[] rowData = new string[] { item.id, item.userName };
-                dtAcceptFriend.Rows.Add(rowData);
+                foreach (infoUser item in userLists)
+                {
+                    string[] rowData = new string[] { item.id, item.userName };
+                    dtAcceptFriend.Rows.Add(rowData);
+                }
             }
             dtAcceptFriend.ReadOnly = true;
         }
@@ -423,13 +448,62 @@ namespace chessgames
                 }
             }
         }
+        private async void dtAllUsers_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridView dataGridView = (DataGridView)sender;
+                if (e.ColumnIndex == 2) //sem thông tin người chơi
+                {
+                    string apiPath = apiGetUserId + dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString();
+                    HttpClient client = new HttpClient();
+                    HttpResponseMessage response = await client.GetAsync(apiPath);
+                    string jsonData = await response.Content.ReadAsStringAsync();
+                    JObject objData = JObject.Parse(jsonData);
+                    JToken tkData = objData["data"];
+                    infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
+                    FormInfoUser infoUser = new FormInfoUser(user, false);
+                    infoUser.Show();
+
+                    this.Hide();
+                }
+                else if (e.ColumnIndex == 3) // kết bạn
+                {
+                    //gọi tới API 
+                    HttpClient client = new HttpClient();
+                    var data = new
+                    {
+                        id_user1 = user.id,
+                        id_user2 = dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString()
+                    };
+                    var objData = JsonConvert.SerializeObject(data);
+                    await client.PostAsync(apiMakeFriend, new StringContent(objData, Encoding.UTF8, "application/json"));
+                    dataGridView.Rows[e.RowIndex].Cells[""].Style.ForeColor = dataGridView.BackColor;
+                    dataGridView.Rows[e.RowIndex].Cells[""].Style.BackColor = dataGridView.BackColor;
+                    dataGridView.Rows[e.RowIndex].Cells[""].ReadOnly = true;
+                    //gửi sự kiện lên server để reload lại form
+                    string message = (int)setting.makeFriend + "*" + user.id; //người gửi
+                    sendData(message);
+                }
+            }
+        }
+
+        private void dtListFriends_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dtAcceptFriend_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
 
         private void btnContainInfoUser_Click(object sender, EventArgs e)
         {
             //ẩn giao diện chính đi
             this.Hide();
-            FormInfoUser info = new FormInfoUser(user);
+            FormInfoUser info = new FormInfoUser(user, true);
             info.Show();
         }
 
@@ -463,7 +537,48 @@ namespace chessgames
         {
 
         }
-
+        public async Task<List<infoUser>> getListUser(List<infoUser> lists, string status)
+        {
+            foreach (listFriends item in user.lists)
+            {
+                //tiến hành lấy ra listID
+                List<string> listid = item.listID;
+                if (status == "waiting")
+                {
+                    if (listid[0] != user.id)
+                    {
+                        string apiPath = apiGetUserId + listid[0];
+                        HttpClient client1 = new HttpClient();
+                        HttpResponseMessage response1 = await client1.GetAsync(apiPath);
+                        string jsonObject = await response1.Content.ReadAsStringAsync();
+                        JObject objData1 = JObject.Parse(jsonObject);
+                        JToken tkData = objData1["data"];
+                        infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                        if (item.status.ToLower() == status)
+                            lists.Add(friend);
+                    }
+                }
+                else if (status == "friend")
+                {
+                    string id = "";
+                    foreach(string item1 in listid)
+                    {
+                        if(item1 != user.id) id = item1;
+                    }
+                    string apiPath = apiGetUserId + id;
+                    HttpClient client1 = new HttpClient();
+                    HttpResponseMessage response1 = await client1.GetAsync(apiPath);
+                    string jsonObject = await response1.Content.ReadAsStringAsync();
+                    JObject objData1 = JObject.Parse(jsonObject);
+                    JToken tkData = objData1["data"];
+                    infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                    if (item.status.ToLower() == status)
+                        lists.Add(friend);
+                }
+                
+            }
+            return lists;
+        }
         private async void btnMakeFriend_Click(object sender, EventArgs e)
         {
 
@@ -476,34 +591,20 @@ namespace chessgames
                 JObject objData = JObject.Parse(jsonData);
                 JToken tokenData = objData["data"];
                 List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
-
+                foreach (infoUser item in userLists)
+                {
+                    if (item.id == user.id)
+                    {
+                        userLists.Remove(item);
+                        break;
+                    }
+                }
                 //hiển thị danh sách user này lên datagridView
                 displayListUsers(userLists);
                 List<infoUser> getFriends = new List<infoUser>();
-                List<infoUser> userListsWaiting = new List<infoUser>();
-                foreach (listFriends item in user.lists)
-                {
-                    //tiến hành lấy ra listID
-                    List<string> listid = item.listID;
-                    string idUser1 = "";
-                    foreach (string id1 in listid)
-                    {
-                        if (id1 != user.id) idUser1 = id1;
-                    }
-                    string apiPath = apiGetUserId + idUser1;
-                    HttpClient client1 = new HttpClient();
-                    HttpResponseMessage response1 = await client1.GetAsync(apiPath);
-                    string jsonObject = await response1.Content.ReadAsStringAsync();
-                    JObject objData1 = JObject.Parse(jsonObject);
-                    JToken tkData = objData1["data"];
-                    infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
-                    if (item.status.ToLower() != "waiting")
-                        getFriends.Add(friend);
-                    else
-                        userListsWaiting.Add(friend);
-                }
-                displayListFriends(getFriends);
-                displayListWaitingAccept(userListsWaiting);
+
+                displayListFriends(await getListUser(getFriends, "friend"));
+                displayListWaitingAccept(await getListUser(getFriends, "waiting"));
             }
 
             pnlListFriends.Visible = true;
@@ -585,5 +686,7 @@ namespace chessgames
                 displayListUsers(userLists);
             }
         }
+
+
     }
 }

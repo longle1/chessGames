@@ -62,6 +62,7 @@ namespace chessgames
             HttpClient client = new HttpClient();
             // Gửi yêu cầu POST đến apiUrl với dữ liệu jsonData
             HttpResponseMessage response = await client.PostAsync(apiUrlLogin, new StringContent(dataJson, Encoding.UTF8, "application/json"));
+
             try
             {
                 int statusCode = (int)response.StatusCode;
@@ -79,22 +80,22 @@ namespace chessgames
                     infoUser user = JsonConvert.DeserializeObject<infoUser>(dataObject.ToString());
                     MessageBox.Show(jsonData["notify"].ToString());
 
-                    //tạo ra giao diện chính
-                    mainInterface inter = new mainInterface(user);
-
                     //cập nhật trạng thái thành hoạt động
                     string apiUser = apiGetUser + user.id;
                     var data1 = new
                     {
                         userName = user.userName,
                         gmail = user.gmail,
-                        linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "" : user.linkAvatar,
+                        linkAvatar = user.linkAvatar,
                         statusActive = "online",
                     };
                     user.statusActive = "online";
                     string jsonData1 = JsonConvert.SerializeObject(data1);
                     HttpClient client1 = new HttpClient();
                     await client1.PutAsync(apiUser, new StringContent(jsonData1, Encoding.UTF8, "application/json"));
+
+                    //tạo ra giao diện chính
+                    mainInterface inter = new mainInterface(user);
                     inter.Show();
                     this.Hide();
                     btnLogin.Enabled = true;
@@ -117,7 +118,7 @@ namespace chessgames
                     btnLogin.Enabled = true;
                     errorHideLabel.Show();
                     errorHideLabel.ForeColor = Color.Red;
-                    errorHideLabel.Text = $"Bạn còn {countLogin} đăng nhập";
+                    errorHideLabel.Text = $"Bạn còn {countLogin} lần để đăng nhập";
                     countLogin--;
                 }
             }

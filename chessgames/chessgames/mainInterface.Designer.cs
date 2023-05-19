@@ -53,8 +53,8 @@
             this.btnFindUser = new System.Windows.Forms.Button();
             this.txtFindUser = new System.Windows.Forms.TextBox();
             this.tbFriends = new System.Windows.Forms.TabPage();
-            this.tbAccept = new System.Windows.Forms.TabPage();
             this.dtListFriends = new System.Windows.Forms.DataGridView();
+            this.tbAccept = new System.Windows.Forms.TabPage();
             this.dtAcceptFriend = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).BeginInit();
@@ -63,8 +63,8 @@
             this.tbFindUser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAllUsers)).BeginInit();
             this.tbFriends.SuspendLayout();
-            this.tbAccept.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).BeginInit();
+            this.tbAccept.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).BeginInit();
             this.SuspendLayout();
             // 
@@ -277,6 +277,7 @@
             this.dtAllUsers.RowTemplate.Height = 24;
             this.dtAllUsers.Size = new System.Drawing.Size(696, 419);
             this.dtAllUsers.TabIndex = 3;
+            this.dtAllUsers.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtAllUsers_CellContentClick);
             // 
             // btnFindUser
             // 
@@ -306,6 +307,17 @@
             this.tbFriends.Text = "Danh sách bạn bè";
             this.tbFriends.UseVisualStyleBackColor = true;
             // 
+            // dtListFriends
+            // 
+            this.dtListFriends.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtListFriends.Location = new System.Drawing.Point(51, 14);
+            this.dtListFriends.Name = "dtListFriends";
+            this.dtListFriends.RowHeadersWidth = 51;
+            this.dtListFriends.RowTemplate.Height = 24;
+            this.dtListFriends.Size = new System.Drawing.Size(770, 469);
+            this.dtListFriends.TabIndex = 0;
+            this.dtListFriends.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtListFriends_CellContentClick);
+            // 
             // tbAccept
             // 
             this.tbAccept.Controls.Add(this.dtAcceptFriend);
@@ -317,16 +329,6 @@
             this.tbAccept.Text = "Chấp nhận lời mời";
             this.tbAccept.UseVisualStyleBackColor = true;
             // 
-            // dtListFriends
-            // 
-            this.dtListFriends.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dtListFriends.Location = new System.Drawing.Point(51, 14);
-            this.dtListFriends.Name = "dtListFriends";
-            this.dtListFriends.RowHeadersWidth = 51;
-            this.dtListFriends.RowTemplate.Height = 24;
-            this.dtListFriends.Size = new System.Drawing.Size(770, 469);
-            this.dtListFriends.TabIndex = 0;
-            // 
             // dtAcceptFriend
             // 
             this.dtAcceptFriend.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -336,6 +338,7 @@
             this.dtAcceptFriend.RowTemplate.Height = 24;
             this.dtAcceptFriend.Size = new System.Drawing.Size(688, 429);
             this.dtAcceptFriend.TabIndex = 0;
+            this.dtAcceptFriend.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtAcceptFriend_CellContentClick);
             // 
             // mainInterface
             // 
@@ -371,8 +374,8 @@
             this.tbFindUser.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAllUsers)).EndInit();
             this.tbFriends.ResumeLayout(false);
-            this.tbAccept.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).EndInit();
+            this.tbAccept.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
