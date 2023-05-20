@@ -32,6 +32,7 @@ namespace chessgames
         private string apiMakeFriend = "https://chessmates.onrender.com/api/v1/listFriends/add";
         private string apiGetAllListFriend = "https://chessmates.onrender.com/api/v1/listFriends";
         private string apiUpdaStatusFriend = "https://chessmates.onrender.com/api/v1/listFriends/edit/";
+        private string apiDeleteFriend = "https://chessmates.onrender.com/api/v1/listFriends/delete/";
         TcpClient client = null;
         List<Button> buttonListIcons = new List<Button>();
         Button oldButton = new Button()
@@ -51,6 +52,7 @@ namespace chessgames
             chatMulti = 5,
             outRoom = 6,
             logout = 7,
+            unFriend = 8
         }
         public mainInterface()
         {
@@ -99,7 +101,6 @@ namespace chessgames
                 switch (int.Parse(listMsg[0]))
                 {
                     case 1:
-
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
                         HttpClient client = new HttpClient();
                         HttpResponseMessage response = await client.GetAsync(apiGetUserId + user.id);
@@ -108,10 +109,8 @@ namespace chessgames
                         JToken tkData = objData["data"];
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
-
                         //cập nhật lại danh sách tất cả user
                         getListAllUser();
-
                         List<infoUser> lists = new List<infoUser>();
                         displayListWaitingAccept(await getListUser(lists, "waiting"));
                         break;
@@ -144,6 +143,20 @@ namespace chessgames
                                 writeData(image, "", 2, msg[0].Substring(0, msg[0].Length - 3));
                             }
                         }
+                        break;
+                    case 8:
+                        //làm mới lại danh sách khi có phần tử mới được thêm vào
+                        HttpClient client3 = new HttpClient();
+                        HttpResponseMessage response3 = await client3.GetAsync(apiGetUserId + user.id);
+                        string jsonData3 = await response3.Content.ReadAsStringAsync();
+                        JObject objData3 = JObject.Parse(jsonData3);
+                        JToken tkData3 = objData3["data"];
+                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData3.ToString());
+
+                        //cập nhật lại danh sách tất cả user
+                        getListAllUser();
+                        List<infoUser> lists2 = new List<infoUser>();
+                        displayListFriends(await getListUser(lists2, "friend"));
                         break;
                 }
 
@@ -355,16 +368,21 @@ namespace chessgames
                 //so sánh với từng user trong list "friend" or "waiting" của user
                 for (int j = 0; j < user.lists.Count; j++)
                 {
-                    for(int k = 0; k < user.lists[j].listID.Count;k++)
+                    for (int k = 0; k < user.lists[j].listID.Count; k++)
                     {
                         if (user.lists[j].listID[k] == id) { check = true; break; }
                     }
                     if (check) break;
                 }
-                if(check)
+                if (check)
                 {
                     cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
                     cell.ReadOnly = true;
+                }
+                else
+                {
+                    cell.Style = new DataGridViewCellStyle { Padding = new Padding(0, 0, 0, 0) };
+                    cell.ReadOnly = false;
                 }
             }
 
@@ -527,9 +545,80 @@ namespace chessgames
             }
         }
 
-        private void dtListFriends_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void dtListFriends_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridView dataGridView = (DataGridView)sender;
+                if (e.ColumnIndex == 3) //sem thông tin người chơi
+                {
+                    string apiPath = apiGetUserId + dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString();
+                    HttpClient client = new HttpClient();
+                    HttpResponseMessage response = await client.GetAsync(apiPath);
+                    string jsonData = await response.Content.ReadAsStringAsync();
+                    JObject objData = JObject.Parse(jsonData);
+                    JToken tkData = objData["data"];
+                    infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
+                    FormInfoUser infoUser = new FormInfoUser(user, false);
+                    infoUser.Show();
+
+                    this.Hide();
+                }
+                else if (e.ColumnIndex == 4)
+                {
+
+                }
+                else if (e.ColumnIndex == 5)
+                {
+                    //gọi tới api danh sách đợi
+                    HttpClient client1 = new HttpClient();
+                    HttpResponseMessage response = await client1.GetAsync(apiGetAllListFriend);
+                    string jsonData = await response.Content.ReadAsStringAsync();
+                    JObject objData = JObject.Parse(jsonData);
+                    JToken tkData = objData["data"];
+                    List<listFriends> listFriends = JsonConvert.DeserializeObject<List<listFriends>>(tkData.ToString());
+                    string id1 = user.id;
+                    string id2 = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
+                    string newId = "";
+                    foreach (listFriends item in listFriends)
+                    {
+                        if (item.listID.Contains(id1) && item.listID.Contains(id2))
+                        {
+                            newId = item._id;
+                            break;
+                        }
+                    }
+                    if (newId != "")
+                    {
+                        //gọi tới API 
+                        HttpClient client = new HttpClient();
+                        string apiPath = apiDeleteFriend + newId;
+                        //tiến hành lấy ra _id thỏa mãn
+                        await client.DeleteAsync(apiPath);
+
+
+
+                        //cập nhật lại danh sách
+                        //làm mới lại danh sách khi có phần tử mới được thêm vào
+                        HttpClient client2 = new HttpClient();
+                        HttpResponseMessage response2 = await client2.GetAsync(apiGetUserId + user.id);
+                        string jsonData2 = await response2.Content.ReadAsStringAsync();
+                        JObject objData2 = JObject.Parse(jsonData2);
+                        JToken tkData2 = objData2["data"];
+                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
+
+                        //gửi sự kiện lên server để reload lại form
+                        string message = (int)setting.acceptFriend + "*" + dataGridView.Rows[e.RowIndex].Cells[1].Value.ToString();
+                        //xóa dòng đó khỏi dữ liệu
+                        dataGridView.Rows.RemoveAt(e.RowIndex);
+                        sendData(message);
+
+                        //cập nhật lại danh sách tất cả người dùng
+                        getListAllUser();
+                    }
+                }
+            }
         }
 
         private async void dtAcceptFriend_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -546,10 +635,10 @@ namespace chessgames
                     JObject objData = JObject.Parse(jsonData);
                     JToken tkData = objData["data"];
                     List<listFriends> listFriends = JsonConvert.DeserializeObject<List<listFriends>>(tkData.ToString());
-                    string id1 = user.id; 
+                    string id1 = user.id;
                     string id2 = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
                     string newId = "";
-                    foreach(listFriends item in listFriends)
+                    foreach (listFriends item in listFriends)
                     {
                         if (item.listID.Contains(id1) && item.listID.Contains(id2))
                         {
@@ -558,7 +647,7 @@ namespace chessgames
                         }
                     }
 
-                    if(newId != "")
+                    if (newId != "")
                     {
                         //gọi tới API 
                         HttpClient client = new HttpClient();
@@ -566,10 +655,19 @@ namespace chessgames
                         //tiến hành lấy ra _id thỏa mãn
                         await client.PutAsync(apiPath, new StringContent("", Encoding.UTF8, "application/json"));
 
-                        //xóa dòng đó khỏi dữ liệu
-                        dataGridView.Rows.RemoveAt(e.RowIndex);
+                        //cập nhật lại danh sách
+                        //làm mới lại danh sách khi có phần tử mới được thêm vào
+                        HttpClient client2 = new HttpClient();
+                        HttpResponseMessage response2 = await client2.GetAsync(apiGetUserId + user.id);
+                        string jsonData2 = await response2.Content.ReadAsStringAsync();
+                        JObject objData2 = JObject.Parse(jsonData2);
+                        JToken tkData2 = objData2["data"];
+                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
+
                         //gửi sự kiện lên server để reload lại form
                         string message = (int)setting.acceptFriend + "*" + dataGridView.Rows[e.RowIndex].Cells[1].Value.ToString();
+                        //xóa dòng đó khỏi dữ liệu
+                        dataGridView.Rows.RemoveAt(e.RowIndex);
                         sendData(message);
                         //cập nhật lại danh sách bạn bè
                         List<infoUser> getFriends = new List<infoUser>();
@@ -681,6 +779,7 @@ namespace chessgames
             List<infoUser> getFriends = new List<infoUser>();
 
             displayListFriends(await getListUser(getFriends, "friend"));
+            getFriends.Clear();
             displayListWaitingAccept(await getListUser(getFriends, "waiting"));
             pnlListFriends.Visible = true;
         }
