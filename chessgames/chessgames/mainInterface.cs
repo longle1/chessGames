@@ -144,6 +144,28 @@ namespace chessgames
                             }
                         }
                         break;
+                    case 7: //xử lý log out
+                        //lấy id nhận về 
+                        string id = listMsg[0].Split(',')[1];
+                        //kiểm tra xem trong danh sách bạn bè xem có user này không
+                        bool check = false;
+                        foreach (listFriends item in user.lists)
+                        {
+                            if (item.status == "friend")
+                            {
+                                if (item.listID.Contains(id))
+                                {
+                                    check = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (check)
+                        {
+                            List<infoUser> lists3 = new List<infoUser>();
+                            displayListFriends(await getListUser(lists3, "friend"));
+                        }
+                        break;
                     case 8:
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
                         HttpClient client3 = new HttpClient();
@@ -434,6 +456,21 @@ namespace chessgames
                     dtListFriends.Rows.Add(rowData);
                 }
             }
+            //kiểm tra xem có nên hiện nút chat hay không
+            for (int i = 0; i < userLists.Count; i++)
+            {
+                DataGridViewCell cell = dtAllUsers.Rows[i].Cells[3];    //lấy ra cái nút chat
+                if (userLists[i].statusActive.ToLower() == "offline")
+                {
+                    cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
+                    cell.ReadOnly = true;
+                }
+                else if (userLists[i].statusActive.ToLower() == "online")
+                {
+                    cell.Style = new DataGridViewCellStyle { Padding = new Padding(0, 0, 0, 0) };
+                    cell.ReadOnly = false;
+                }
+            }
             dtListFriends.ReadOnly = true;
         }
         public void displayListWaitingAccept(List<infoUser> userLists)
@@ -700,7 +737,7 @@ namespace chessgames
 
 
             //gửi thông điệp logout lên server
-            string message = (int)setting.logout + "*" + user.userName;
+            string message = (int)setting.logout + "*" + user.userName + "," + user.id;
             sendData(message);
 
 
