@@ -43,12 +43,12 @@ namespace chessgames
         {
             createRoom = 0,
             makeFriend = 1,
-            unfriend = 2,
+            acceptFriend = 2,
             joinRoom = 3,
             chatOne = 4,
             chatMulti = 5,
             outRoom = 6,
-            logout = 7
+            logout = 7,
         }
         public mainInterface()
         {
@@ -97,6 +97,12 @@ namespace chessgames
                 switch (int.Parse(listMsg[0]))
                 {
                     case 1:
+                        HttpClient client = new HttpClient();
+                        HttpResponseMessage response = await client.GetAsync(apiGetUserId + user.id);
+                        string jsonData = await response.Content.ReadAsStringAsync();
+                        JObject objData = JObject.Parse(jsonData);
+                        JToken tkData = objData["data"];
+                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
                         List<infoUser> lists = new List<infoUser>();
                         foreach (listFriends item in user.lists)
                         {
@@ -109,14 +115,15 @@ namespace chessgames
                                 HttpResponseMessage response1 = await client1.GetAsync(apiPath);
                                 string jsonObject = await response1.Content.ReadAsStringAsync();
                                 JObject objData1 = JObject.Parse(jsonObject);
-                                JToken tkData = objData1["data"];
-                                infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                                JToken tkData1 = objData1["data"];
+                                infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData1.ToString());
                                 lists.Add(friend);
                             }
-
-
                         }
                         displayListWaitingAccept(lists);
+                        break;
+                    case 2:
+
                         break;
                     case 5:
                         string[] msg = listMsg[1].Split(':');
@@ -332,6 +339,31 @@ namespace chessgames
                 string[] rowData = new string[] { item.id, item.userName };
                 dtAllUsers.Rows.Add(rowData);
             }
+
+            //lặp qua từng dòng dữ liệu để kiểm tra xem có nên hiển thị nút kết bạn hay không
+            for (int i = 0; i < userLists.Count; i++)
+            {
+                //lấy ra từng dòng dữ liệu
+                DataGridViewCell cell = dtAllUsers.Rows[i].Cells[3];    //lấy ra cái nút kết bạn
+                //lấy ra giá trị id của từng user
+                string id = dtAllUsers.Rows[i].Cells[0].Value.ToString();
+                bool check = false;
+                //so sánh với từng user trong list "friend" or "waiting" của user
+                for (int j = 0; j < user.lists.Count; j++)
+                {
+                    for(int k = 0; k < user.lists[j].listID.Count;k++)
+                    {
+                        if (user.lists[j].listID[k] == id) { check = true; break; }
+                    }
+                    if (check) break;
+                }
+                if(check)
+                {
+                    cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
+                    cell.ReadOnly = true;
+                }
+            }
+
             dtAllUsers.ReadOnly = true;
         }
         public void displayListFriends(List<infoUser> userLists)
@@ -479,11 +511,13 @@ namespace chessgames
                     };
                     var objData = JsonConvert.SerializeObject(data);
                     await client.PostAsync(apiMakeFriend, new StringContent(objData, Encoding.UTF8, "application/json"));
-                    dataGridView.Rows[e.RowIndex].Cells[""].Style.ForeColor = dataGridView.BackColor;
-                    dataGridView.Rows[e.RowIndex].Cells[""].Style.BackColor = dataGridView.BackColor;
-                    dataGridView.Rows[e.RowIndex].Cells[""].ReadOnly = true;
+
+                    DataGridViewCell cell = dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
+                    cell.ReadOnly = true;
+                    dataGridView.Update();
                     //gửi sự kiện lên server để reload lại form
-                    string message = (int)setting.makeFriend + "*" + user.id; //người gửi
+                    string message = (int)setting.makeFriend + "*" + dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString(); //người gửi
                     sendData(message);
                 }
             }
@@ -515,7 +549,7 @@ namespace chessgames
             {
                 userName = user.userName,
                 gmail = user.gmail,
-                linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "" : user.linkAvatar,
+                linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "defaultAvatar.jpg" : user.linkAvatar,
                 statusActive = "offline",
             };
 
@@ -561,9 +595,9 @@ namespace chessgames
                 else if (status == "friend")
                 {
                     string id = "";
-                    foreach(string item1 in listid)
+                    foreach (string item1 in listid)
                     {
-                        if(item1 != user.id) id = item1;
+                        if (item1 != user.id) id = item1;
                     }
                     string apiPath = apiGetUserId + id;
                     HttpClient client1 = new HttpClient();
@@ -575,7 +609,6 @@ namespace chessgames
                     if (item.status.ToLower() == status)
                         lists.Add(friend);
                 }
-                
             }
             return lists;
         }
@@ -599,8 +632,11 @@ namespace chessgames
                         break;
                     }
                 }
-                //hiển thị danh sách user này lên datagridView
+
+                //hiển thị danh sách tất cả user lên datagridView
                 displayListUsers(userLists);
+
+
                 List<infoUser> getFriends = new List<infoUser>();
 
                 displayListFriends(await getListUser(getFriends, "friend"));
