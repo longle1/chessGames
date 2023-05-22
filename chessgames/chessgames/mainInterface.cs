@@ -42,7 +42,7 @@ namespace chessgames
         };
         button btn = new button();
         int iconNumbers = 29;
-
+        string ipAddress = "172.20.24.190";
         private enum setting
         {
             createRoom = 0,
@@ -74,7 +74,7 @@ namespace chessgames
             pnlContainsIcon.Hide();
             rtbChat.ReadOnly = true;
             client = new TcpClient();
-            client.Connect(System.Net.IPAddress.Parse("172.20.24.190"), 8081);
+            client.Connect(System.Net.IPAddress.Parse(ipAddress), 8081);
             Thread rcvDataThread = new Thread(new ThreadStart(rcvData));
             rcvDataThread.Start();
         }
@@ -499,9 +499,7 @@ namespace chessgames
             dtListFriends.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             //ngăn không cho người dùng kéo giãn
             foreach (DataGridViewColumn column in dtListFriends.Columns)
-            {
                 column.Resizable = DataGridViewTriState.False;
-            }
             foreach (DataGridViewRow row in dtListFriends.Rows)
             {
                 row.Resizable = DataGridViewTriState.False;
@@ -750,7 +748,14 @@ namespace chessgames
                     {
                         //chấp nhận kết bạn
                         string apiPath = apiUpdaStatusFriend + newId;
-                        await callApiUsingMethodPut((object)"", apiPath);
+                        var data = new { };
+                        await callApiUsingMethodPut(data, apiPath);
+
+                        //gửi sự kiện lên server để reload lại form
+                        string message = (int)setting.acceptFriend + "*" + dataGridView.Rows[e.RowIndex].Cells[1].Value.ToString();
+
+                        //xóa dòng đó khỏi dữ liệu
+                        dataGridView.Rows.RemoveAt(e.RowIndex);
 
                         //cập nhật lại danh sách
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
@@ -758,10 +763,7 @@ namespace chessgames
                         JToken tkData2 = await callApiUsingGetMethodID(apiPath1);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
 
-                        //gửi sự kiện lên server để reload lại form
-                        string message = (int)setting.acceptFriend + "*" + dataGridView.Rows[e.RowIndex].Cells[1].Value.ToString();
-                        //xóa dòng đó khỏi dữ liệu
-                        dataGridView.Rows.RemoveAt(e.RowIndex);
+       
                         sendData(message);
                         //cập nhật lại danh sách bạn bè
                         List<infoUser> getFriends = new List<infoUser>();
