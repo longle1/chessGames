@@ -42,6 +42,7 @@ namespace chessgames
         };
         button btn = new button();
         int iconNumbers = 29;
+
         private enum setting
         {
             createRoom = 0,
@@ -54,6 +55,17 @@ namespace chessgames
             logout = 7,
             unFriend = 8
         }
+        private void mainInterface_Load(object sender, EventArgs e)
+        {
+            lbUserName.Text = user.userName;
+            lbScore.Text = user.point.ToString();
+            if (user.linkAvatar == "")
+                user.linkAvatar = "defaultAvatar.jpg";
+            ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
+            ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
+        //============================================  HÀM KHỞI TẠO MẶC ĐỊNH =============================================================
         public mainInterface()
         {
             InitializeComponent();
@@ -62,15 +74,9 @@ namespace chessgames
             pnlContainsIcon.Hide();
             rtbChat.ReadOnly = true;
             client = new TcpClient();
-            client.Connect(System.Net.IPAddress.Parse("172.20.30.81"), 8081);
+            client.Connect(System.Net.IPAddress.Parse("172.20.24.190"), 8081);
             Thread rcvDataThread = new Thread(new ThreadStart(rcvData));
             rcvDataThread.Start();
-        }
-        public void sendData(string msg)
-        {
-            NetworkStream stream = client.GetStream();
-            byte[] data = Encoding.UTF8.GetBytes(msg);
-            stream.Write(data, 0, data.Length);
         }
         public mainInterface(infoUser user) : this()
         {
@@ -88,6 +94,106 @@ namespace chessgames
 
             displayListMatches();
         }
+        //==================================================================================================================================
+
+        //============================================  HÀM DÙNG ĐỂ GỌI API ===============================================================
+        public async Task<JToken> callApiUsingGetMethodID(string apiPath)
+        {
+            //làm mới lại danh sách khi có phần tử mới được thêm vào
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(apiPath);
+            string jsonData = await response.Content.ReadAsStringAsync();
+            JObject objData = JObject.Parse(jsonData);
+            JToken tkData = objData["data"];
+
+            return tkData;
+        }
+        public async Task<JToken> callApiUsingMethodGet(string apiPath)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(apiPath);
+            JToken dataToken = null;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string responseData = await response.Content.ReadAsStringAsync();
+                JObject jsonData = JObject.Parse(responseData);
+                // Lấy giá trị của thuộc tính "data"
+                dataToken = jsonData["data"];
+                // Chuyển đổi sang đối tượng JSON
+            }
+            return dataToken;
+        }
+        public async Task callApiUsingMethodPost(object data, string apiPath)
+        {
+            //gọi tới API 
+            HttpClient client = new HttpClient();
+            var objData = JsonConvert.SerializeObject(data);
+            await client.PostAsync(apiPath, new StringContent(objData, Encoding.UTF8, "application/json"));
+        }
+        public async Task callApiUsingMethodPut(object data, string apiPath)
+        {
+            //gọi tới API 
+            HttpClient client = new HttpClient();
+            string dataJson = JsonConvert.SerializeObject(data);
+            //tiến hành lấy ra _id thỏa mãn
+            await client.PutAsync(apiPath, new StringContent(dataJson, Encoding.UTF8, "application/json"));
+        }
+        //==================================================================================================================================
+
+        //============================================  HÀM DÙNG ĐỂ LẤY RA DANH SÁCH NGƯỜI DÙNG ============================================
+        public async void getListAllUser()
+        {
+            string apiPath = apiGetAllUser;
+            JToken tokenData = await callApiUsingMethodGet(apiPath);
+            List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
+            foreach (infoUser item in userLists)
+            {
+                if (item.id == user.id)
+                {
+                    userLists.Remove(item);
+                    break;
+                }
+            }
+            //hiển thị danh sách tất cả user lên datagridView
+            displayListUsers(userLists);
+        }
+        public async Task<List<infoUser>> getListUser(List<infoUser> lists, string status)
+        {
+            foreach (listFriends item in user.lists)
+            {
+                //tiến hành lấy ra listID
+                List<string> listid = item.listID;
+                string apiPath = "";
+                if (status == "waiting")
+                {
+                    if (listid[0] != user.id)
+                        apiPath = apiGetUserId + listid[0];
+                    else
+                        continue;
+                }
+                else if (status == "friend")
+                {
+                    string id = "";
+                    foreach (string item1 in listid)
+                        if (item1 != user.id) id = item1;
+                    apiPath = apiGetUserId + id;
+                }
+                JToken tkData = await callApiUsingGetMethodID(apiPath);
+                infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                if (item.status.ToLower() == status)
+                    lists.Add(friend);
+            }
+            return lists;
+        }
+        //==================================================================================================================================
+
+        //============================================ CÁC HÀM DÙNG ĐỂ GỬI VÀ NHẬN DỮ LIỆU =================================================
+        public void sendData(string msg)
+        {
+            NetworkStream stream = client.GetStream();
+            byte[] data = Encoding.UTF8.GetBytes(msg);
+            stream.Write(data, 0, data.Length);
+        }
         public async void rcvData()
         {
             while (true)
@@ -101,12 +207,7 @@ namespace chessgames
                 switch (int.Parse(listMsg[0]))
                 {
                     case 1:
-                        //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        HttpClient client = new HttpClient();
-                        HttpResponseMessage response = await client.GetAsync(apiGetUserId + user.id);
-                        string jsonData = await response.Content.ReadAsStringAsync();
-                        JObject objData = JObject.Parse(jsonData);
-                        JToken tkData = objData["data"];
+                        JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
                         //cập nhật lại danh sách tất cả user
@@ -115,16 +216,11 @@ namespace chessgames
                         displayListWaitingAccept(await getListUser(lists, "waiting"));
                         break;
                     case 2:
-                        //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        HttpClient client1 = new HttpClient();
-                        HttpResponseMessage response1 = await client1.GetAsync(apiGetUserId + user.id);
-                        string jsonData1 = await response1.Content.ReadAsStringAsync();
-                        JObject objData1 = JObject.Parse(jsonData1);
-                        JToken tkData1 = objData1["data"];
+                        JToken tkData1 = await callApiUsingGetMethodID(apiGetUserId + user.id);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData1.ToString());
+
                         //cập nhật lại danh sách tất cả user
                         getListAllUser();
-
                         List<infoUser> lists1 = new List<infoUser>();
                         displayListFriends(await getListUser(lists1, "friend"));
                         break;
@@ -146,7 +242,7 @@ namespace chessgames
                         break;
                     case 7: //xử lý log out
                         //lấy id nhận về 
-                        string id = listMsg[0].Split(',')[1];
+                        string id = listMsg[1].Split(',')[1];
                         //kiểm tra xem trong danh sách bạn bè xem có user này không
                         bool check = false;
                         foreach (listFriends item in user.lists)
@@ -168,11 +264,7 @@ namespace chessgames
                         break;
                     case 8:
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        HttpClient client3 = new HttpClient();
-                        HttpResponseMessage response3 = await client3.GetAsync(apiGetUserId + user.id);
-                        string jsonData3 = await response3.Content.ReadAsStringAsync();
-                        JObject objData3 = JObject.Parse(jsonData3);
-                        JToken tkData3 = objData3["data"];
+                        JToken tkData3 = await callApiUsingGetMethodID(apiGetUserId + user.id);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData3.ToString());
 
                         //cập nhật lại danh sách tất cả user
@@ -266,7 +358,6 @@ namespace chessgames
                 pnlContainsIcon.Show();
             }
         }
-
         private void Btn2_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
@@ -281,7 +372,6 @@ namespace chessgames
             pnlContainsIcon.Hide();
             buttonListIcons.Clear();
         }
-
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
             string message = (int)setting.chatMulti + "*" + user.userName + "(1):" + txtSendMessage.Text;
@@ -289,6 +379,9 @@ namespace chessgames
             writeData(null, txtSendMessage.Text, 1, user.userName);
             txtSendMessage.Clear();
         }
+        //==================================================================================================================================
+
+        //====================================CÁC HÀM DÙNG ĐỂ HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN DATAGRIDVIEW ==================================
         private async void displayListMatches()
         {
             //tạo ra đối tượng để căn giữa nội dung trong từng ô
@@ -320,27 +413,17 @@ namespace chessgames
             dtGridContainListRooms.Columns.Add(buttonColumn);
             dtGridContainListRooms.RowHeadersVisible = false;
             dtGridContainListRooms.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(apiGetListMatches);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+
+            JToken dataToken = await callApiUsingMethodGet(apiGetListMatches);
+            List<matches> list = JsonConvert.DeserializeObject<List<matches>>(dataToken.ToString());
+
+            foreach (matches item in list)
             {
-                string responseData = await response.Content.ReadAsStringAsync();
-                JObject jsonData = JObject.Parse(responseData);
-                // Lấy giá trị của thuộc tính "data"
-                JToken dataToken = jsonData["data"];
-                // Chuyển đổi sang đối tượng JSON
-                List<matches> list = JsonConvert.DeserializeObject<List<matches>>(dataToken.ToString());
-
-                foreach (matches item in list)
-                {
-                    string[] rowData = new string[] { item._id, item.count.ToString() + "/2", item.betPoints.ToString(), item.status };
-                    dtGridContainListRooms.Rows.Add(rowData);
-                }
-                dtGridContainListRooms.ReadOnly = true;
-
+                string[] rowData = new string[] { item._id, item.count.ToString() + "/2", item.betPoints.ToString(), item.status };
+                dtGridContainListRooms.Rows.Add(rowData);
             }
+            dtGridContainListRooms.ReadOnly = true;
         }
-
         private void displayListUsers(List<infoUser> userLists)
         {
             dtAllUsers.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -390,11 +473,11 @@ namespace chessgames
                 //so sánh với từng user trong list "friend" or "waiting" của user
                 for (int j = 0; j < user.lists.Count; j++)
                 {
-                    for (int k = 0; k < user.lists[j].listID.Count; k++)
+                    if (user.lists[j].listID.Contains(id))
                     {
-                        if (user.lists[j].listID[k] == id) { check = true; break; }
+                        check = true;
+                        break;
                     }
-                    if (check) break;
                 }
                 if (check)
                 {
@@ -459,7 +542,7 @@ namespace chessgames
             //kiểm tra xem có nên hiện nút chat hay không
             for (int i = 0; i < userLists.Count; i++)
             {
-                DataGridViewCell cell = dtAllUsers.Rows[i].Cells[3];    //lấy ra cái nút chat
+                DataGridViewCell cell = dtListFriends.Rows[i].Cells[4];
                 if (userLists[i].statusActive.ToLower() == "offline")
                 {
                     cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
@@ -510,6 +593,9 @@ namespace chessgames
             }
             dtAcceptFriend.ReadOnly = true;
         }
+        //==================================================================================================================================
+
+        //========================================= HÀM DÙNG ĐỂ THAO TÁC VỚI SỰ KIỆN BẤM VÀO DATAGRIDVIEW ==================================
         private void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -544,14 +630,10 @@ namespace chessgames
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
                 DataGridView dataGridView = (DataGridView)sender;
-                if (e.ColumnIndex == 2) //sem thông tin người chơi
+                if (e.ColumnIndex == 2) //xem thông tin người chơi
                 {
                     string apiPath = apiGetUserId + dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString();
-                    HttpClient client = new HttpClient();
-                    HttpResponseMessage response = await client.GetAsync(apiPath);
-                    string jsonData = await response.Content.ReadAsStringAsync();
-                    JObject objData = JObject.Parse(jsonData);
-                    JToken tkData = objData["data"];
+                    JToken tkData = await callApiUsingGetMethodID(apiPath);
                     infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
                     FormInfoUser infoUser = new FormInfoUser(user, false);
@@ -561,15 +643,12 @@ namespace chessgames
                 }
                 else if (e.ColumnIndex == 3) // kết bạn
                 {
-                    //gọi tới API 
-                    HttpClient client = new HttpClient();
                     var data = new
                     {
                         id_user1 = user.id,
                         id_user2 = dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString()
                     };
-                    var objData = JsonConvert.SerializeObject(data);
-                    await client.PostAsync(apiMakeFriend, new StringContent(objData, Encoding.UTF8, "application/json"));
+                    await callApiUsingMethodPost(data, apiMakeFriend);
 
                     DataGridViewCell cell = dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     cell.Style = new DataGridViewCellStyle { Padding = new Padding(500, 0, 0, 0) };
@@ -581,7 +660,6 @@ namespace chessgames
                 }
             }
         }
-
         private async void dtListFriends_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -590,11 +668,7 @@ namespace chessgames
                 if (e.ColumnIndex == 3) //sem thông tin người chơi
                 {
                     string apiPath = apiGetUserId + dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString();
-                    HttpClient client = new HttpClient();
-                    HttpResponseMessage response = await client.GetAsync(apiPath);
-                    string jsonData = await response.Content.ReadAsStringAsync();
-                    JObject objData = JObject.Parse(jsonData);
-                    JToken tkData = objData["data"];
+                    JToken tkData = await callApiUsingGetMethodID(apiPath);
                     infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
                     FormInfoUser infoUser = new FormInfoUser(user, false);
@@ -609,11 +683,7 @@ namespace chessgames
                 else if (e.ColumnIndex == 5)
                 {
                     //gọi tới api danh sách đợi
-                    HttpClient client1 = new HttpClient();
-                    HttpResponseMessage response = await client1.GetAsync(apiGetAllListFriend);
-                    string jsonData = await response.Content.ReadAsStringAsync();
-                    JObject objData = JObject.Parse(jsonData);
-                    JToken tkData = objData["data"];
+                    JToken tkData = await callApiUsingMethodGet(apiGetAllListFriend);
                     List<listFriends> listFriends = JsonConvert.DeserializeObject<List<listFriends>>(tkData.ToString());
                     string id1 = user.id;
                     string id2 = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
@@ -638,11 +708,8 @@ namespace chessgames
 
                         //cập nhật lại danh sách
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        HttpClient client2 = new HttpClient();
-                        HttpResponseMessage response2 = await client2.GetAsync(apiGetUserId + user.id);
-                        string jsonData2 = await response2.Content.ReadAsStringAsync();
-                        JObject objData2 = JObject.Parse(jsonData2);
-                        JToken tkData2 = objData2["data"];
+                        string apiPath1 = apiGetUserId + user.id;
+                        JToken tkData2 = await callApiUsingGetMethodID(apiPath1);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
 
                         //gửi sự kiện lên server để reload lại form
@@ -657,20 +724,15 @@ namespace chessgames
                 }
             }
         }
-
         private async void dtAcceptFriend_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
                 DataGridView dataGridView = (DataGridView)sender;
-                if (e.ColumnIndex == 2) // kết bạn
+                if (e.ColumnIndex == 2) // chấp nhận lời mời
                 {
                     //gọi tới api danh sách đợi
-                    HttpClient client1 = new HttpClient();
-                    HttpResponseMessage response = await client1.GetAsync(apiGetAllListFriend);
-                    string jsonData = await response.Content.ReadAsStringAsync();
-                    JObject objData = JObject.Parse(jsonData);
-                    JToken tkData = objData["data"];
+                    JToken tkData = await callApiUsingMethodGet(apiGetAllListFriend);
                     List<listFriends> listFriends = JsonConvert.DeserializeObject<List<listFriends>>(tkData.ToString());
                     string id1 = user.id;
                     string id2 = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
@@ -686,19 +748,14 @@ namespace chessgames
 
                     if (newId != "")
                     {
-                        //gọi tới API 
-                        HttpClient client = new HttpClient();
+                        //chấp nhận kết bạn
                         string apiPath = apiUpdaStatusFriend + newId;
-                        //tiến hành lấy ra _id thỏa mãn
-                        await client.PutAsync(apiPath, new StringContent("", Encoding.UTF8, "application/json"));
+                        await callApiUsingMethodPut((object)"", apiPath);
 
                         //cập nhật lại danh sách
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        HttpClient client2 = new HttpClient();
-                        HttpResponseMessage response2 = await client2.GetAsync(apiGetUserId + user.id);
-                        string jsonData2 = await response2.Content.ReadAsStringAsync();
-                        JObject objData2 = JObject.Parse(jsonData2);
-                        JToken tkData2 = objData2["data"];
+                        string apiPath1 = apiGetUserId + user.id;
+                        JToken tkData2 = await callApiUsingGetMethodID(apiPath1);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
 
                         //gửi sự kiện lên server để reload lại form
@@ -714,7 +771,9 @@ namespace chessgames
                 }
             }
         }
+        //==================================================================================================================================
 
+        //========================================= cÁC HÀM ĐỂ THỰC HIỆN CHỨC NĂNG TƯƠNG TÁC VỚI CÁC NÚT ===================================
         private void btnContainInfoUser_Click(object sender, EventArgs e)
         {
             //ẩn giao diện chính đi
@@ -722,7 +781,6 @@ namespace chessgames
             FormInfoUser info = new FormInfoUser(user, true);
             info.Show();
         }
-
         private async void btnLogout_Click(object sender, EventArgs e)
         {
             apiGetUser += user.id;
@@ -748,66 +806,9 @@ namespace chessgames
             //tiến hành đóng form lại
             this.Close();
         }
-
         private void btnRank_Click(object sender, EventArgs e)
         {
 
-        }
-
-        public async void getListAllUser()
-        {
-            //gọi api để hiển thị danh sách người dùng
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(apiGetAllUser);
-            string jsonData = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                JObject objData = JObject.Parse(jsonData);
-                JToken tokenData = objData["data"];
-                List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
-                foreach (infoUser item in userLists)
-                {
-                    if (item.id == user.id)
-                    {
-                        userLists.Remove(item);
-                        break;
-                    }
-                }
-                //hiển thị danh sách tất cả user lên datagridView
-                displayListUsers(userLists);
-            }
-        }
-        public async Task<List<infoUser>> getListUser(List<infoUser> lists, string status)
-        {
-            foreach (listFriends item in user.lists)
-            {
-                //tiến hành lấy ra listID
-                List<string> listid = item.listID;
-                string apiPath = "";
-                if (status == "waiting")
-                {
-                    if (listid[0] != user.id)
-                        apiPath = apiGetUserId + listid[0];
-                    else
-                        continue;
-                }
-                else if (status == "friend")
-                {
-                    string id = "";
-                    foreach (string item1 in listid)
-                        if (item1 != user.id) id = item1;
-                    apiPath = apiGetUserId + id;
-                }
-                HttpClient client1 = new HttpClient();
-                HttpResponseMessage response1 = await client1.GetAsync(apiPath);
-                string jsonObject = await response1.Content.ReadAsStringAsync();
-                JObject objData1 = JObject.Parse(jsonObject);
-                JToken tkData = objData1["data"];
-                infoUser friend = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
-                if (item.status.ToLower() == status)
-                    lists.Add(friend);
-            }
-            return lists;
         }
         private async void btnMakeFriend_Click(object sender, EventArgs e)
         {
@@ -820,7 +821,6 @@ namespace chessgames
             displayListWaitingAccept(await getListUser(getFriends, "waiting"));
             pnlListFriends.Visible = true;
         }
-
         private void btnExit_Click(object sender, EventArgs e)
         {
             pnlListFriends.Visible = false;
@@ -830,12 +830,10 @@ namespace chessgames
         {
 
         }
-
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
 
         }
-
         private async void btnCreateRoom_Click(object sender, EventArgs e)
         {
             try
@@ -870,32 +868,15 @@ namespace chessgames
                 MessageBox.Show(ex.Message);
             }
         }
-        private void mainInterface_Load(object sender, EventArgs e)
-        {
-            lbUserName.Text = user.userName;
-            lbScore.Text = user.point.ToString();
-            if (user.linkAvatar == "")
-                user.linkAvatar = "defaultAvatar.jpg";
-            ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
-            ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
-        }
-
         private async void btnFindUser_Click(object sender, EventArgs e)
         {
             //nếu người dùng bấm tìm kiếm thì hiển thị lại giao diện dtAllUsers
             string apiUrl = apiGetAllUser + txtFindUser.Text.Trim() != "" ? apiGetAllUser + "?userName=" + txtFindUser.Text.Trim() : "";
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(apiUrl);
-            string jsonData = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                JObject objData = JObject.Parse(jsonData);
-                JToken tokenData = objData["data"];
-                List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
-
-                //hiển thị danh sách user này lên datagridView
-                displayListUsers(userLists);
-            }
+            JToken tokenData = await callApiUsingGetMethodID(apiUrl);
+            List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
+            //hiển thị danh sách user này lên datagridView
+            displayListUsers(userLists);
         }
+        //==================================================================================================================================
     }
 }
