@@ -365,6 +365,7 @@
             this.Controls.Add(this.ptboxAvatar);
             this.Name = "mainInterface";
             this.Text = "mainInterface";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.mainInterface_FormClosed);
             this.Load += new System.EventHandler(this.mainInterface_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).EndInit();

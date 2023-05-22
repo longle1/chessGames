@@ -41,6 +41,7 @@ namespace chessgames
             Width = 0
         };
         button btn = new button();
+        Thread rcvDataThread = null;
         int iconNumbers = 29;
         string ipAddress = "172.20.24.190";
         private enum setting
@@ -64,6 +65,29 @@ namespace chessgames
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
         }
+        private async Task handleLogOutRoom()
+        {
+            apiGetUser += user.id;
+            //cập nhật trạng thái thành offline
+            var data = new
+            {
+                userName = user.userName,
+                gmail = user.gmail,
+                linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "defaultAvatar.jpg" : user.linkAvatar,
+                statusActive = "offline",
+            };
+            await callApiUsingMethodPut(data, apiGetUser);
+
+            //gửi thông điệp logout lên server
+            string message = (int)setting.logout + "*" + user.userName + "," + user.id;
+            sendData(message);
+
+            client = null;
+
+            login.showFormAgain.Show();
+            //tiến hành đóng form lại
+            this.Close();
+        }
 
         //============================================  HÀM KHỞI TẠO MẶC ĐỊNH =============================================================
         public mainInterface()
@@ -75,7 +99,7 @@ namespace chessgames
             rtbChat.ReadOnly = true;
             client = new TcpClient();
             client.Connect(System.Net.IPAddress.Parse(ipAddress), 8081);
-            Thread rcvDataThread = new Thread(new ThreadStart(rcvData));
+            rcvDataThread = new Thread(new ThreadStart(rcvData));
             rcvDataThread.Start();
         }
         public mainInterface(infoUser user) : this()
@@ -190,89 +214,100 @@ namespace chessgames
         //============================================ CÁC HÀM DÙNG ĐỂ GỬI VÀ NHẬN DỮ LIỆU =================================================
         public void sendData(string msg)
         {
-            NetworkStream stream = client.GetStream();
-            byte[] data = Encoding.UTF8.GetBytes(msg);
-            stream.Write(data, 0, data.Length);
+            if(client != null)
+            {
+                NetworkStream stream = client.GetStream();
+                byte[] data = Encoding.UTF8.GetBytes(msg);
+                stream.Write(data, 0, data.Length);
+            }
         }
         public async void rcvData()
         {
-            while (true)
+            try
             {
-                NetworkStream stream = client.GetStream();
-
-                byte[] data = new byte[1024 * 500];
-                int length = stream.Read(data, 0, data.Length);
-                string message = Encoding.UTF8.GetString(data, 0, length);
-                string[] listMsg = message.Split('*');
-                switch (int.Parse(listMsg[0]))
+                while (true)
                 {
-                    case 1:
-                        JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
-                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                    NetworkStream stream = client.GetStream();
 
-                        //cập nhật lại danh sách tất cả user
-                        getListAllUser();
-                        List<infoUser> lists = new List<infoUser>();
-                        displayListWaitingAccept(await getListUser(lists, "waiting"));
-                        break;
-                    case 2:
-                        JToken tkData1 = await callApiUsingGetMethodID(apiGetUserId + user.id);
-                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData1.ToString());
+                    byte[] data = new byte[1024 * 500];
+                    int length = stream.Read(data, 0, data.Length);
+                    if (length == 0) return;
+                    string message = Encoding.UTF8.GetString(data, 0, length);
+                    string[] listMsg = message.Split('*');
+                    switch (int.Parse(listMsg[0]))
+                    {
+                        case 1:
+                            JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
+                            this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
 
-                        //cập nhật lại danh sách tất cả user
-                        getListAllUser();
-                        List<infoUser> lists1 = new List<infoUser>();
-                        displayListFriends(await getListUser(lists1, "friend"));
-                        break;
-                    case 5:
-                        string[] msg = listMsg[1].Split(':');
-                        if (listMsg[1].Contains("(1)"))
-                            writeData(null, msg[1], 1, msg[0].Substring(0, msg[0].Length - 3));
-                        else
-                        {
-                            string imageData = msg[1];
-                            byte[] convertedBytes = Convert.FromBase64String(imageData);
-                            // Chuyển đổi mảng byte thành hình ảnh
-                            using (MemoryStream stream1 = new MemoryStream(convertedBytes))
+                            //cập nhật lại danh sách tất cả user
+                            getListAllUser();
+                            List<infoUser> lists = new List<infoUser>();
+                            displayListWaitingAccept(await getListUser(lists, "waiting"));
+                            break;
+                        case 2:
+                            JToken tkData1 = await callApiUsingGetMethodID(apiGetUserId + user.id);
+                            this.user = JsonConvert.DeserializeObject<infoUser>(tkData1.ToString());
+
+                            //cập nhật lại danh sách tất cả user
+                            getListAllUser();
+                            List<infoUser> lists1 = new List<infoUser>();
+                            displayListFriends(await getListUser(lists1, "friend"));
+                            break;
+                        case 5:
+                            string[] msg = listMsg[1].Split(':');
+                            if (listMsg[1].Contains("(1)"))
+                                writeData(null, msg[1], 1, msg[0].Substring(0, msg[0].Length - 3));
+                            else
                             {
-                                Image image = Image.FromStream(stream1);
-                                writeData(image, "", 2, msg[0].Substring(0, msg[0].Length - 3));
-                            }
-                        }
-                        break;
-                    case 7: //xử lý log out
-                        //lấy id nhận về 
-                        string id = listMsg[1].Split(',')[1];
-                        //kiểm tra xem trong danh sách bạn bè xem có user này không
-                        bool check = false;
-                        foreach (listFriends item in user.lists)
-                        {
-                            if (item.status == "friend")
-                            {
-                                if (item.listID.Contains(id))
+                                string imageData = msg[1];
+                                byte[] convertedBytes = Convert.FromBase64String(imageData);
+                                // Chuyển đổi mảng byte thành hình ảnh
+                                using (MemoryStream stream1 = new MemoryStream(convertedBytes))
                                 {
-                                    check = true;
-                                    break;
+                                    Image image = Image.FromStream(stream1);
+                                    writeData(image, "", 2, msg[0].Substring(0, msg[0].Length - 3));
                                 }
                             }
-                        }
-                        if (check)
-                        {
-                            List<infoUser> lists3 = new List<infoUser>();
-                            displayListFriends(await getListUser(lists3, "friend"));
-                        }
-                        break;
-                    case 8:
-                        //làm mới lại danh sách khi có phần tử mới được thêm vào
-                        JToken tkData3 = await callApiUsingGetMethodID(apiGetUserId + user.id);
-                        this.user = JsonConvert.DeserializeObject<infoUser>(tkData3.ToString());
+                            break;
+                        case 7: //xử lý log out
+                                //lấy id nhận về 
+                            string id = listMsg[1].Split(',')[1];
+                            //kiểm tra xem trong danh sách bạn bè xem có user này không
+                            bool check = false;
+                            foreach (listFriends item in user.lists)
+                            {
+                                if (item.status == "friend")
+                                {
+                                    if (item.listID.Contains(id))
+                                    {
+                                        check = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (check)
+                            {
+                                List<infoUser> lists3 = new List<infoUser>();
+                                displayListFriends(await getListUser(lists3, "friend"));
+                            }
+                            break;
+                        case 8:
+                            //làm mới lại danh sách khi có phần tử mới được thêm vào
+                            JToken tkData3 = await callApiUsingGetMethodID(apiGetUserId + user.id);
+                            this.user = JsonConvert.DeserializeObject<infoUser>(tkData3.ToString());
 
-                        //cập nhật lại danh sách tất cả user
-                        getListAllUser();
-                        List<infoUser> lists2 = new List<infoUser>();
-                        displayListFriends(await getListUser(lists2, "friend"));
-                        break;
+                            //cập nhật lại danh sách tất cả user
+                            getListAllUser();
+                            List<infoUser> lists2 = new List<infoUser>();
+                            displayListFriends(await getListUser(lists2, "friend"));
+                            break;
+                    }
+
                 }
+            }
+            catch (Exception ex)
+            {
 
             }
         }
@@ -763,7 +798,7 @@ namespace chessgames
                         JToken tkData2 = await callApiUsingGetMethodID(apiPath1);
                         this.user = JsonConvert.DeserializeObject<infoUser>(tkData2.ToString());
 
-       
+
                         sendData(message);
                         //cập nhật lại danh sách bạn bè
                         List<infoUser> getFriends = new List<infoUser>();
@@ -785,28 +820,7 @@ namespace chessgames
         }
         private async void btnLogout_Click(object sender, EventArgs e)
         {
-            apiGetUser += user.id;
-            //cập nhật trạng thái thành offline
-            var data = new
-            {
-                userName = user.userName,
-                gmail = user.gmail,
-                linkAvatar = user.linkAvatar == "defaultAvatar.jpg" ? "defaultAvatar.jpg" : user.linkAvatar,
-                statusActive = "offline",
-            };
-
-
-            //gửi thông điệp logout lên server
-            string message = (int)setting.logout + "*" + user.userName + "," + user.id;
-            sendData(message);
-
-
-            string jsonData = JsonConvert.SerializeObject(data);
-            HttpClient client = new HttpClient();
-            await client.PutAsync(apiGetUser, new StringContent(jsonData, Encoding.UTF8, "application/json"));
-            login.showFormAgain.Show();
-            //tiến hành đóng form lại
-            this.Close();
+            await handleLogOutRoom();
         }
         private void btnRank_Click(object sender, EventArgs e)
         {
@@ -878,6 +892,10 @@ namespace chessgames
             List<infoUser> userLists = JsonConvert.DeserializeObject<List<infoUser>>(tokenData.ToString());
             //hiển thị danh sách user này lên datagridView
             displayListUsers(userLists);
+        }
+        private async void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            await handleLogOutRoom();
         }
         //==================================================================================================================================
     }
