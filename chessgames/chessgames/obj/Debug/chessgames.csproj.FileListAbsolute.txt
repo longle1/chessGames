@@ -65,3 +65,4 @@ D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.changePassword.resources
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.FormInfoUser.resources
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.mainInterface.resources
+D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.demo.resources

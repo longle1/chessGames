@@ -18,6 +18,6 @@ namespace chessgames
         public int numberOfWins { get; set; }
         public int numberOfLosses { get; set; }
         public List<listFriends> lists { get; set; }
-        public List<match> matches { get; set; }
+        public List<Form1> matches { get; set; }
     }
 }

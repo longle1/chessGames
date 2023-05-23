@@ -33,6 +33,7 @@ namespace chessgames
         private string apiGetAllListFriend = "https://chessmates.onrender.com/api/v1/listFriends";
         private string apiUpdaStatusFriend = "https://chessmates.onrender.com/api/v1/listFriends/edit/";
         private string apiDeleteFriend = "https://chessmates.onrender.com/api/v1/listFriends/delete/";
+        private string apiAddUserIntoMatch = "https://chessmates.onrender.com/api/v1/matches/edit/addOrSubUser/";
         TcpClient client = null;
         List<Button> buttonListIcons = new List<Button>();
         Button oldButton = new Button()
@@ -43,7 +44,7 @@ namespace chessgames
         button btn = new button();
         Thread rcvDataThread = null;
         int iconNumbers = 29;
-        string ipAddress = "172.20.24.190";
+        string ipAddress = "172.20.41.112";
         private enum setting
         {
             createRoom = 0,
@@ -56,6 +57,8 @@ namespace chessgames
             logout = 7,
             unFriend = 8
         }
+
+        //============================================  CÁC HÀM XỬ LÝ RIÊNG BIỆT =========================================================
         private void mainInterface_Load(object sender, EventArgs e)
         {
             lbUserName.Text = user.userName;
@@ -88,6 +91,7 @@ namespace chessgames
             //tiến hành đóng form lại
             this.Close();
         }
+        //=================================================================================================================================
 
         //============================================  HÀM KHỞI TẠO MẶC ĐỊNH =============================================================
         public mainInterface()
@@ -236,6 +240,10 @@ namespace chessgames
                     string[] listMsg = message.Split('*');
                     switch (int.Parse(listMsg[0]))
                     {
+                        case 0:
+                            //tiến hành cập nhật lại danh sách phòng chơi
+                            displayListMatches();
+                            break;
                         case 1:
                             JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
                             this.user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
@@ -629,7 +637,7 @@ namespace chessgames
         //==================================================================================================================================
 
         //========================================= HÀM DÙNG ĐỂ THAO TÁC VỚI SỰ KIỆN BẤM VÀO DATAGRIDVIEW ==================================
-        private void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void dtGridContainListRooms_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
@@ -652,6 +660,19 @@ namespace chessgames
                         else
                         {
                             MessageBox.Show("Tham gia thành công");
+                            //tạo và tham gia vào phòng
+                            this.Hide();
+                            string idMatch = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
+                            //tiến hành lấy ra mã phòng khi click vào
+                            await callApiUsingMethodPut(new { option = "adduser", id = user.id }, apiAddUserIntoMatch + idMatch);
+
+                            //tiến hành cập nhật lại danh sách phòng chơi
+                            displayListMatches();
+
+                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user);  //chủ phòng sẽ là cờ trắng
+                            player.Show();
+
+                            
                             return;
                         }
                     }
@@ -866,13 +887,16 @@ namespace chessgames
                 if (response.StatusCode == System.Net.HttpStatusCode.Created)
                 {
                     MessageBox.Show(objData["notify"].ToString());
+                    JToken dataRoom = objData["data"];
                     displayListMatches();
+                    matches match = JsonConvert.DeserializeObject<matches>(dataRoom.ToString());
+                    string message = (int)setting.createRoom + "*" + user.userName;
+                    sendData(message);
 
                     //tạo và tham gia vào phòng
                     this.Hide();
-                    Form1 admin = new Form1(user.userName, 1000, 2000, true, true, 0);  //chủ phòng sẽ là cờ trắng
+                    Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user);  //chủ phòng sẽ là cờ trắng
                     admin.Show();
-
                 }
                 else
                 {

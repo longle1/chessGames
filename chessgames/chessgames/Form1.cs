@@ -1,13 +1,17 @@
 ﻿using chessgames.backPieces;
 using chessgames.whitePieces;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -76,6 +80,8 @@ namespace chessgames
         public int countTime = 60;
         public int setUpTime = 60;
         public int iconNumbers = 29;
+        public int betPoint = 0;
+        public int currentScore = 0;
         #endregion
 
         #region infoUser
@@ -97,28 +103,35 @@ namespace chessgames
         TcpListener server = null;
         List<Button> buttonList = new List<Button>();
         List<Button> buttonListIcons = new List<Button>();
+        string parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
+        string linkAvatar = "";
+        infoUser infouser = null;
+        string userNameDifPlayer = "";
+        string IdDifPlayer = "";
+        string linkAvatarDifPlayer = "";
+        string matchId = "";
         Button oldButton = new Button()
         {
             Height = 0,
             Width = 0
         };
+        string apiResultMatch = "https://chessmates.onrender.com/api/v1/matches/edit/resultMatch/";
+        string apiUpdateScore = "https://chessmates.onrender.com/api/v1/users/updatePoint/";
+        string apiGetUserId = "https://chessmates.onrender.com/api/v1/users/";
         button btn = new button();
-     
+        string userId = "";
         UdpClient clientUDP = null;
         Thread rcvDataUDPThread = null;
         IPEndPoint ipEndPoint = null;
         System.Windows.Forms.Timer timer = null;
+        public int currentDifPlayerScore = 0;
         #endregion
         public void displayAnncount(bool whiteTurn, bool blackTurn)
         {
             if (whiteTurn && !blackTurn) //quân trắng được di chuyển trước
-            {
                 txtTurnUser.BackColor = Color.White;
-            }
             else
-            {
                 txtTurnUser.BackColor = Color.Black;
-            }
         }
         public void addTextBoxIntoPanelHorizontal(Panel pnl)
         {
@@ -242,26 +255,35 @@ namespace chessgames
                 }
             }
         }
-        public Form1(string userName, int port, int portDif, bool isCreated, bool turn, int piece) : this()
+        public Form1(string matchId, int port, int portDif, bool isCreated, bool turn, int piece, int betPoint, infoUser infouser) : this()
         {
             this.isCreated = isCreated;
-            this.userName = userName;
             this.port = port;
             this.portDif = portDif;
-            txtUsername.Text = userName;
-            txtPort.Text = port.ToString();
+            this.matchId = matchId;
+            this.betPoint = betPoint;
+            this.infouser = infouser;
+            this.userName = infouser.userName;
+            this.linkAvatar = infouser.linkAvatar;
+            this.userId = infouser.id;
+            this.currentScore = infouser.point;
             clientUDP = new UdpClient(port);
             listChat.ReadOnly = true;
             ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
             rcvDataUDPThread = new Thread(new ThreadStart(rcvDataUDP));
             rcvDataUDPThread.Start();
+
+            //chủ phòng sẽ là cờ trắng và biến piece = 0
+            lbCurrentPlayer.Text = userName;
+            avtCurrentPlayer.Image = Image.FromFile($"{parentDirectory}\\" + linkAvatar);
+            avtCurrentPlayer.SizeMode = PictureBoxSizeMode.Zoom;
             if (isCreated) // đây là người tạo phòng cũng tương đương với server
             {
                 //đây là lượt mà chủ phòng sẽ được đánh trước
                 whiteTurn = turn;
                 blackTurn = !turn;
                 displayAnncount(whiteTurn, blackTurn);
-                //chủ phòng sẽ là cờ trắng và biến piece = 0
+
                 this.piece = piece;
                 server = new TcpListener(IPAddress.Any, portConnect);
                 server.Start();
@@ -281,7 +303,18 @@ namespace chessgames
                     this.piece = piece;
                     client = new TcpClient();
                     client.Connect(IPAddress.Parse("127.0.0.1"), portConnect);
+
+                    //gửi dữ liệu trước 
+                    NetworkStream stream = client.GetStream();
+                    string message = userId + "+" + userName + "+" + linkAvatar + "+" + currentScore;
+                    byte[] sendMsg = Encoding.UTF8.GetBytes(message);
+                    stream.Write(sendMsg, 0, sendMsg.Length);
+
+                    Thread thread = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
+                    thread.Start(client);
+
                     clientRcvData = new Thread(new ThreadStart(rcvData));
+
                     clientRcvData.Start();
                     timer = new System.Windows.Forms.Timer();
                     timer.Tick += Timer_Tick;
@@ -309,6 +342,24 @@ namespace chessgames
                     choose(i, j);
                 }
             }
+        }
+        private void rcvFirstMsg(object client)
+        {
+            TcpClient client1 = (TcpClient)client;
+            NetworkStream stream = client1.GetStream();
+            byte[] rcvData = new byte[1024];
+            int length = stream.Read(rcvData, 0, rcvData.Length);
+
+            string message = Encoding.UTF8.GetString(rcvData, 0, length);
+            string[] lst = message.Split('+');
+            this.userNameDifPlayer = lst[1];
+            this.IdDifPlayer = lst[0];
+            this.linkAvatarDifPlayer = lst[2];
+            this.currentDifPlayerScore = int.Parse(lst[3]);
+
+            lbDifPlayer.Text = userNameDifPlayer;
+            avtDifPlayer.Image = Image.FromFile($"{parentDirectory}\\" + linkAvatarDifPlayer);
+            avtDifPlayer.SizeMode = PictureBoxSizeMode.Zoom;
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -348,8 +399,20 @@ namespace chessgames
                 if (user.players == 2)
                 {
                     client = server.AcceptTcpClient();
+                    //nhận dữ liệu từ client này và phản hồi lại
+                    Thread thread = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
+                    thread.Start(client);
+
+                    //tiến hành gửi lại cho client đó
+                    NetworkStream stream = client.GetStream();
+                    string messageResponse = userId + "+" + userName + "+" + linkAvatar + "+" + currentScore;
+                    byte[] sendMsg = Encoding.UTF8.GetBytes(messageResponse);
+                    stream.Write(sendMsg, 0, sendMsg.Length);
+
+
                     serverRcvData = new Thread(new ThreadStart(rcvData));
                     serverRcvData.Start();
+
                     break;
                 }
             }
@@ -362,7 +425,7 @@ namespace chessgames
             stream = client.GetStream();
             stream.Write(dataSends, 0, dataSends.Length);
         }
-        public void rcvData()
+        public async void rcvData()
         {
             try
             {
@@ -376,7 +439,18 @@ namespace chessgames
                         //xử lý khi 1 người chơi thoát khỏi phòng 
                         if (buffers[11] == 1) //người chơi này thoát khỏi phòng đấu
                         {
+                            HttpClient client = new HttpClient();
+                            HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
 
+                            if (response.IsSuccessStatusCode)
+                            {
+                                JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
+                                infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                                this.infouser = user;
+                            }
+                            MessageBox.Show("Bạn đã dành chiến thắng");
+                            StopGame();
+                            return;
                         }
                         if (buffers[8] == 0)
                         {
@@ -541,6 +615,11 @@ namespace chessgames
 
             clientUDP.Close();  //đóng kết nối UDP
             rcvDataUDPThread.Abort();   //đóng luồng dữ liệu của việc nhận dữ liệu chat 
+            //mainInterface newInter = new mainInterface(infouser);
+            //newInter.Show();
+            mainInterface.showInter.Show();
+            //xử lý thoát khỏi form
+            this.Close();
         }
         public void getPiecesOnBoard()
         {
@@ -1548,18 +1627,44 @@ namespace chessgames
             }
             txtMessage.Clear();
         }
-
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             StopGame();
         }
-
-        private void btnOutRoom_Click(object sender, EventArgs e)
+        private async void btnOutRoom_Click(object sender, EventArgs e)
         {
             DialogResult dgResult = MessageBox.Show("Bạn có chắc muốn thoát khỏi phòng", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dgResult == DialogResult.Yes)
             {
-                //xử lý trừ điểm của user này
+                //mặc định player1 là người thắng còn player2 là người thua
+
+                var obj = new
+                {
+                    player1 = IdDifPlayer + '-' + "win",
+                    player2 = userId + '-' + "lose"
+                };
+                string jsonData = JsonConvert.SerializeObject(obj);
+                HttpClient client = new HttpClient();
+                await client.PutAsync(apiResultMatch + matchId, new StringContent(jsonData, Encoding.UTF8, "application/json"));
+                //cập nhật lại điểmm cho người thắng
+                await client.PutAsync(apiUpdateScore + IdDifPlayer, new StringContent(JsonConvert.SerializeObject(new { point = currentDifPlayerScore + betPoint }), Encoding.UTF8, "application/json"));
+                //cập nhật lại điểm cho người thua
+                await client.PutAsync(apiUpdateScore + userId, new StringContent(JsonConvert.SerializeObject(new { point = currentScore - betPoint }), Encoding.UTF8, "application/json"));
+                //thực hiện gửi dữ liệu xử lý thoát khỏi phòng
+         
+
+                HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
+
+                if(response.IsSuccessStatusCode)
+                {
+                    JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
+                    infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                    this.infouser = user;
+                    //tạo lại giao diện mới
+                    MessageBox.Show("Bạn đã thua");
+                }
+                sendMove(0, 0, 0, 0, 1);
+                StopGame();
             }
         }
     }

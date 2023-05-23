@@ -20,6 +20,7 @@ namespace chessgames
         {
             InitializeComponent();
             errorHideLabel.Hide();
+            txtPassword.Text = "123@Long";
             btnLogin.Enabled = true;
             showFormAgain = this;   //gán form hiện tại cho 1 form
         }
