@@ -158,13 +158,15 @@ namespace chessgames
             var objData = JsonConvert.SerializeObject(data);
             await client.PostAsync(apiPath, new StringContent(objData, Encoding.UTF8, "application/json"));
         }
-        public async Task callApiUsingMethodPut(object data, string apiPath)
+        public async Task<JToken> callApiUsingMethodPut(object data, string apiPath)
         {
             //gọi tới API 
             HttpClient client = new HttpClient();
             string dataJson = JsonConvert.SerializeObject(data);
             //tiến hành lấy ra _id thỏa mãn
-            await client.PutAsync(apiPath, new StringContent(dataJson, Encoding.UTF8, "application/json"));
+            HttpResponseMessage response = await client.PutAsync(apiPath, new StringContent(dataJson, Encoding.UTF8, "application/json"));
+
+            return JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
         }
         //==================================================================================================================================
 
@@ -261,6 +263,9 @@ namespace chessgames
                             getListAllUser();
                             List<infoUser> lists1 = new List<infoUser>();
                             displayListFriends(await getListUser(lists1, "friend"));
+                            break;
+                        case 3:
+                            player.players = 2;
                             break;
                         case 5:
                             string[] msg = listMsg[1].Split(':');
@@ -664,15 +669,33 @@ namespace chessgames
                             this.Hide();
                             string idMatch = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
                             //tiến hành lấy ra mã phòng khi click vào
-                            await callApiUsingMethodPut(new { option = "adduser", id = user.id }, apiAddUserIntoMatch + idMatch);
+                            JToken tkData = await callApiUsingMethodPut(new { option = "adduser", id = user.id }, apiAddUserIntoMatch + idMatch);
+                            matches match = JsonConvert.DeserializeObject<matches>(tkData.ToString());
 
                             //tiến hành cập nhật lại danh sách phòng chơi
                             displayListMatches();
 
+
+                            //lặp qua để kiếm ra id của đối phương
+                            string id = "";
+                            foreach(matchPlayer match1 in match.players)
+                            {
+                                if(match1._id != user.id)
+                                {
+                                    id = match1._id;
+                                    break;
+                                }
+                            }
+
+                            infoUser difUser = JsonConvert.DeserializeObject<infoUser>((await callApiUsingGetMethodID(apiGetUserId + id)).ToString());
+
                             Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                             player.Show();
 
-                            
+                            //lặp qua 
+                            //gửi sự kiện tới server và cập nhật lại biến user.players lên 2 đơn vị
+                            string message = (int)setting.joinRoom + "*" + difUser.userName;
+                            sendData(message);
                             return;
                         }
                     }

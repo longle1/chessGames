@@ -324,7 +324,7 @@ namespace chessgames
                     setUpTimer = true;
                     setUpTimerThread = true;
                     timer.Start();
-                    user.players += 1;
+                    player.players += 1;
                 }
                 catch (Exception ex)
                 {
@@ -351,8 +351,8 @@ namespace chessgames
             NetworkStream stream = client1.GetStream();
             byte[] rcvData = new byte[1024];
             int length = stream.Read(rcvData, 0, rcvData.Length);
-
             string message = Encoding.UTF8.GetString(rcvData, 0, length);
+            MessageBox.Show(message);
             string[] lst = message.Split('+');
             this.userNameDifPlayer = lst[1];
             this.IdDifPlayer = lst[0];
@@ -399,13 +399,12 @@ namespace chessgames
         {
             while (true)
             {
-
-                if (user.players == 2)
+                if (player.players == 2)
                 {
                     client = server.AcceptTcpClient();
                     //nhận dữ liệu từ client này và phản hồi lại
-                    Thread thread = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
-                    thread.Start(client);
+                    threadRcvFirstMsg = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
+                    threadRcvFirstMsg.Start(client);
 
                     //tiến hành gửi lại cho client đó
                     NetworkStream stream = client.GetStream();
@@ -620,6 +619,8 @@ namespace chessgames
             clientUDP.Close();  //đóng kết nối UDP
             rcvDataUDPThread.Abort();   //đóng luồng dữ liệu của việc nhận dữ liệu chat 
 
+            //cập nhật user.players về lại 1
+            player.players = 1;
 
             //mainInterface newInter = new mainInterface(infouser);
             //newInter.Show();
@@ -1602,7 +1603,7 @@ namespace chessgames
         }
         private void Btn2_Click(object sender, EventArgs e)
         {
-            if (user.players == 2)
+            if (player.players == 2)
             {
                 ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
                 Button btn = (Button)sender;
@@ -1621,7 +1622,7 @@ namespace chessgames
         }
         private void btnSendData_Click(object sender, EventArgs e)
         {
-            if (user.players == 2)
+            if (player.players == 2)
             {
                 if (txtMessage.Text.Trim() == "")
                     return;
