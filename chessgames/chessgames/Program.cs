@@ -16,7 +16,7 @@ namespace chessgames
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new demo());
+            Application.Run(new login());
         }
     }
 }

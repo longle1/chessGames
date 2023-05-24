@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -666,7 +667,6 @@ namespace chessgames
                         {
                             MessageBox.Show("Tham gia thành công");
                             //tạo và tham gia vào phòng
-                            this.Hide();
                             string idMatch = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
                             //tiến hành lấy ra mã phòng khi click vào
                             JToken tkData = await callApiUsingMethodPut(new { option = "adduser", id = user.id }, apiAddUserIntoMatch + idMatch);
@@ -680,23 +680,22 @@ namespace chessgames
                             string id = "";
                             foreach(matchPlayer match1 in match.players)
                             {
-                                if(match1._id != user.id)
+                                if(match1.user != user.id)
                                 {
-                                    id = match1._id;
+                                    id = match1.user;
                                     break;
                                 }
                             }
 
-                            infoUser difUser = JsonConvert.DeserializeObject<infoUser>((await callApiUsingGetMethodID(apiGetUserId + id)).ToString());
+                            JToken userPlayer = await callApiUsingGetMethodID(apiGetUserId + id);
 
-                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
-                            player.Show();
-
-                            //lặp qua 
+                            infoUser difUser = JsonConvert.DeserializeObject<infoUser>(userPlayer.ToString());
                             //gửi sự kiện tới server và cập nhật lại biến user.players lên 2 đơn vị
                             string message = (int)setting.joinRoom + "*" + difUser.userName;
                             sendData(message);
-                            return;
+                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                            player.Show();
+                            this.Hide();
                         }
                     }
                 }

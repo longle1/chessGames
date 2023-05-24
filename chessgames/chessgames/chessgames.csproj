@@ -129,7 +129,7 @@
       <DependentUpon>register.cs</DependentUpon>
     </Compile>
     <Compile Include="typeOfMovesChess.cs" />
-    <Compile Include="user.cs" />
+    <Compile Include="player.cs" />
     <Compile Include="userControlClick.cs">
       <SubType>UserControl</SubType>
     </Compile>
