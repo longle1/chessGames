@@ -82,12 +82,19 @@ namespace chessgames
         public int iconNumbers = 29;
         public int betPoint = 0;
         public int currentScore = 0;
+        public int currentDifPlayerScore = 0;
         #endregion
 
         #region infoUser
         public string userName;
         public int port;
         public int portDif;
+        string userNameDifPlayer;
+        string IdDifPlayer;
+        string linkAvatarDifPlayer;
+        string matchId;
+        string linkAvatar;
+        string userId;
         #endregion
 
         #region variable
@@ -104,12 +111,9 @@ namespace chessgames
         List<Button> buttonList = new List<Button>();
         List<Button> buttonListIcons = new List<Button>();
         string parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
-        string linkAvatar = "";
+
         infoUser infouser = null;
-        string userNameDifPlayer = "";
-        string IdDifPlayer = "";
-        string linkAvatarDifPlayer = "";
-        string matchId = "";
+
         Button oldButton = new Button()
         {
             Height = 0,
@@ -119,12 +123,11 @@ namespace chessgames
         string apiUpdateScore = "https://chessmates.onrender.com/api/v1/users/updatePoint/";
         string apiGetUserId = "https://chessmates.onrender.com/api/v1/users/";
         button btn = new button();
-        string userId = "";
         UdpClient clientUDP = null;
         Thread rcvDataUDPThread = null;
         IPEndPoint ipEndPoint = null;
         System.Windows.Forms.Timer timer = null;
-        public int currentDifPlayerScore = 0;
+        Thread threadRcvFirstMsg = null;
         #endregion
         public void displayAnncount(bool whiteTurn, bool blackTurn)
         {
@@ -255,18 +258,17 @@ namespace chessgames
                 }
             }
         }
-        public Form1(string matchId, int port, int portDif, bool isCreated, bool turn, int piece, int betPoint, infoUser infouser) : this()
+        public Form1(string matchId, int port, int portDif, bool isCreated, bool turn, int piece, int betPoint, string linkAvatar, int currentScore, string userName, string userId) : this()
         {
             this.isCreated = isCreated;
             this.port = port;
             this.portDif = portDif;
             this.matchId = matchId;
             this.betPoint = betPoint;
-            this.infouser = infouser;
-            this.userName = infouser.userName;
-            this.linkAvatar = infouser.linkAvatar;
-            this.userId = infouser.id;
-            this.currentScore = infouser.point;
+            this.userName = userName;
+            this.linkAvatar = linkAvatar;
+            this.userId = userId;
+            this.currentScore = currentScore;
             clientUDP = new UdpClient(port);
             listChat.ReadOnly = true;
             ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -302,7 +304,7 @@ namespace chessgames
                     //người chơi sẽ là cờ đen và biến piece = 1
                     this.piece = piece;
                     client = new TcpClient();
-                    client.Connect(IPAddress.Parse("127.0.0.1"), portConnect);
+                    client.Connect(IPAddress.Parse("172.20.41.112"), portConnect);
 
                     //gửi dữ liệu trước 
                     NetworkStream stream = client.GetStream();
@@ -310,11 +312,11 @@ namespace chessgames
                     byte[] sendMsg = Encoding.UTF8.GetBytes(message);
                     stream.Write(sendMsg, 0, sendMsg.Length);
 
-                    Thread thread = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
-                    thread.Start(client);
+                    threadRcvFirstMsg = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
+                    threadRcvFirstMsg.Start(client);
+                    Thread.Sleep(1000);
 
                     clientRcvData = new Thread(new ThreadStart(rcvData));
-
                     clientRcvData.Start();
                     timer = new System.Windows.Forms.Timer();
                     timer.Tick += Timer_Tick;
@@ -360,6 +362,8 @@ namespace chessgames
             lbDifPlayer.Text = userNameDifPlayer;
             avtDifPlayer.Image = Image.FromFile($"{parentDirectory}\\" + linkAvatarDifPlayer);
             avtDifPlayer.SizeMode = PictureBoxSizeMode.Zoom;
+
+            if (threadRcvFirstMsg != null) threadRcvFirstMsg.Abort();
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -615,6 +619,8 @@ namespace chessgames
 
             clientUDP.Close();  //đóng kết nối UDP
             rcvDataUDPThread.Abort();   //đóng luồng dữ liệu của việc nhận dữ liệu chat 
+
+
             //mainInterface newInter = new mainInterface(infouser);
             //newInter.Show();
             mainInterface.showInter.Show();

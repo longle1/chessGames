@@ -669,7 +669,7 @@ namespace chessgames
                             //tiến hành cập nhật lại danh sách phòng chơi
                             displayListMatches();
 
-                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user);  //chủ phòng sẽ là cờ trắng
+                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                             player.Show();
 
                             
@@ -895,7 +895,7 @@ namespace chessgames
 
                     //tạo và tham gia vào phòng
                     this.Hide();
-                    Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user);  //chủ phòng sẽ là cờ trắng
+                    Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                     admin.Show();
                 }
                 else
