@@ -90,3 +90,4 @@ E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCo
 E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CopyComplete
 E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.exe
 E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.UserControlChatOne.resources

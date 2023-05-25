@@ -111,6 +111,7 @@ namespace chessgames
         List<Button> buttonList = new List<Button>();
         List<Button> buttonListIcons = new List<Button>();
         string parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
+        string ipGame = "172.20.36.209";
 
         infoUser infouser = null;
 
@@ -305,7 +306,7 @@ namespace chessgames
                     //người chơi sẽ là cờ đen và biến piece = 1
                     this.piece = piece;
                     client = new TcpClient();
-                    client.Connect(IPAddress.Parse("172.20.41.112"), portConnect);
+                    client.Connect(IPAddress.Parse(ipGame), portConnect);
 
                     //gửi dữ liệu trước 
                     NetworkStream stream = client.GetStream();
@@ -315,7 +316,7 @@ namespace chessgames
 
                     threadRcvFirstMsg = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
                     threadRcvFirstMsg.Start(client);
-                    Thread.Sleep(2000);
+                    Thread.Sleep(100);
 
                     clientRcvData = new Thread(new ThreadStart(rcvData));
                     clientRcvData.Start();
@@ -353,8 +354,6 @@ namespace chessgames
             byte[] rcvData = new byte[1024];
             int length = stream.Read(rcvData, 0, rcvData.Length);
             string message = Encoding.UTF8.GetString(rcvData, 0, length);
-            MessageBox.Show(message);
-            return;
             string[] lst = message.Split('+');
             this.userNameDifPlayer = lst[1];
             this.IdDifPlayer = lst[0];
@@ -424,13 +423,20 @@ namespace chessgames
         }
         public void sendMove(int posY, int posX, int mode, int countAgain, int outRoom)
         {
-            if (client != null)
+            try
             {
-                //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
-                //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
-                byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain, (byte)outRoom };
-                stream = client.GetStream();
-                stream.Write(dataSends, 0, dataSends.Length);
+                if (client != null)
+                {
+                    //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
+                    //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
+                    byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain, (byte)outRoom };
+                    stream = client.GetStream();
+                    stream.Write(dataSends, 0, dataSends.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
         public async void rcvData()
@@ -458,6 +464,7 @@ namespace chessgames
                             }
                             MessageBox.Show("Bạn đã dành chiến thắng");
                             StopGame();
+                            this.Close();
                             return;
                         }
                         if (buffers[8] == 0)

@@ -79,8 +79,8 @@ namespace chessgames
                 ptboxAvatar.Image = Image.FromFile($"{directoryImagePath}\\" + user.linkAvatar);
                 ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
 
-                txtDefeats.Text = user.numberOfLosses.ToString();
-                txtWins.Text = user.numberOfWins.ToString();
+                txtDefeats.Text = numberOfLosses.ToString();
+                txtWins.Text = numberOfWins.ToString();
                 txtUsername.Text = user.userName;
                 txtEmail.Text = user.gmail;
                 txtID.Text = user.id;

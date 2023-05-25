@@ -20,7 +20,7 @@ using System.Windows.Forms;
 
 namespace chessgames
 {
-    //chinh sua day
+    //code mới nhất ở đây nha
     public partial class mainInterface : Form
     {
         private infoUser user;
@@ -48,6 +48,9 @@ namespace chessgames
         Thread rcvDataThread = null;
         int iconNumbers = 29;
         string ipAddress = "172.20.36.209";
+        string difUsernameUser = "";
+        UserControlChatOne chat = null;
+        List<UserControlChatOne> listChats = new List<UserControlChatOne>();
         private enum setting
         {
             createRoom = 0,
@@ -102,7 +105,6 @@ namespace chessgames
 
             client = null;
         }
-
         private void loopChildPanel(Panel pnl)
         {
             pnlContainsChild.Show();
@@ -114,22 +116,38 @@ namespace chessgames
                     childPanel.Hide();
             }
         }
+
+        private async Task<List<string>> getListFriends()
+        {
+            JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
+            infoUser info = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+            List<string> arraysUserName = new List<string>();
+            foreach (listFriends lists in info.lists)
+            {
+                if (lists.status == "friend")
+                {
+                    List<string> listIds = lists.listID;
+                    string id = listIds[0] == user.id ? listIds[1] : listIds[0];
+                    JToken tkInfo = await callApiUsingGetMethodID(apiGetUserId + id);
+                    infoUser difUser = JsonConvert.DeserializeObject<infoUser>(tkInfo.ToString());
+                    arraysUserName.Add(difUser.userName);
+                }
+            }
+            return arraysUserName;
+        }
         //=================================================================================================================================
 
         //============================================  HÀM KHỞI TẠO MẶC ĐỊNH =============================================================
         public mainInterface()
         {
             InitializeComponent();
-
             pnlContainsChild.Hide();
-
+            pnlContainsChild.Controls.Add(pnlChatOne);
+            pnlChatOne.Hide();
             calLocationChildPanel(pnlContainsChild, pnlListFriends);
             calLocationChildPanel(pnlContainsChild, pnlRanker);
             calLocationChildPanel(pnlContainsChild, pnlChildContainHistory);
             calLocationChildPanel(pnlContainsChild, pnlCreateRoom);
-
-
-
 
             CheckForIllegalCrossThreadCalls = false;
             pnlContainsIcon.Hide();
@@ -156,6 +174,8 @@ namespace chessgames
             sendData(message);
 
             displayListMatches();
+
+
         }
         //==================================================================================================================================
 
@@ -301,6 +321,9 @@ namespace chessgames
                             break;
                         case 3:
                             player.players = 2;
+                            break;
+                        case 4:
+
                             break;
                         case 5:
                             string[] msg = listMsg[1].Split(':');
@@ -461,6 +484,7 @@ namespace chessgames
             sendData(message);
             writeData(null, txtSendMessage.Text, 1, user.userName);
             txtSendMessage.Clear();
+
         }
         //==================================================================================================================================
 
@@ -817,7 +841,7 @@ namespace chessgames
                             //gửi sự kiện tới server và cập nhật lại biến user.players lên 2 đơn vị
                             string message = (int)setting.joinRoom + "*" + difUser.userName;
                             sendData(message);
-                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, match.betPoints, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                             player.Show();
                             this.Hide();
                         }
@@ -825,7 +849,7 @@ namespace chessgames
                 }
             }
         }
-        private async void dtAllUsers_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void dtAllUsers_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
@@ -860,12 +884,12 @@ namespace chessgames
                 }
             }
         }
-        private async void dtListFriends_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void dtListFriends_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
                 DataGridView dataGridView = (DataGridView)sender;
-                if (e.ColumnIndex == 3) //sem thông tin người chơi
+                if (e.ColumnIndex == 3) //xem thông tin người chơi
                 {
                     string apiPath = apiGetUserId + dataGridView.Rows[e.RowIndex].Cells["id"].Value.ToString();
                     JToken tkData = await callApiUsingGetMethodID(apiPath);
@@ -878,7 +902,23 @@ namespace chessgames
                 }
                 else if (e.ColumnIndex == 4)
                 {
+                    loopChildPanel(pnlChatOne);
 
+                    foreach(UserControlChatOne userControl in listChats)
+                    {
+                        if(userControl.Tag.ToString().Contains(user.userName) && userControl.Tag.ToString().Contains(dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString())) 
+                        {
+                            foreach(UserControl userControl1 in listChats)
+                            {
+                                userControl1.Hide();
+                            }
+
+                            chat = userControl;
+                            difUsernameUser = dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString();
+                            chat.Show();
+                            break;
+                        }
+                    }
                 }
                 else if (e.ColumnIndex == 5)
                 {
@@ -904,8 +944,6 @@ namespace chessgames
                         //tiến hành lấy ra _id thỏa mãn
                         await client.DeleteAsync(apiPath);
 
-
-
                         //cập nhật lại danh sách
                         //làm mới lại danh sách khi có phần tử mới được thêm vào
                         string apiPath1 = apiGetUserId + user.id;
@@ -924,7 +962,31 @@ namespace chessgames
                 }
             }
         }
-        private async void dtAcceptFriend_CellContentClick(object sender, DataGridViewCellEventArgs e)
+
+        private void Chat_btnCloseForm_click(object sender, EventArgs e)
+        {
+            pnlChatOne.Hide();
+            pnlListFriends.Show();
+        }
+
+        private void Chat_btnSendIconChatOne_click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Chat_btnSendMsgChatOne_click(object sender, EventArgs e)
+        {
+            string message = chat.TextBox.Text.Trim();
+            NetworkStream stream = client.GetStream();
+            string msgSend = (int)setting.chatOne + "*" + user.userName + "(1):" + message + ":" +difUsernameUser;
+            byte[] sendData = Encoding.UTF8.GetBytes(msgSend);
+            stream.Write(sendData, 0, sendData.Length);
+            chat.richTextBox.AppendText(message + '\n');
+            chat.TextBox.Clear();
+        }
+
+
+        private async void dtAcceptFriend_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
@@ -1014,17 +1076,43 @@ namespace chessgames
 
 
             loopChildPanel(pnlListFriends);
-        }
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            pnlContainsChild.Hide();
-            txtFindUser.Clear();
+
+
+            //thêm tập hợp các bạn bè vào để chat
+            List<string> listFriends = await getListFriends();
+            foreach (string userName in listFriends)
+            {
+                bool check = false;
+                if (userName != user.userName)
+                {
+                    for (int index = 0; index < listChats.Count; index++)
+                    {
+                        if (listChats[index].Tag.ToString().Contains(user.userName) && listChats[index].Tag.ToString().Contains(userName))
+                        {
+                            check = true;
+                            break;
+                        }
+                    }
+                    if (!check)
+                    {
+                        chat = new UserControlChatOne();
+                        chat.Tag = $"{user.userName},{userName}";
+                        chat.btnSendMsgChatOne_click += Chat_btnSendMsgChatOne_click;
+                        chat.btnSendIconChatOne_click += Chat_btnSendIconChatOne_click;
+                        chat.btnCloseForm_click += Chat_btnCloseForm_click;
+                        pnlChatOne.Controls.Add(chat);
+                        pnlChatOne.AutoSize = true;
+                        listChats.Add(chat);
+                    }
+                }
+                check = false;
+            }
         }
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
 
         }
-        private async void btnFindUser_Click(object sender, EventArgs e)
+        private async void btnFindUser_Click_1(object sender, EventArgs e)
         {
             //nếu người dùng bấm tìm kiếm thì hiển thị lại giao diện dtAllUsers
             string apiUrl = apiGetAllUser + txtFindUser.Text.Trim() != "" ? apiGetAllUser + "?userName=" + txtFindUser.Text.Trim() : "";
@@ -1036,14 +1124,6 @@ namespace chessgames
         private void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
         {
 
-        }
-        private void btnYourRank_Click(object sender, EventArgs e)
-        {
-            pnlContainsChild.Hide();
-        }
-        private void btnHistoryClose_Click(object sender, EventArgs e)
-        {
-            pnlContainsChild.Hide();
         }
         private async void btnHistory_Click(object sender, EventArgs e)
         {
@@ -1057,10 +1137,6 @@ namespace chessgames
         {
             loopChildPanel(pnlCreateRoom);
         }
-        private void btnDltCreateRoom_Click(object sender, EventArgs e)
-        {
-            pnlContainsChild.Hide();
-        }
         private async void btnAcceptCreateRoom_Click(object sender, EventArgs e)
         {
             if (string.Equals(txtRoomName.Text.Trim(), "") || string.Equals(txtBetPoints.Text.Trim(), ""))
@@ -1072,7 +1148,7 @@ namespace chessgames
                 try
                 {
                     int betPoint = int.Parse(txtBetPoints.Text.Trim());
-                    if(betPoint > user.point)
+                    if (betPoint > user.point)
                     {
                         MessageBox.Show("Bạn không đủ điểm để đặt mức cược này, vui lòng nhập điểm cược khác");
                         return;
@@ -1100,7 +1176,7 @@ namespace chessgames
 
                         //tạo và tham gia vào phòng
                         this.Hide();
-                        Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                        Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, betPoint, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                         admin.Show();
                     }
                     else
@@ -1114,6 +1190,12 @@ namespace chessgames
                 }
             }
         }
+
+        private void btnExit_Click_1(object sender, EventArgs e)
+        {
+            pnlContainsChild.Hide();
+        }
+
         //==================================================================================================================================
     }
 }
