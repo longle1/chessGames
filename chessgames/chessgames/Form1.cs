@@ -122,6 +122,7 @@ namespace chessgames
         string apiResultMatch = "https://chessmates.onrender.com/api/v1/matches/edit/resultMatch/";
         string apiUpdateScore = "https://chessmates.onrender.com/api/v1/users/updatePoint/";
         string apiGetUserId = "https://chessmates.onrender.com/api/v1/users/";
+        string apiDeleteRoom = "https://chessmates.onrender.com/api/v1/matches/delete/";
         button btn = new button();
         UdpClient clientUDP = null;
         Thread rcvDataUDPThread = null;
@@ -314,7 +315,7 @@ namespace chessgames
 
                     threadRcvFirstMsg = new Thread(new ParameterizedThreadStart(rcvFirstMsg));
                     threadRcvFirstMsg.Start(client);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
 
                     clientRcvData = new Thread(new ThreadStart(rcvData));
                     clientRcvData.Start();
@@ -353,6 +354,7 @@ namespace chessgames
             int length = stream.Read(rcvData, 0, rcvData.Length);
             string message = Encoding.UTF8.GetString(rcvData, 0, length);
             MessageBox.Show(message);
+            return;
             string[] lst = message.Split('+');
             this.userNameDifPlayer = lst[1];
             this.IdDifPlayer = lst[0];
@@ -422,11 +424,14 @@ namespace chessgames
         }
         public void sendMove(int posY, int posX, int mode, int countAgain, int outRoom)
         {
-            //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
-            //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
-            byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain, (byte)outRoom };
-            stream = client.GetStream();
-            stream.Write(dataSends, 0, dataSends.Length);
+            if (client != null)
+            {
+                //ta sẽ gửi 1 mảng byte chứa stt của quân cờ, vị trí hiện tại của quân cờ, vị trí mới mà quân cờ sẽ di chuyển
+                //giá trị để kiểm tra xem quân vua có bị chiếu tướng hay không, giá trị nhập thành và giá trị quân cờ mới sẽ thay khi tốt đến cuối bàn cờ
+                byte[] dataSends = { (byte)playerMoved, (byte)beforeMove_Y, (byte)beforeMove_X, (byte)posY, (byte)posX, (byte)move, (byte)castlingPiece, (byte)changePieceValue, (byte)mode, (byte)countTime, (byte)countAgain, (byte)outRoom };
+                stream = client.GetStream();
+                stream.Write(dataSends, 0, dataSends.Length);
+            }
         }
         public async void rcvData()
         {
@@ -622,11 +627,10 @@ namespace chessgames
             //cập nhật user.players về lại 1
             player.players = 1;
 
-            //mainInterface newInter = new mainInterface(infouser);
-            //newInter.Show();
-            mainInterface.showInter.Show();
-            //xử lý thoát khỏi form
-            this.Close();
+            mainInterface.showInter.Close();
+
+            mainInterface newInter = new mainInterface(infouser);
+            newInter.Show();
         }
         public void getPiecesOnBoard()
         {
@@ -1643,36 +1647,55 @@ namespace chessgames
             DialogResult dgResult = MessageBox.Show("Bạn có chắc muốn thoát khỏi phòng", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dgResult == DialogResult.Yes)
             {
-                //mặc định player1 là người thắng còn player2 là người thua
-
-                var obj = new
+                //kiểm tra xem trong phòng có 2 hay 1 người
+                if (player.players == 2)
                 {
-                    player1 = IdDifPlayer + '-' + "win",
-                    player2 = userId + '-' + "lose"
-                };
-                string jsonData = JsonConvert.SerializeObject(obj);
-                HttpClient client = new HttpClient();
-                await client.PutAsync(apiResultMatch + matchId, new StringContent(jsonData, Encoding.UTF8, "application/json"));
-                //cập nhật lại điểmm cho người thắng
-                await client.PutAsync(apiUpdateScore + IdDifPlayer, new StringContent(JsonConvert.SerializeObject(new { point = currentDifPlayerScore + betPoint }), Encoding.UTF8, "application/json"));
-                //cập nhật lại điểm cho người thua
-                await client.PutAsync(apiUpdateScore + userId, new StringContent(JsonConvert.SerializeObject(new { point = currentScore - betPoint }), Encoding.UTF8, "application/json"));
-                //thực hiện gửi dữ liệu xử lý thoát khỏi phòng
-         
+                    //mặc định player1 là người thắng còn player2 là người thua
+                    var obj = new
+                    {
+                        player1 = IdDifPlayer + '-' + "win",
+                        player2 = userId + '-' + "lose"
+                    };
+                    string jsonData = JsonConvert.SerializeObject(obj);
+                    HttpClient client = new HttpClient();
+                    await client.PutAsync(apiResultMatch + matchId, new StringContent(jsonData, Encoding.UTF8, "application/json"));
+                    //cập nhật lại điểmm cho người thắng
+                    await client.PutAsync(apiUpdateScore + IdDifPlayer, new StringContent(JsonConvert.SerializeObject(new { point = currentDifPlayerScore + betPoint }), Encoding.UTF8, "application/json"));
+                    //cập nhật lại điểm cho người thua
+                    await client.PutAsync(apiUpdateScore + userId, new StringContent(JsonConvert.SerializeObject(new { point = currentScore - betPoint }), Encoding.UTF8, "application/json"));
+                    //thực hiện gửi dữ liệu xử lý thoát khỏi phòng
 
-                HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
 
-                if(response.IsSuccessStatusCode)
-                {
-                    JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
-                    infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
-                    this.infouser = user;
-                    //tạo lại giao diện mới
-                    MessageBox.Show("Bạn đã thua");
+                    HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
+                        infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                        this.infouser = user;
+                        //tạo lại giao diện mới
+                        MessageBox.Show("Bạn đã thua");
+                    }
+                    sendMove(0, 0, 0, 0, 1);
                 }
-                sendMove(0, 0, 0, 0, 1);
-                StopGame();
+                else
+                {
+                    //nếu phòng chỉ có 1 người thì xóa luôn phòng này
+                    HttpClient client = new HttpClient();
+                    await client.DeleteAsync(apiDeleteRoom + matchId);
+
+                    HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
+                        infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                        this.infouser = user;
+                    }
+                }
             }
+            this.Close();
+
         }
     }
 }

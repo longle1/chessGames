@@ -9,5 +9,6 @@ namespace chessgames
     public class match
     {
         public List<matchPlayer> players { get; set; }
+        public string status { get; set; }
     }
 }

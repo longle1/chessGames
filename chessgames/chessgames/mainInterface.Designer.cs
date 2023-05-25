@@ -33,7 +33,7 @@
             this.btnLogout = new System.Windows.Forms.Button();
             this.btnMakeFriend = new System.Windows.Forms.Button();
             this.btnRank = new System.Windows.Forms.Button();
-            this.btnListFriend = new System.Windows.Forms.Button();
+            this.btnHistory = new System.Windows.Forms.Button();
             this.rtbChat = new System.Windows.Forms.RichTextBox();
             this.txtSendMessage = new System.Windows.Forms.TextBox();
             this.btnSendIcon = new System.Windows.Forms.Button();
@@ -47,6 +47,14 @@
             this.pnlContainsIcon = new System.Windows.Forms.Panel();
             this.pnlListFriends = new System.Windows.Forms.Panel();
             this.btnExit = new System.Windows.Forms.Button();
+            this.pnlRanker = new System.Windows.Forms.Panel();
+            this.btnYourRank = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbCurrentRank = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.lbYourRank = new System.Windows.Forms.Label();
+            this.pnlYourLevel = new System.Windows.Forms.FlowLayoutPanel();
+            this.dtGridRank = new System.Windows.Forms.DataGridView();
             this.tbControls = new System.Windows.Forms.TabControl();
             this.tbFindUser = new System.Windows.Forms.TabPage();
             this.dtAllUsers = new System.Windows.Forms.DataGridView();
@@ -56,9 +64,24 @@
             this.dtListFriends = new System.Windows.Forms.DataGridView();
             this.tbAccept = new System.Windows.Forms.TabPage();
             this.dtAcceptFriend = new System.Windows.Forms.DataGridView();
+            this.pnlContainsChild = new System.Windows.Forms.Panel();
+            this.pnlChildContainHistory = new System.Windows.Forms.Panel();
+            this.btnHistoryClose = new System.Windows.Forms.Button();
+            this.dtGridViewHistory = new System.Windows.Forms.DataGridView();
+            this.pnlCreateRoom = new System.Windows.Forms.Panel();
+            this.btnDltCreateRoom = new System.Windows.Forms.Button();
+            this.txtRoomName = new System.Windows.Forms.TextBox();
+            this.btnAcceptCreateRoom = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtBetPoints = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).BeginInit();
             this.pnlListFriends.SuspendLayout();
+            this.pnlRanker.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).BeginInit();
             this.tbControls.SuspendLayout();
             this.tbFindUser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAllUsers)).BeginInit();
@@ -66,11 +89,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).BeginInit();
             this.tbAccept.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).BeginInit();
+            this.pnlContainsChild.SuspendLayout();
+            this.pnlChildContainHistory.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridViewHistory)).BeginInit();
+            this.pnlCreateRoom.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnContainInfoUser
             // 
-            this.btnContainInfoUser.Location = new System.Drawing.Point(881, 21);
+            this.btnContainInfoUser.Location = new System.Drawing.Point(1047, 12);
             this.btnContainInfoUser.Name = "btnContainInfoUser";
             this.btnContainInfoUser.Size = new System.Drawing.Size(136, 51);
             this.btnContainInfoUser.TabIndex = 13;
@@ -88,7 +115,7 @@
             // 
             // btnLogout
             // 
-            this.btnLogout.Location = new System.Drawing.Point(1032, 21);
+            this.btnLogout.Location = new System.Drawing.Point(1198, 12);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(136, 51);
             this.btnLogout.TabIndex = 14;
@@ -98,17 +125,17 @@
             // 
             // btnMakeFriend
             // 
-            this.btnMakeFriend.Location = new System.Drawing.Point(1032, 78);
+            this.btnMakeFriend.Location = new System.Drawing.Point(1198, 69);
             this.btnMakeFriend.Name = "btnMakeFriend";
             this.btnMakeFriend.Size = new System.Drawing.Size(136, 51);
             this.btnMakeFriend.TabIndex = 16;
-            this.btnMakeFriend.Text = "Kết bạn";
+            this.btnMakeFriend.Text = "Danh sách";
             this.btnMakeFriend.UseVisualStyleBackColor = true;
             this.btnMakeFriend.Click += new System.EventHandler(this.btnMakeFriend_Click);
             // 
             // btnRank
             // 
-            this.btnRank.Location = new System.Drawing.Point(881, 78);
+            this.btnRank.Location = new System.Drawing.Point(1047, 69);
             this.btnRank.Name = "btnRank";
             this.btnRank.Size = new System.Drawing.Size(136, 51);
             this.btnRank.TabIndex = 15;
@@ -116,15 +143,14 @@
             this.btnRank.UseVisualStyleBackColor = true;
             this.btnRank.Click += new System.EventHandler(this.btnRank_Click);
             // 
-            // btnListFriend
+            // btnHistory
             // 
-            this.btnListFriend.Location = new System.Drawing.Point(21, 164);
-            this.btnListFriend.Name = "btnListFriend";
-            this.btnListFriend.Size = new System.Drawing.Size(211, 40);
-            this.btnListFriend.TabIndex = 17;
-            this.btnListFriend.Text = "Danh sách bạn bè";
-            this.btnListFriend.UseVisualStyleBackColor = true;
-            this.btnListFriend.Click += new System.EventHandler(this.btnListFriend_Click);
+            this.btnHistory.Location = new System.Drawing.Point(21, 164);
+            this.btnHistory.Name = "btnHistory";
+            this.btnHistory.Size = new System.Drawing.Size(159, 40);
+            this.btnHistory.TabIndex = 31;
+            this.btnHistory.Text = "Lịch sử đấu";
+            this.btnHistory.Click += new System.EventHandler(this.btnHistory_Click);
             // 
             // rtbChat
             // 
@@ -165,11 +191,11 @@
             // dtGridContainListRooms
             // 
             this.dtGridContainListRooms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dtGridContainListRooms.Location = new System.Drawing.Point(470, 164);
+            this.dtGridContainListRooms.Location = new System.Drawing.Point(484, 134);
             this.dtGridContainListRooms.Name = "dtGridContainListRooms";
             this.dtGridContainListRooms.RowHeadersWidth = 51;
             this.dtGridContainListRooms.RowTemplate.Height = 24;
-            this.dtGridContainListRooms.Size = new System.Drawing.Size(698, 375);
+            this.dtGridContainListRooms.Size = new System.Drawing.Size(850, 375);
             this.dtGridContainListRooms.TabIndex = 22;
             this.dtGridContainListRooms.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtGridContainListRooms_CellContentClick);
             // 
@@ -228,11 +254,13 @@
             // pnlListFriends
             // 
             this.pnlListFriends.Controls.Add(this.btnExit);
+            this.pnlListFriends.Controls.Add(this.pnlRanker);
             this.pnlListFriends.Controls.Add(this.tbControls);
-            this.pnlListFriends.Location = new System.Drawing.Point(183, 36);
+            this.pnlListFriends.Location = new System.Drawing.Point(281, 14);
             this.pnlListFriends.Name = "pnlListFriends";
             this.pnlListFriends.Size = new System.Drawing.Size(866, 566);
             this.pnlListFriends.TabIndex = 30;
+            this.pnlListFriends.Visible = false;
             // 
             // btnExit
             // 
@@ -243,6 +271,82 @@
             this.btnExit.Text = "X";
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
+            // 
+            // pnlRanker
+            // 
+            this.pnlRanker.Controls.Add(this.btnYourRank);
+            this.pnlRanker.Controls.Add(this.panel2);
+            this.pnlRanker.Controls.Add(this.panel1);
+            this.pnlRanker.Controls.Add(this.pnlYourLevel);
+            this.pnlRanker.Controls.Add(this.dtGridRank);
+            this.pnlRanker.Location = new System.Drawing.Point(171, 14);
+            this.pnlRanker.Name = "pnlRanker";
+            this.pnlRanker.Size = new System.Drawing.Size(576, 549);
+            this.pnlRanker.TabIndex = 2;
+            // 
+            // btnYourRank
+            // 
+            this.btnYourRank.Location = new System.Drawing.Point(523, 0);
+            this.btnYourRank.Name = "btnYourRank";
+            this.btnYourRank.Size = new System.Drawing.Size(53, 48);
+            this.btnYourRank.TabIndex = 3;
+            this.btnYourRank.Text = "X";
+            this.btnYourRank.UseVisualStyleBackColor = true;
+            this.btnYourRank.Click += new System.EventHandler(this.btnYourRank_Click);
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.IndianRed;
+            this.panel2.Controls.Add(this.lbCurrentRank);
+            this.panel2.Location = new System.Drawing.Point(292, 490);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(284, 59);
+            this.panel2.TabIndex = 4;
+            // 
+            // lbCurrentRank
+            // 
+            this.lbCurrentRank.AutoSize = true;
+            this.lbCurrentRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbCurrentRank.Location = new System.Drawing.Point(17, 10);
+            this.lbCurrentRank.Name = "lbCurrentRank";
+            this.lbCurrentRank.Size = new System.Drawing.Size(0, 38);
+            this.lbCurrentRank.TabIndex = 0;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panel1.Controls.Add(this.lbYourRank);
+            this.panel1.Location = new System.Drawing.Point(0, 490);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(293, 59);
+            this.panel1.TabIndex = 3;
+            // 
+            // lbYourRank
+            // 
+            this.lbYourRank.AutoSize = true;
+            this.lbYourRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbYourRank.Location = new System.Drawing.Point(17, 10);
+            this.lbYourRank.Name = "lbYourRank";
+            this.lbYourRank.Size = new System.Drawing.Size(232, 38);
+            this.lbYourRank.TabIndex = 4;
+            this.lbYourRank.Text = "Hạng của bạn";
+            // 
+            // pnlYourLevel
+            // 
+            this.pnlYourLevel.Location = new System.Drawing.Point(3, 490);
+            this.pnlYourLevel.Name = "pnlYourLevel";
+            this.pnlYourLevel.Size = new System.Drawing.Size(573, 59);
+            this.pnlYourLevel.TabIndex = 2;
+            // 
+            // dtGridRank
+            // 
+            this.dtGridRank.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtGridRank.Location = new System.Drawing.Point(3, 54);
+            this.dtGridRank.Name = "dtGridRank";
+            this.dtGridRank.RowHeadersWidth = 51;
+            this.dtGridRank.RowTemplate.Height = 24;
+            this.dtGridRank.Size = new System.Drawing.Size(573, 437);
+            this.dtGridRank.TabIndex = 1;
             // 
             // tbControls
             // 
@@ -340,12 +444,118 @@
             this.dtAcceptFriend.TabIndex = 0;
             this.dtAcceptFriend.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtAcceptFriend_CellContentClick);
             // 
+            // pnlContainsChild
+            // 
+            this.pnlContainsChild.AutoSize = true;
+            this.pnlContainsChild.BackColor = System.Drawing.Color.PapayaWhip;
+            this.pnlContainsChild.Controls.Add(this.pnlChildContainHistory);
+            this.pnlContainsChild.Controls.Add(this.pnlListFriends);
+            this.pnlContainsChild.Location = new System.Drawing.Point(-7, -2);
+            this.pnlContainsChild.Name = "pnlContainsChild";
+            this.pnlContainsChild.Size = new System.Drawing.Size(1372, 940);
+            this.pnlContainsChild.TabIndex = 30;
+            // 
+            // pnlChildContainHistory
+            // 
+            this.pnlChildContainHistory.Controls.Add(this.pnlCreateRoom);
+            this.pnlChildContainHistory.Controls.Add(this.dtGridViewHistory);
+            this.pnlChildContainHistory.Controls.Add(this.btnHistoryClose);
+            this.pnlChildContainHistory.Location = new System.Drawing.Point(264, 11);
+            this.pnlChildContainHistory.Name = "pnlChildContainHistory";
+            this.pnlChildContainHistory.Size = new System.Drawing.Size(866, 552);
+            this.pnlChildContainHistory.TabIndex = 5;
+            // 
+            // btnHistoryClose
+            // 
+            this.btnHistoryClose.Location = new System.Drawing.Point(808, 1);
+            this.btnHistoryClose.Name = "btnHistoryClose";
+            this.btnHistoryClose.Size = new System.Drawing.Size(58, 55);
+            this.btnHistoryClose.TabIndex = 0;
+            this.btnHistoryClose.Text = "X";
+            this.btnHistoryClose.UseVisualStyleBackColor = true;
+            this.btnHistoryClose.Click += new System.EventHandler(this.btnHistoryClose_Click);
+            // 
+            // dtGridViewHistory
+            // 
+            this.dtGridViewHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtGridViewHistory.Location = new System.Drawing.Point(0, 61);
+            this.dtGridViewHistory.Name = "dtGridViewHistory";
+            this.dtGridViewHistory.RowHeadersWidth = 51;
+            this.dtGridViewHistory.RowTemplate.Height = 24;
+            this.dtGridViewHistory.Size = new System.Drawing.Size(866, 491);
+            this.dtGridViewHistory.TabIndex = 1;
+            // 
+            // pnlCreateRoom
+            // 
+            this.pnlCreateRoom.Controls.Add(this.txtBetPoints);
+            this.pnlCreateRoom.Controls.Add(this.label3);
+            this.pnlCreateRoom.Controls.Add(this.label1);
+            this.pnlCreateRoom.Controls.Add(this.btnAcceptCreateRoom);
+            this.pnlCreateRoom.Controls.Add(this.txtRoomName);
+            this.pnlCreateRoom.Controls.Add(this.btnDltCreateRoom);
+            this.pnlCreateRoom.Location = new System.Drawing.Point(227, 95);
+            this.pnlCreateRoom.Name = "pnlCreateRoom";
+            this.pnlCreateRoom.Size = new System.Drawing.Size(437, 241);
+            this.pnlCreateRoom.TabIndex = 2;
+            // 
+            // btnDltCreateRoom
+            // 
+            this.btnDltCreateRoom.Location = new System.Drawing.Point(391, 0);
+            this.btnDltCreateRoom.Name = "btnDltCreateRoom";
+            this.btnDltCreateRoom.Size = new System.Drawing.Size(46, 44);
+            this.btnDltCreateRoom.TabIndex = 3;
+            this.btnDltCreateRoom.Text = "X";
+            this.btnDltCreateRoom.UseVisualStyleBackColor = true;
+            this.btnDltCreateRoom.Click += new System.EventHandler(this.btnDltCreateRoom_Click);
+            // 
+            // txtRoomName
+            // 
+            this.txtRoomName.Location = new System.Drawing.Point(99, 55);
+            this.txtRoomName.Name = "txtRoomName";
+            this.txtRoomName.Size = new System.Drawing.Size(245, 22);
+            this.txtRoomName.TabIndex = 4;
+            // 
+            // btnAcceptCreateRoom
+            // 
+            this.btnAcceptCreateRoom.Location = new System.Drawing.Point(129, 172);
+            this.btnAcceptCreateRoom.Name = "btnAcceptCreateRoom";
+            this.btnAcceptCreateRoom.Size = new System.Drawing.Size(175, 41);
+            this.btnAcceptCreateRoom.TabIndex = 6;
+            this.btnAcceptCreateRoom.Text = "Tạo phòng";
+            this.btnAcceptCreateRoom.UseVisualStyleBackColor = true;
+            this.btnAcceptCreateRoom.Click += new System.EventHandler(this.btnAcceptCreateRoom_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(97, 35);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(102, 16);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Nhập tên phòng";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(97, 98);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(105, 16);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Nhập điểm cược";
+            // 
+            // txtBetPoints
+            // 
+            this.txtBetPoints.Location = new System.Drawing.Point(99, 117);
+            this.txtBetPoints.Name = "txtBetPoints";
+            this.txtBetPoints.Size = new System.Drawing.Size(245, 22);
+            this.txtBetPoints.TabIndex = 9;
+            // 
             // mainInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1196, 662);
-            this.Controls.Add(this.pnlListFriends);
+            this.ClientSize = new System.Drawing.Size(1362, 608);
+            this.Controls.Add(this.pnlContainsChild);
             this.Controls.Add(this.pnlContainsIcon);
             this.Controls.Add(this.lbScore);
             this.Controls.Add(this.label2);
@@ -357,7 +567,7 @@
             this.Controls.Add(this.btnSendIcon);
             this.Controls.Add(this.txtSendMessage);
             this.Controls.Add(this.rtbChat);
-            this.Controls.Add(this.btnListFriend);
+            this.Controls.Add(this.btnHistory);
             this.Controls.Add(this.btnMakeFriend);
             this.Controls.Add(this.btnRank);
             this.Controls.Add(this.btnLogout);
@@ -370,6 +580,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).EndInit();
             this.pnlListFriends.ResumeLayout(false);
+            this.pnlRanker.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).EndInit();
             this.tbControls.ResumeLayout(false);
             this.tbFindUser.ResumeLayout(false);
             this.tbFindUser.PerformLayout();
@@ -378,6 +594,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).EndInit();
             this.tbAccept.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).EndInit();
+            this.pnlContainsChild.ResumeLayout(false);
+            this.pnlChildContainHistory.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridViewHistory)).EndInit();
+            this.pnlCreateRoom.ResumeLayout(false);
+            this.pnlCreateRoom.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -390,7 +611,7 @@
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Button btnMakeFriend;
         private System.Windows.Forms.Button btnRank;
-        private System.Windows.Forms.Button btnListFriend;
+        private System.Windows.Forms.Button btnHistory;
         private System.Windows.Forms.RichTextBox rtbChat;
         private System.Windows.Forms.TextBox txtSendMessage;
         private System.Windows.Forms.Button btnSendIcon;
@@ -413,5 +634,24 @@
         private System.Windows.Forms.TextBox txtFindUser;
         private System.Windows.Forms.DataGridView dtListFriends;
         private System.Windows.Forms.DataGridView dtAcceptFriend;
+        private System.Windows.Forms.Panel pnlRanker;
+        private System.Windows.Forms.Button btnYourRank;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label lbYourRank;
+        private System.Windows.Forms.FlowLayoutPanel pnlYourLevel;
+        private System.Windows.Forms.DataGridView dtGridRank;
+        private System.Windows.Forms.Label lbCurrentRank;
+        private System.Windows.Forms.Panel pnlContainsChild;
+        private System.Windows.Forms.Panel pnlChildContainHistory;
+        private System.Windows.Forms.DataGridView dtGridViewHistory;
+        private System.Windows.Forms.Button btnHistoryClose;
+        private System.Windows.Forms.Panel pnlCreateRoom;
+        private System.Windows.Forms.TextBox txtBetPoints;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnAcceptCreateRoom;
+        private System.Windows.Forms.TextBox txtRoomName;
+        private System.Windows.Forms.Button btnDltCreateRoom;
     }
 }

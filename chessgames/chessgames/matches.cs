@@ -13,5 +13,8 @@ namespace chessgames
         public string status { get; set; }
         public int count { get; set; }
         public int betPoints { get; set; }
+        public string roomName { get; set; }
+        public string ownerRoom { get; set; }
+
     }
 }

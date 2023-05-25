@@ -128,7 +128,6 @@ namespace chessgames
                 MessageBox.Show(ex.Message);
             }
         }
-
         private void btnSignUp_Click(object sender, EventArgs e)
         {
             register rgForm = new register();
@@ -137,7 +136,6 @@ namespace chessgames
             //ẩn form hiện tại
             Hide();
         }
-
         private void forgotPasswordLabel_Click(object sender, EventArgs e)
         {
             //click vào quên mật khẩu thì hiện form xác thực tài khoản
@@ -146,6 +144,10 @@ namespace chessgames
 
             //ẩn form login đi 
             this.Hide();
+        }
+        private void login_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            
         }
     }
 }

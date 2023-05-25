@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
@@ -19,6 +20,7 @@ using System.Windows.Forms;
 
 namespace chessgames
 {
+    //chinh sua day
     public partial class mainInterface : Form
     {
         private infoUser user;
@@ -45,7 +47,7 @@ namespace chessgames
         button btn = new button();
         Thread rcvDataThread = null;
         int iconNumbers = 29;
-        string ipAddress = "172.20.41.112";
+        string ipAddress = "172.20.36.209";
         private enum setting
         {
             createRoom = 0,
@@ -69,6 +71,19 @@ namespace chessgames
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
         }
+        private void calLocationChildPanel(Panel parent, Panel child)
+        {
+            // Tính toán vị trí để đặt Panel con vào giữa Panel cha
+            int childX = (parent.Width - child.Width) / 2;
+            int childY = (parent.Height - child.Height) / 2;
+
+            // Đặt vị trí cho Panel con
+            child.Location = new Point(childX, childY);
+
+            // Đặt Anchor để Panel con giữa trung tâm Panel cha khi Panel cha thay đổi kích thước
+            child.Anchor = AnchorStyles.None;
+            parent.Controls.Add(child);
+        }
         private async Task handleLogOutRoom()
         {
             apiGetUser += user.id;
@@ -87,10 +102,18 @@ namespace chessgames
             sendData(message);
 
             client = null;
+        }
 
-            login.showFormAgain.Show();
-            //tiến hành đóng form lại
-            this.Close();
+        private void loopChildPanel(Panel pnl)
+        {
+            pnlContainsChild.Show();
+            foreach (Panel childPanel in pnlContainsChild.Controls.OfType<Panel>())
+            {
+                if (childPanel == pnl)
+                    childPanel.Show();
+                else
+                    childPanel.Hide();
+            }
         }
         //=================================================================================================================================
 
@@ -98,8 +121,18 @@ namespace chessgames
         public mainInterface()
         {
             InitializeComponent();
+
+            pnlContainsChild.Hide();
+
+            calLocationChildPanel(pnlContainsChild, pnlListFriends);
+            calLocationChildPanel(pnlContainsChild, pnlRanker);
+            calLocationChildPanel(pnlContainsChild, pnlChildContainHistory);
+            calLocationChildPanel(pnlContainsChild, pnlCreateRoom);
+
+
+
+
             CheckForIllegalCrossThreadCalls = false;
-            pnlListFriends.Visible = false;
             pnlContainsIcon.Hide();
             rtbChat.ReadOnly = true;
             client = new TcpClient();
@@ -116,6 +149,8 @@ namespace chessgames
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             showInter = this;
+
+            pnlRanker.Hide();
 
             //gửi thông điệp login lên server
             string message = user.userName;
@@ -221,7 +256,7 @@ namespace chessgames
         //============================================ CÁC HÀM DÙNG ĐỂ GỬI VÀ NHẬN DỮ LIỆU =================================================
         public void sendData(string msg)
         {
-            if(client != null)
+            if (client != null)
             {
                 NetworkStream stream = client.GetStream();
                 byte[] data = Encoding.UTF8.GetBytes(msg);
@@ -452,6 +487,8 @@ namespace chessgames
             dtGridContainListRooms.AllowUserToAddRows = false;
 
             dtGridContainListRooms.Columns.Add("id", "Mã phòng");
+            dtGridContainListRooms.Columns.Add("roomName", "Tên phòng");
+            dtGridContainListRooms.Columns.Add("ownerRoom", "Chủ phòng");
             dtGridContainListRooms.Columns.Add("Count", "Số lượng");
             dtGridContainListRooms.Columns.Add("betPoint", "Điểm cược");
             dtGridContainListRooms.Columns.Add("status", "Trạng thái");
@@ -468,8 +505,11 @@ namespace chessgames
 
             foreach (matches item in list)
             {
-                string[] rowData = new string[] { item._id, item.count.ToString() + "/2", item.betPoints.ToString(), item.status };
-                dtGridContainListRooms.Rows.Add(rowData);
+                if (item.status.ToLower() != "finished")
+                {
+                    string[] rowData = new string[] { item._id, item.roomName, item.ownerRoom, item.count.ToString() + "/2", item.betPoints.ToString(), item.status };
+                    dtGridContainListRooms.Rows.Add(rowData);
+                }
             }
             dtGridContainListRooms.ReadOnly = true;
         }
@@ -640,6 +680,91 @@ namespace chessgames
             }
             dtAcceptFriend.ReadOnly = true;
         }
+        public void displayListRank(List<infoUser> userLists)
+        {
+
+            //chứa danh sách điểm user từ cao đến thấp
+            List<infoUser> sortList = userLists.OrderByDescending(user => user.point).ToList();
+            int currentRank = 0;
+
+
+            dtGridRank.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtGridRank.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //ngăn không cho người dùng kéo giãn
+            foreach (DataGridViewColumn column in dtGridRank.Columns)
+            {
+                column.Resizable = DataGridViewTriState.False;
+            }
+            foreach (DataGridViewRow row in dtGridRank.Rows)
+            {
+                row.Resizable = DataGridViewTriState.False;
+            }
+            dtGridRank.Rows.Clear();
+            dtGridRank.Columns.Clear();
+            //xóa đi dòng cuối cùng trong dataGridView
+            dtGridRank.AllowUserToAddRows = false;
+
+            dtGridRank.Columns.Add("userName", "Tên người dùng");
+            dtGridRank.Columns.Add("point", "Điểm");
+            dtGridRank.Columns.Add("currentRank", "Hạng");
+
+            dtGridRank.RowHeadersVisible = false;
+            dtGridRank.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            if (userLists != null)
+            {
+
+                for (int index = 0; index < sortList.Count; index++)
+                {
+                    if (sortList[index].userName == user.userName)
+                        currentRank = index + 1;
+                    string[] rowData = new string[] { sortList[index].userName, sortList[index].point.ToString(), (index + 1).ToString() };
+                    dtGridRank.Rows.Add(rowData);
+                }
+            }
+            lbCurrentRank.Text = currentRank.ToString();
+            dtGridRank.ReadOnly = true;
+        }
+        public async void displayListHistoryMatch(infoUser user)
+        {
+            dtGridViewHistory.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtGridViewHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //ngăn không cho người dùng kéo giãn
+            foreach (DataGridViewColumn column in dtGridViewHistory.Columns)
+            {
+                column.Resizable = DataGridViewTriState.False;
+            }
+            foreach (DataGridViewRow row in dtGridViewHistory.Rows)
+            {
+                row.Resizable = DataGridViewTriState.False;
+            }
+            dtGridViewHistory.Rows.Clear();
+            dtGridViewHistory.Columns.Clear();
+            //xóa đi dòng cuối cùng trong dataGridView
+            dtGridViewHistory.AllowUserToAddRows = false;
+
+            dtGridViewHistory.Columns.Add("userName1", "Bạn");
+            dtGridViewHistory.Columns.Add("userName2", "Người chơi");
+            dtGridViewHistory.Columns.Add("result", "Kết quả");
+            dtGridViewHistory.RowHeadersVisible = false;
+            dtGridViewHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            if (user != null)
+            {
+                foreach (match item in user.matches)
+                {
+                    if (string.Equals(item.status, "finished"))
+                    {
+                        string myUsername = user.userName;
+                        string myResult = item.players[0].user == user.id ? item.players[0].resultMatch : item.players[1].resultMatch;
+                        string difId = item.players[0].user == user.id ? item.players[1].user : item.players[0].user;
+                        JToken tkData = await callApiUsingGetMethodID(apiGetUserId + difId);
+                        infoUser difUser = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                        string[] rowData = new string[] { myUsername, difUser.userName, myResult };
+                        dtGridViewHistory.Rows.Add(rowData);
+                    }
+                }
+            }
+            dtGridViewHistory.ReadOnly = true;
+        }
         //==================================================================================================================================
 
         //========================================= HÀM DÙNG ĐỂ THAO TÁC VỚI SỰ KIỆN BẤM VÀO DATAGRIDVIEW ==================================
@@ -649,7 +774,7 @@ namespace chessgames
             {
                 DataGridView dataGridView = (DataGridView)sender;
 
-                if (e.ColumnIndex == 4)
+                if (e.ColumnIndex == 6)
                 {
                     if (dataGridView.Rows[e.RowIndex].Cells["Count"].Value.ToString() == "2/2")
                     {
@@ -678,9 +803,9 @@ namespace chessgames
 
                             //lặp qua để kiếm ra id của đối phương
                             string id = "";
-                            foreach(matchPlayer match1 in match.players)
+                            foreach (matchPlayer match1 in match.players)
                             {
-                                if(match1.user != user.id)
+                                if (match1.user != user.id)
                                 {
                                     id = match1.user;
                                     break;
@@ -864,13 +989,22 @@ namespace chessgames
         private async void btnLogout_Click(object sender, EventArgs e)
         {
             await handleLogOutRoom();
+            login.showFormAgain.Show();
+            //tiến hành đóng form lại
+            this.Close();
         }
-        private void btnRank_Click(object sender, EventArgs e)
+        private async void btnRank_Click(object sender, EventArgs e)
         {
 
+            JToken tkData = await callApiUsingMethodGet(apiGetAllUser);
+            List<infoUser> users = JsonConvert.DeserializeObject<List<infoUser>>(tkData.ToString());
+            displayListRank(users);
+
+            loopChildPanel(pnlRanker);
         }
         private async void btnMakeFriend_Click(object sender, EventArgs e)
         {
+
             getListAllUser();
 
             List<infoUser> getFriends = new List<infoUser>();
@@ -878,57 +1012,18 @@ namespace chessgames
             displayListFriends(await getListUser(getFriends, "friend"));
             getFriends.Clear();
             displayListWaitingAccept(await getListUser(getFriends, "waiting"));
-            pnlListFriends.Visible = true;
+
+
+            loopChildPanel(pnlListFriends);
         }
         private void btnExit_Click(object sender, EventArgs e)
         {
-            pnlListFriends.Visible = false;
+            pnlContainsChild.Hide();
             txtFindUser.Clear();
-        }
-        private void btnListFriend_Click(object sender, EventArgs e)
-        {
-
         }
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
 
-        }
-        private async void btnCreateRoom_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                HttpClient client = new HttpClient();
-                var data = new
-                {
-                    id = user.id
-                };
-                string jsonData = JsonConvert.SerializeObject(data);
-                HttpResponseMessage response = await client.PostAsync(apiCreateRoom, new StringContent(jsonData, Encoding.UTF8, "application/json"));
-                string dataJson = await response.Content.ReadAsStringAsync();
-                JObject objData = JObject.Parse(dataJson);
-                if (response.StatusCode == System.Net.HttpStatusCode.Created)
-                {
-                    MessageBox.Show(objData["notify"].ToString());
-                    JToken dataRoom = objData["data"];
-                    displayListMatches();
-                    matches match = JsonConvert.DeserializeObject<matches>(dataRoom.ToString());
-                    string message = (int)setting.createRoom + "*" + user.userName;
-                    sendData(message);
-
-                    //tạo và tham gia vào phòng
-                    this.Hide();
-                    Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
-                    admin.Show();
-                }
-                else
-                {
-                    MessageBox.Show(objData["notify"].ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
         private async void btnFindUser_Click(object sender, EventArgs e)
         {
@@ -939,9 +1034,86 @@ namespace chessgames
             //hiển thị danh sách user này lên datagridView
             displayListUsers(userLists);
         }
-        private async void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
+        private void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
         {
-            await handleLogOutRoom();
+
+        }
+        private void btnYourRank_Click(object sender, EventArgs e)
+        {
+            pnlContainsChild.Hide();
+        }
+        private void btnHistoryClose_Click(object sender, EventArgs e)
+        {
+            pnlContainsChild.Hide();
+        }
+        private async void btnHistory_Click(object sender, EventArgs e)
+        {
+            JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
+            infoUser myUser = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+            displayListHistoryMatch(myUser);
+
+            loopChildPanel(pnlChildContainHistory);
+        }
+        private void btnCreateRoom_Click(object sender, EventArgs e)
+        {
+            loopChildPanel(pnlCreateRoom);
+        }
+        private void btnDltCreateRoom_Click(object sender, EventArgs e)
+        {
+            pnlContainsChild.Hide();
+        }
+        private async void btnAcceptCreateRoom_Click(object sender, EventArgs e)
+        {
+            if (string.Equals(txtRoomName.Text.Trim(), "") || string.Equals(txtBetPoints.Text.Trim(), ""))
+            {
+                MessageBox.Show("Thông tin nhập vào không được bỏ trống");
+            }
+            else
+            {
+                try
+                {
+                    int betPoint = int.Parse(txtBetPoints.Text.Trim());
+                    if(betPoint > user.point)
+                    {
+                        MessageBox.Show("Bạn không đủ điểm để đặt mức cược này, vui lòng nhập điểm cược khác");
+                        return;
+                    }
+                    HttpClient client = new HttpClient();
+                    var data = new
+                    {
+                        id = user.id,
+                        betPoints = betPoint,
+                        roomName = txtRoomName.Text.Trim(),
+                        ownerRoom = user.userName
+                    };
+                    string jsonData = JsonConvert.SerializeObject(data);
+                    HttpResponseMessage response = await client.PostAsync(apiCreateRoom, new StringContent(jsonData, Encoding.UTF8, "application/json"));
+                    string dataJson = await response.Content.ReadAsStringAsync();
+                    JObject objData = JObject.Parse(dataJson);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        MessageBox.Show(objData["notify"].ToString());
+                        JToken dataRoom = objData["data"];
+                        displayListMatches();
+                        matches match = JsonConvert.DeserializeObject<matches>(dataRoom.ToString());
+                        string message = (int)setting.createRoom + "*" + user.userName;
+                        sendData(message);
+
+                        //tạo và tham gia vào phòng
+                        this.Hide();
+                        Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, 3, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                        admin.Show();
+                    }
+                    else
+                    {
+                        MessageBox.Show(objData["notify"].ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Điểm cược không hợp lệ, vui lòng nhập lại");
+                }
+            }
         }
         //==================================================================================================================================
     }

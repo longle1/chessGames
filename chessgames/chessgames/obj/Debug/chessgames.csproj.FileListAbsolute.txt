@@ -66,3 +66,27 @@ D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.FormInfoUser.resources
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.mainInterface.resources
 D:\Nơi chứa các bài nộp github\chessGames\chessgames\chessgames\obj\Debug\chessgames.demo.resources
+E:\push code\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe.config
+E:\push code\chessGames\chessgames\chessgames\bin\Debug\chessgames.exe
+E:\push code\chessGames\chessgames\chessgames\bin\Debug\chessgames.pdb
+E:\push code\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.dll
+E:\push code\chessGames\chessgames\chessgames\bin\Debug\Newtonsoft.Json.xml
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.AssemblyReference.cache
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.SuggestedBindingRedirects.cache
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.authAccount.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.changePassword.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.Dashboard.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.demo.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.Form1.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.FormInfoUser.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.inputToken.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.login.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.mainInterface.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.Properties.Resources.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.register.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.userControlClick.resources
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.GenerateResource.cache
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CoreCompileInputs.cache
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.csproj.CopyComplete
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.exe
+E:\push code\chessGames\chessgames\chessgames\obj\Debug\chessgames.pdb

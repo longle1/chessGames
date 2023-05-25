@@ -42,6 +42,24 @@ namespace chessgames
         {
             try
             {
+                //đếm số trận thắng và số trận thua
+                int numberOfWins = 0, numberOfLosses = 0;
+                foreach(match item in user.matches)
+                {
+                    if(string.Equals(item.status, "finished"))
+                    {
+                        foreach(matchPlayer player in  item.players)
+                        {
+                            if(string.Equals(player.user, user.id)) {
+                                if(player.resultMatch == "win")
+                                    numberOfWins++;
+                                else 
+                                    numberOfLosses++;
+                            }
+                        }
+                    }
+                }
+
                 directoryImagePath = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
                 this.checkModify = checkModify;
                 if (checkModify)
@@ -76,7 +94,6 @@ namespace chessgames
                 MessageBox.Show(ex.Message);
             }
         }
-
         private void btnEditInfo_Click(object sender, EventArgs e)
         {
             txtUsername.ReadOnly = false;
@@ -147,7 +164,6 @@ namespace chessgames
                 ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             }
         }
-
         private void btnChangeImage_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -161,7 +177,6 @@ namespace chessgames
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             pathImage = openFileDialog.FileName;
         }
-
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();

@@ -123,6 +123,7 @@
             this.Controls.Add(this.userNamLabel);
             this.Name = "login";
             this.Text = "login";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.login_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
