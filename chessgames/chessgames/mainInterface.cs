@@ -56,9 +56,8 @@ namespace chessgames
             joinRoom = 3,
             chatOne = 4,
             chatMulti = 5,
-            outRoom = 6,
-            logout = 7,
-            unFriend = 8
+            logout = 6,
+            unFriend = 7
         }
 
         //============================================  CÁC HÀM XỬ LÝ RIÊNG BIỆT =========================================================
@@ -319,7 +318,7 @@ namespace chessgames
                                 }
                             }
                             break;
-                        case 7: //xử lý log out
+                        case 6: //xử lý log out
                                 //lấy id nhận về 
                             string id = listMsg[1].Split(',')[1];
                             //kiểm tra xem trong danh sách bạn bè xem có user này không
@@ -341,7 +340,7 @@ namespace chessgames
                                 displayListFriends(await getListUser(lists3, "friend"));
                             }
                             break;
-                        case 8:
+                        case 7:
                             //làm mới lại danh sách khi có phần tử mới được thêm vào
                             JToken tkData3 = await callApiUsingGetMethodID(apiGetUserId + user.id);
                             this.user = JsonConvert.DeserializeObject<infoUser>(tkData3.ToString());
