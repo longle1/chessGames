@@ -1239,12 +1239,6 @@ namespace chessgames
             //hiển thị danh sách user này lên datagridView
             displayListUsers(userLists);
         }
-        private void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            //tiến hành xóa doạn chat
-            listChats.Clear();
-            login.showFormAgain.Close();
-        }
         private async void btnHistory_Click(object sender, EventArgs e)
         {
             JToken tkData = await callApiUsingGetMethodID(apiGetUserId + user.id);
@@ -1257,7 +1251,44 @@ namespace chessgames
         {
             loopChildPanel(pnlCreateRoom);
         }
-        private async void btnAcceptCreateRoom_Click(object sender, EventArgs e)
+        private void btnExit_Click_1(object sender, EventArgs e)
+        {
+            pnlContainsChild.Hide();
+        }
+        private async void createChatBetweenClientAndClient()
+        {
+            //thêm tập hợp các bạn bè vào để chat
+            List<string> listFriends = await getListFriends();
+            foreach (string userName in listFriends)
+            {
+                bool check = false;
+                if (userName != user.userName)
+                {
+                    for (int index = 0; index < listChats.Count; index++)
+                    {
+                        if (listChats[index].Tag.ToString().Contains(user.userName) && listChats[index].Tag.ToString().Contains(userName))
+                        {
+                            check = true;
+                            break;
+                        }
+                    }
+                    if (!check)
+                    {
+                        chat = new UserControlChatOne();
+                        chat.Tag = $"{user.userName},{userName}";
+                        chat.btnSendMsgChatOne_click += Chat_btnSendMsgChatOne_click;
+                        chat.btnSendIconChatOne_click += Chat_btnSendIconChatOne_click;
+                        chat.btnCloseForm_click += Chat_btnCloseForm_click;
+                        chat.Dock = DockStyle.Bottom;
+                        pnlChatOne.Controls.Add(chat);
+                        listChats.Add(chat);
+                    }
+                }
+                check = false;
+            }
+            chat = null;
+        }
+        private async void btnAcceptCreateRoom_Click_1(object sender, EventArgs e)
         {
             if (string.Equals(txtRoomName.Text.Trim(), "") || string.Equals(txtBetPoints.Text.Trim(), ""))
             {
@@ -1268,6 +1299,11 @@ namespace chessgames
                 try
                 {
                     int betPoint = int.Parse(txtBetPoints.Text.Trim());
+                    if(betPoint ==  0)
+                    {
+                        MessageBox.Show("Vui lòng nhập điểm cược lớn hơn 0");
+                        return;
+                    }
                     if (betPoint > user.point)
                     {
                         MessageBox.Show("Bạn không đủ điểm để đặt mức cược này, vui lòng nhập điểm cược khác");
@@ -1310,42 +1346,14 @@ namespace chessgames
                 }
             }
         }
-        private void btnExit_Click_1(object sender, EventArgs e)
+        private void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
         {
-            pnlContainsChild.Hide();
-        }
-        private async void createChatBetweenClientAndClient()
-        {
-            //thêm tập hợp các bạn bè vào để chat
-            List<string> listFriends = await getListFriends();
-            foreach (string userName in listFriends)
+            ////tiến hành xóa doạn chat
+            foreach (UserControlChatOne control in listChats)
             {
-                bool check = false;
-                if (userName != user.userName)
-                {
-                    for (int index = 0; index < listChats.Count; index++)
-                    {
-                        if (listChats[index].Tag.ToString().Contains(user.userName) && listChats[index].Tag.ToString().Contains(userName))
-                        {
-                            check = true;
-                            break;
-                        }
-                    }
-                    if (!check)
-                    {
-                        chat = new UserControlChatOne();
-                        chat.Tag = $"{user.userName},{userName}";
-                        chat.btnSendMsgChatOne_click += Chat_btnSendMsgChatOne_click;
-                        chat.btnSendIconChatOne_click += Chat_btnSendIconChatOne_click;
-                        chat.btnCloseForm_click += Chat_btnCloseForm_click;
-                        chat.Dock = DockStyle.Bottom;
-                        pnlChatOne.Controls.Add(chat);
-                        listChats.Add(chat);
-                    }
-                }
-                check = false;
+                control.Dispose();
             }
-            chat = null;
+            listChats.Clear();
         }
         //==================================================================================================================================
     }

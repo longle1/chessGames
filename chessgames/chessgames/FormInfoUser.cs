@@ -105,8 +105,7 @@ namespace chessgames
         }
         private void addImageIntoPath(string directoryPath, string fileImage)
         {
-
-            using (FileStream stream = new FileStream(Path.Combine(directoryPath, fileImage), FileMode.Create))
+            using (FileStream stream = new FileStream(Path.Combine(directoryPath, fileImage), FileMode.OpenOrCreate))
             {
                 byte[] imageData = File.ReadAllBytes(pathImage);
 
@@ -145,7 +144,7 @@ namespace chessgames
                 MessageBox.Show(tokenData.ToString());
                 //them hinh anh vao trong kho luu tru va tien hanh xoa anh cu khoi kho luu tru
 
-                if (user.linkAvatar != "defaultAvatar.jpg")
+                if (user.linkAvatar != preLinkAvatar)
                     //khong tinh truong hop anh mac dinh va xoa hinh anh cu khoi kho luu tru
                     addImageIntoPath(directoryImagePath, user.linkAvatar);
 

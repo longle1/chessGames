@@ -572,8 +572,10 @@ namespace chessgames
 
                             if (buffers[5] == 0)
                             {
-                                MessageBox.Show(userName + " đã thua");
+
+                                MessageBox.Show("Bạn đã thua");
                                 StopGame();
+                                this.Close();
                             }
                         }
                         else if (buffers[8] == 1)
@@ -1170,11 +1172,36 @@ namespace chessgames
 
         }
         //hiển thị bị chiếu tướng và kết thúc game
-        public void checkmateChecker(int i, int j)
+        public async void checkmateChecker(int i, int j)
         {
             if (move == 0)
             {
-                MessageBox.Show(userName + " đã thắng");
+                //mặc định player1 là người thắng còn player2 là người thua
+                var obj = new
+                {
+                    player1 = userId + '-' + "win",
+                    player2 = IdDifPlayer + '-' + "lose"
+                };
+                string jsonData = JsonConvert.SerializeObject(obj);
+                HttpClient client = new HttpClient();
+                await client.PutAsync(apiResultMatch + matchId, new StringContent(jsonData, Encoding.UTF8, "application/json"));
+                //cập nhật lại điểmm cho người thắng
+                await client.PutAsync(apiUpdateScore + userId, new StringContent(JsonConvert.SerializeObject(new { point = currentScore + betPoint }), Encoding.UTF8, "application/json"));
+                //cập nhật lại điểm cho người thua
+                await client.PutAsync(apiUpdateScore + IdDifPlayer, new StringContent(JsonConvert.SerializeObject(new { point = currentDifPlayerScore - betPoint }), Encoding.UTF8, "application/json"));
+                //thực hiện gửi dữ liệu xử lý thoát khỏi phòng
+
+
+                HttpResponseMessage response = await client.GetAsync(apiGetUserId + userId);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    JToken tkData = JObject.Parse(await response.Content.ReadAsStringAsync())["data"];
+                    infoUser user = JsonConvert.DeserializeObject<infoUser>(tkData.ToString());
+                    this.infouser = user;
+                    //tạo lại giao diện mới
+                    MessageBox.Show("Bạn đã thắng");
+                }
                 gameOver = true;
                 sendMove(i, j, 0, 0, 0); // mode = 1 tương ứng với dùng để nhận thời gian đếm ngược, 0 là thực hiện với bàn cờ
                 StopGame();
@@ -1699,7 +1726,6 @@ namespace chessgames
                 }
             }
             this.Close();
-
         }
     }
 }

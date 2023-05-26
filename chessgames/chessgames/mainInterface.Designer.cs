@@ -254,7 +254,6 @@
             this.pnlContainsChild.AutoSize = true;
             this.pnlContainsChild.BackColor = System.Drawing.Color.Transparent;
             this.pnlContainsChild.Controls.Add(this.btnExit);
-            this.pnlContainsChild.Controls.Add(this.pnlListFriends);
             this.pnlContainsChild.Controls.Add(this.pnlChildContainHistory);
             this.pnlContainsChild.Location = new System.Drawing.Point(1, 2);
             this.pnlContainsChild.Name = "pnlContainsChild";
@@ -274,7 +273,7 @@
             // pnlListFriends
             // 
             this.pnlListFriends.Controls.Add(this.tbControls);
-            this.pnlListFriends.Location = new System.Drawing.Point(20, 71);
+            this.pnlListFriends.Location = new System.Drawing.Point(249, 64);
             this.pnlListFriends.Name = "pnlListFriends";
             this.pnlListFriends.Size = new System.Drawing.Size(866, 566);
             this.pnlListFriends.TabIndex = 30;
@@ -388,9 +387,10 @@
             // pnlChildContainHistory
             // 
             this.pnlChildContainHistory.Controls.Add(this.pnlRanker);
+            this.pnlChildContainHistory.Controls.Add(this.pnlListFriends);
             this.pnlChildContainHistory.Controls.Add(this.pnlCreateRoom);
             this.pnlChildContainHistory.Controls.Add(this.dtGridViewHistory);
-            this.pnlChildContainHistory.Location = new System.Drawing.Point(260, 35);
+            this.pnlChildContainHistory.Location = new System.Drawing.Point(125, 10);
             this.pnlChildContainHistory.Name = "pnlChildContainHistory";
             this.pnlChildContainHistory.Size = new System.Drawing.Size(866, 552);
             this.pnlChildContainHistory.TabIndex = 5;
@@ -401,7 +401,7 @@
             this.pnlRanker.Controls.Add(this.panel1);
             this.pnlRanker.Controls.Add(this.pnlYourLevel);
             this.pnlRanker.Controls.Add(this.dtGridRank);
-            this.pnlRanker.Location = new System.Drawing.Point(122, 3);
+            this.pnlRanker.Location = new System.Drawing.Point(287, 35);
             this.pnlRanker.Name = "pnlRanker";
             this.pnlRanker.Size = new System.Drawing.Size(576, 549);
             this.pnlRanker.TabIndex = 2;
@@ -467,7 +467,7 @@
             this.pnlCreateRoom.Controls.Add(this.label1);
             this.pnlCreateRoom.Controls.Add(this.btnAcceptCreateRoom);
             this.pnlCreateRoom.Controls.Add(this.txtRoomName);
-            this.pnlCreateRoom.Location = new System.Drawing.Point(163, 116);
+            this.pnlCreateRoom.Location = new System.Drawing.Point(93, 101);
             this.pnlCreateRoom.Name = "pnlCreateRoom";
             this.pnlCreateRoom.Size = new System.Drawing.Size(437, 241);
             this.pnlCreateRoom.TabIndex = 2;
@@ -505,6 +505,7 @@
             this.btnAcceptCreateRoom.TabIndex = 6;
             this.btnAcceptCreateRoom.Text = "Tạo phòng";
             this.btnAcceptCreateRoom.UseVisualStyleBackColor = true;
+            this.btnAcceptCreateRoom.Click += new System.EventHandler(this.btnAcceptCreateRoom_Click_1);
             // 
             // txtRoomName
             // 

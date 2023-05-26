@@ -119,7 +119,7 @@ namespace chessgames
                     btnLogin.Enabled = true;
                     errorHideLabel.Show();
                     errorHideLabel.ForeColor = Color.Red;
-                    errorHideLabel.Text = $"Bạn còn {countLogin} lần để đăng nhập";
+                    errorHideLabel.Text = $"Mật khẩu tài hoặc tài khoản không hợp lệ, bạn còn {countLogin} lần để đăng nhập";
                     countLogin--;
                 }
             }
