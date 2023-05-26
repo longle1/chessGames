@@ -20,7 +20,6 @@ using System.Windows.Forms;
 
 namespace chessgames
 {
-    //code mới nhất ở đây nha
     public partial class mainInterface : Form
     {
         private infoUser user;
@@ -321,21 +320,28 @@ namespace chessgames
                             player.players = 2;
                             break;
                         case 4:
-                            createChatBetweenClientAndClient();
+                            await createChatBetweenClientAndClient();
 
                             string[] lstMsg = listMsg[1].Split(':');
                             string difUsername = lstMsg[0].Substring(0, lstMsg[0].Length - 3);
-                            foreach(UserControlChatOne userControlChatOne in listChats)
+                            foreach (UserControlChatOne userControlChatOne in listChats)
                             {
-                                if(userControlChatOne.Tag.ToString().Contains(user.userName) && userControlChatOne.Tag.ToString().Contains(difUsername))
+                                if (userControlChatOne.Tag.ToString().Contains(user.userName) && userControlChatOne.Tag.ToString().Contains(difUsername))
                                 {
-                                    foreach(UserControlChatOne userControlChatOne1 in listChats)
-                                    {
-                                        userControlChatOne1.Hide();
-                                    }
                                     chat = userControlChatOne;
-                                    chat.richTextBox.AppendText(message + '\n');
-                                    chat.Show();
+                                    if (listMsg[1].Contains("(1)"))
+                                        writeData(null, lstMsg[1], 1, lstMsg[0].Substring(0, lstMsg[0].Length - 3), chat.richTextBox);
+                                    else
+                                    {
+                                        string imageData = lstMsg[1];
+                                        byte[] convertedBytes = Convert.FromBase64String(imageData);
+                                        // Chuyển đổi mảng byte thành hình ảnh
+                                        using (MemoryStream stream1 = new MemoryStream(convertedBytes))
+                                        {
+                                            Image image = Image.FromStream(stream1);
+                                            writeData(image, "", 2, lstMsg[0].Substring(0, lstMsg[0].Length - 3), chat.richTextBox);
+                                        }
+                                    }
                                     break;
                                 }
                             }
@@ -343,7 +349,7 @@ namespace chessgames
                         case 5:
                             string[] msg = listMsg[1].Split(':');
                             if (listMsg[1].Contains("(1)"))
-                                writeData(null, msg[1], 1, msg[0].Substring(0, msg[0].Length - 3));
+                                writeData(null, msg[1], 1, msg[0].Substring(0, msg[0].Length - 3), rtbChat);
                             else
                             {
                                 string imageData = msg[1];
@@ -352,7 +358,7 @@ namespace chessgames
                                 using (MemoryStream stream1 = new MemoryStream(convertedBytes))
                                 {
                                     Image image = Image.FromStream(stream1);
-                                    writeData(image, "", 2, msg[0].Substring(0, msg[0].Length - 3));
+                                    writeData(image, "", 2, msg[0].Substring(0, msg[0].Length - 3), rtbChat);
                                 }
                             }
                             break;
@@ -397,7 +403,7 @@ namespace chessgames
 
             }
         }
-        private void writeData(Image image, string msg, int mode, string userName)
+        private void writeData(Image image, string msg, int mode, string userName, RichTextBox rtb)
         {
             try
             {
@@ -409,10 +415,10 @@ namespace chessgames
                     MethodInvoker invoker = new MethodInvoker(delegate
                     {
                         if (userName == user.userName)
-                            rtbChat.SelectionAlignment = HorizontalAlignment.Right;
+                            rtb.SelectionAlignment = HorizontalAlignment.Right;
                         else
-                            rtbChat.SelectionAlignment = HorizontalAlignment.Left;
-                        rtbChat.AppendText(userName + "\n" + msg + "\n");
+                            rtb.SelectionAlignment = HorizontalAlignment.Left;
+                        rtb.AppendText(userName + "\n" + msg + "\n");
                     });
                     this.Invoke(invoker);
                 }
@@ -421,11 +427,11 @@ namespace chessgames
                     MethodInvoker invoker = new MethodInvoker(delegate
                     {
                         if (userName == user.userName)
-                            rtbChat.SelectionAlignment = HorizontalAlignment.Right;
+                            rtb.SelectionAlignment = HorizontalAlignment.Right;
                         else
-                            rtbChat.SelectionAlignment = HorizontalAlignment.Left;
-                        rtbChat.AppendText(userName + '\n');
-                        rtbChat.ReadOnly = false;
+                            rtb.SelectionAlignment = HorizontalAlignment.Left;
+                        rtb.AppendText(userName + '\n');
+                        rtb.ReadOnly = false;
                         // Hiển thị hình ảnh trong giao diện người dùng
                         PictureBox pictureBox = new PictureBox();
                         pictureBox.Image = image; // Thay thế yourImage bằng hình ảnh bạn muốn hiển thị
@@ -433,9 +439,9 @@ namespace chessgames
                         Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
                         pictureBox.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox.Width, pictureBox.Height));
                         Clipboard.SetImage(bitmap);
-                        rtbChat.Paste();
-                        rtbChat.ReadOnly = true;
-                        rtbChat.AppendText("\n");
+                        rtb.Paste();
+                        rtb.ReadOnly = true;
+                        rtb.AppendText("\n");
                     });
                     this.Invoke(invoker);
                 }
@@ -488,7 +494,7 @@ namespace chessgames
             sendData(message);
             rtbChat.ReadOnly = false;
 
-            writeData(Image.FromFile(path), "", 2, user.userName);
+            writeData(Image.FromFile(path), "", 2, user.userName, rtbChat);
             rtbChat.ReadOnly = true;
             pnlContainsIcon.Hide();
             buttonListIcons.Clear();
@@ -497,10 +503,74 @@ namespace chessgames
         {
             string message = (int)setting.chatMulti + "*" + user.userName + "(1):" + txtSendMessage.Text;
             sendData(message);
-            writeData(null, txtSendMessage.Text, 1, user.userName);
+            writeData(null, txtSendMessage.Text, 1, user.userName, rtbChat);
             txtSendMessage.Clear();
-
         }
+        private void Chat_btnSendIconChatOne_click(object sender, EventArgs e)
+        {
+            if (chat != null)
+            {
+                string message = chat.TextBox.Text.Trim();
+                string msgSend = (int)setting.chatOne + "*" + user.userName + "(1):" + message + ":" + difUsernameUser;
+                sendData(msgSend);
+                writeData(null, message, 1, user.userName, rtbChat);
+            }
+            chat.TextBox.Clear();
+        }
+
+        private void Chat_btnSendMsgChatOne_click(object sender, EventArgs e)
+        {
+            if (chat != null)
+            {
+                if (chat.containsIcon.Visible)
+                {
+                    chat.containsIcon.Hide();
+                    chat.listIcons.Clear();
+                }
+                else
+                {
+                    //xóa hết các phần tử bên trong panel
+                    chat.containsIcon.Controls.Clear();
+                    chat.containsIcon.Padding = new Padding(0);
+                    chat.listIcons = new List<Button>();
+                    for (int i = 0; i < iconNumbers; i++)
+                    {
+                        Button btnChatOne = null;
+                        if (chat.listIcons.Count % 7 == 0)
+                        {
+                            if (chat.listIcons.Count != 0)
+                                oldButton.Location = new Point(0, 30 + oldButton.Location.Y + 10);
+                            btnChatOne = btn.createButton(oldButton, chat.containsIcon, Image.FromFile($"Resources\\{i + 1}.png"), Convert.ToString($"Resources\\{i + 1}.png"), true);
+                            btnChatOne.Click += BtnChatOne_Click;
+                        }
+                        else
+                        {
+                            btnChatOne = btn.createButton(chat.listIcons[chat.listIcons.Count - 1], chat.containsIcon, Image.FromFile($"Resources\\{i + 1}.png"), Convert.ToString($"Resources\\{i + 1}.png"), true);
+                            btnChatOne.Click += BtnChatOne_Click;
+                        }
+                        chat.listIcons.Add(btnChatOne);
+                    }
+                    oldButton.Location = new Point(0, 0);
+                    chat.containsIcon.Show();
+                }
+            }
+        }
+
+        private void BtnChatOne_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            string path = btn.Text;
+            byte[] imageBytes = File.ReadAllBytes(path);
+            string message = (int)setting.chatOne + "*" + user.userName + "(2):" + Convert.ToBase64String(imageBytes) + ":" + difUsernameUser;
+            sendData(message);
+            chat.richTextBox.ReadOnly = false;
+
+            writeData(Image.FromFile(path), "", 2, user.userName, chat.richTextBox);
+            chat.richTextBox.ReadOnly = true;
+            chat.containsIcon.Hide();
+            chat.listIcons.Clear();
+        }
+
         //==================================================================================================================================
 
         //====================================CÁC HÀM DÙNG ĐỂ HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN DATAGRIDVIEW ==================================
@@ -919,11 +989,11 @@ namespace chessgames
                 {
                     loopChildPanel(pnlChatOne);
 
-                    foreach(UserControlChatOne userControl in listChats)
+                    foreach (UserControlChatOne userControl in listChats)
                     {
-                        if(userControl.Tag.ToString().Contains(user.userName) && userControl.Tag.ToString().Contains(dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString())) 
+                        if (userControl.Tag.ToString().Contains(user.userName) && userControl.Tag.ToString().Contains(dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString()))
                         {
-                            foreach(UserControl userControl1 in listChats)
+                            foreach (UserControl userControl1 in listChats)
                             {
                                 userControl1.Hide();
                             }
@@ -983,24 +1053,6 @@ namespace chessgames
             pnlChatOne.Hide();
             pnlListFriends.Show();
         }
-
-        private void Chat_btnSendIconChatOne_click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Chat_btnSendMsgChatOne_click(object sender, EventArgs e)
-        {
-            string message = chat.TextBox.Text.Trim();
-            NetworkStream stream = client.GetStream();
-            string msgSend = (int)setting.chatOne + "*" + user.userName + "(1):" + message + ":" +difUsernameUser;
-            byte[] sendData = Encoding.UTF8.GetBytes(msgSend);
-            stream.Write(sendData, 0, sendData.Length);
-            chat.richTextBox.AppendText(message + '\n');
-            chat.TextBox.Clear();
-        }
-
-
         private async void dtAcceptFriend_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -1092,7 +1144,7 @@ namespace chessgames
 
             loopChildPanel(pnlListFriends);
 
-            createChatBetweenClientAndClient();
+            await createChatBetweenClientAndClient();
         }
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
@@ -1176,12 +1228,11 @@ namespace chessgames
                 }
             }
         }
-
         private void btnExit_Click_1(object sender, EventArgs e)
         {
             pnlContainsChild.Hide();
         }
-        private async void createChatBetweenClientAndClient()
+        private async Task createChatBetweenClientAndClient()
         {
             //thêm tập hợp các bạn bè vào để chat
             List<string> listFriends = await getListFriends();
@@ -1212,6 +1263,7 @@ namespace chessgames
                 }
                 check = false;
             }
+            chat = null;
         }
         //==================================================================================================================================
     }

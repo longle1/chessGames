@@ -33,6 +33,7 @@
             this.btnSendIconChatOne = new System.Windows.Forms.Button();
             this.btnSendMsgChatOne = new System.Windows.Forms.Button();
             this.btnCloseForm = new System.Windows.Forms.Button();
+            this.pnlContainIconsChatOne = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // rtbContentChatOne
@@ -81,10 +82,18 @@
             this.btnCloseForm.UseVisualStyleBackColor = true;
             this.btnCloseForm.Click += new System.EventHandler(this.btnCloseForm_Click);
             // 
+            // pnlContainIconsChatOne
+            // 
+            this.pnlContainIconsChatOne.Location = new System.Drawing.Point(423, 85);
+            this.pnlContainIconsChatOne.Name = "pnlContainIconsChatOne";
+            this.pnlContainIconsChatOne.Size = new System.Drawing.Size(256, 286);
+            this.pnlContainIconsChatOne.TabIndex = 5;
+            // 
             // UserControlChatOne
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pnlContainIconsChatOne);
             this.Controls.Add(this.btnCloseForm);
             this.Controls.Add(this.btnSendMsgChatOne);
             this.Controls.Add(this.btnSendIconChatOne);
@@ -104,5 +113,6 @@
         private System.Windows.Forms.Button btnSendIconChatOne;
         private System.Windows.Forms.Button btnSendMsgChatOne;
         private System.Windows.Forms.Button btnCloseForm;
+        private System.Windows.Forms.Panel pnlContainIconsChatOne;
     }
 }

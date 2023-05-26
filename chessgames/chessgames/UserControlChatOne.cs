@@ -15,7 +15,10 @@ namespace chessgames
         public UserControlChatOne()
         {
             InitializeComponent();
+            txtSendMsgChatOne.ReadOnly = true;
+            pnlContainIconsChatOne.Hide();
         }
+        List<Button> buttonListIcons = new List<Button>();
         public TextBox TextBox
         {
             get { return txtSendMsgChatOne; }
@@ -23,6 +26,15 @@ namespace chessgames
         public RichTextBox richTextBox
         {
             get { return rtbContentChatOne; }
+        }
+        public Panel containsIcon
+        {
+            get { return pnlContainIconsChatOne; }
+        }
+        public List<Button> listIcons
+        {
+            get { return buttonListIcons; }
+            set { buttonListIcons = value; }
         }
         public event EventHandler <EventArgs> btnSendMsgChatOne_click;
         public event EventHandler <EventArgs> btnSendIconChatOne_click;
