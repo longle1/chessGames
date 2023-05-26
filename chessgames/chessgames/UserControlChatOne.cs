@@ -15,7 +15,7 @@ namespace chessgames
         public UserControlChatOne()
         {
             InitializeComponent();
-            txtSendMsgChatOne.ReadOnly = true;
+            rtbContentChatOne.ReadOnly = true;
             pnlContainIconsChatOne.Hide();
         }
         List<Button> buttonListIcons = new List<Button>();

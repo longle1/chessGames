@@ -87,8 +87,6 @@ namespace chessgames
 
         #region infoUser
         public string userName;
-        public int port;
-        public int portDif;
         string userNameDifPlayer;
         string IdDifPlayer;
         string linkAvatarDifPlayer;
@@ -111,7 +109,7 @@ namespace chessgames
         List<Button> buttonList = new List<Button>();
         List<Button> buttonListIcons = new List<Button>();
         string parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
-        string ipGame = "172.20.36.209";
+        string ipAddress = "";
 
         infoUser infouser = null;
 
@@ -260,18 +258,17 @@ namespace chessgames
                 }
             }
         }
-        public Form1(string matchId, int port, int portDif, bool isCreated, bool turn, int piece, int betPoint, string linkAvatar, int currentScore, string userName, string userId) : this()
+        public Form1(string matchId, string ipAddress, bool isCreated, bool turn, int piece, int betPoint, string linkAvatar, int currentScore, string userName, string userId) : this()
         {
             this.isCreated = isCreated;
-            this.port = port;
-            this.portDif = portDif;
             this.matchId = matchId;
             this.betPoint = betPoint;
             this.userName = userName;
             this.linkAvatar = linkAvatar;
             this.userId = userId;
             this.currentScore = currentScore;
-            clientUDP = new UdpClient(port);
+            this.ipAddress = ipAddress;
+            clientUDP = new UdpClient(1000);
             listChat.ReadOnly = true;
             ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
             rcvDataUDPThread = new Thread(new ThreadStart(rcvDataUDP));
@@ -306,7 +303,7 @@ namespace chessgames
                     //người chơi sẽ là cờ đen và biến piece = 1
                     this.piece = piece;
                     client = new TcpClient();
-                    client.Connect(IPAddress.Parse(ipGame), portConnect);
+                    client.Connect(IPAddress.Parse(ipAddress), portConnect);
 
                     //gửi dữ liệu trước 
                     NetworkStream stream = client.GetStream();
@@ -1616,7 +1613,7 @@ namespace chessgames
         {
             if (player.players == 2)
             {
-                ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+                ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), 1000);
                 Button btn = (Button)sender;
                 string path = btn.Text;
                 byte[] imageBytes = File.ReadAllBytes(path);
@@ -1638,7 +1635,7 @@ namespace chessgames
                 if (txtMessage.Text.Trim() == "")
                     return;
                 string data = $"{userName}(1):" + txtMessage.Text;
-                ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portDif);
+                ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), 1000);
                 byte[] send_buffer = Encoding.UTF8.GetBytes(data);
                 clientUDP.Send(send_buffer, send_buffer.Length, ipEndPoint);
                 writeData(null, txtMessage.Text, 1, userName);

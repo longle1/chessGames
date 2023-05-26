@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
@@ -46,7 +47,7 @@ namespace chessgames
         button btn = new button();
         Thread rcvDataThread = null;
         int iconNumbers = 29;
-        string ipAddress = "172.20.36.209";
+        string ipAddress = "";
         string difUsernameUser = "";
         UserControlChatOne chat = null;
         List<UserControlChatOne> listChats = new List<UserControlChatOne>();
@@ -129,10 +130,40 @@ namespace chessgames
                     string id = listIds[0] == user.id ? listIds[1] : listIds[0];
                     JToken tkInfo = await callApiUsingGetMethodID(apiGetUserId + id);
                     infoUser difUser = JsonConvert.DeserializeObject<infoUser>(tkInfo.ToString());
-                    arraysUserName.Add(difUser.userName);
+                    if (difUser.statusActive == "online")
+                        arraysUserName.Add(difUser.userName);
                 }
             }
             return arraysUserName;
+        }
+        private static NetworkInterface GetWifiInterface()
+        {
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface networkInterface in interfaces)
+            {
+                if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                    networkInterface.OperationalStatus == OperationalStatus.Up)
+                {
+                    return networkInterface;
+                }
+            }
+
+            return null;
+        }
+        private static IPAddress GetWifiIPv4Address(NetworkInterface wifiInterface)
+        {
+            IPInterfaceProperties properties = wifiInterface.GetIPProperties();
+
+            foreach (UnicastIPAddressInformation ip in properties.UnicastAddresses)
+            {
+                if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    return ip.Address;
+                }
+            }
+
+            return null;
         }
         //=================================================================================================================================
 
@@ -140,9 +171,12 @@ namespace chessgames
         public mainInterface()
         {
             InitializeComponent();
+            pnlContainsChild.AutoSize = false;
             pnlContainsChild.Hide();
             pnlContainsChild.Controls.Add(pnlChatOne);
             pnlChatOne.Hide();
+            pnlChatOne.BringToFront();
+            pnlChatOne.Dock = DockStyle.Left;
             calLocationChildPanel(pnlContainsChild, pnlListFriends);
             calLocationChildPanel(pnlContainsChild, pnlRanker);
             calLocationChildPanel(pnlContainsChild, pnlChildContainHistory);
@@ -151,13 +185,26 @@ namespace chessgames
             CheckForIllegalCrossThreadCalls = false;
             pnlContainsIcon.Hide();
             rtbChat.ReadOnly = true;
-            client = new TcpClient();
-            client.Connect(System.Net.IPAddress.Parse(ipAddress), 8081);
-            rcvDataThread = new Thread(new ThreadStart(rcvData));
-            rcvDataThread.Start();
+            
         }
         public mainInterface(infoUser user) : this()
         {
+
+            //lấy ra ipv4 bên trong máy
+            NetworkInterface wifiInterface = GetWifiInterface();
+            if (wifiInterface != null)
+            {
+                IPAddress ipv4 = GetWifiIPv4Address(wifiInterface);
+
+                if (ipv4 != null)
+                    ipAddress = ipv4.ToString();
+            }
+
+            client = new TcpClient();
+            client.Connect(IPAddress.Parse(ipAddress), 8081);
+            rcvDataThread = new Thread(new ThreadStart(rcvData));
+            rcvDataThread.Start();
+
             parentDirectory = Directory.GetParent(Application.StartupPath)?.Parent?.FullName + "\\Images";
             this.user = user;
             lbUserName.Text = user.userName;
@@ -165,7 +212,6 @@ namespace chessgames
             ptboxAvatar.Image = Image.FromFile($"{parentDirectory}\\" + user.linkAvatar);
             ptboxAvatar.SizeMode = PictureBoxSizeMode.Zoom;
             showInter = this;
-
             pnlRanker.Hide();
 
             //gửi thông điệp login lên server
@@ -173,6 +219,7 @@ namespace chessgames
             sendData(message);
 
             displayListMatches();
+            createChatBetweenClientAndClient();
         }
         //==================================================================================================================================
 
@@ -315,13 +362,22 @@ namespace chessgames
                             getListAllUser();
                             List<infoUser> lists1 = new List<infoUser>();
                             displayListFriends(await getListUser(lists1, "friend"));
+
+                            Action myAction = () =>
+                            {
+                                createChatBetweenClientAndClient();
+                            };
+
+                            // Sử dụng phương thức Invoke để thực thi đoạn mã trên luồng giao diện người dùng
+                            if (this.InvokeRequired)
+                                this.Invoke(myAction);
+                            else
+                                myAction();
                             break;
                         case 3:
                             player.players = 2;
                             break;
                         case 4:
-                            await createChatBetweenClientAndClient();
-
                             string[] lstMsg = listMsg[1].Split(':');
                             string difUsername = lstMsg[0].Substring(0, lstMsg[0].Length - 3);
                             foreach (UserControlChatOne userControlChatOne in listChats)
@@ -365,6 +421,7 @@ namespace chessgames
                         case 6: //xử lý log out
                                 //lấy id nhận về 
                             string id = listMsg[1].Split(',')[1];
+                            string username = listMsg[1].Split(',')[0];
                             //kiểm tra xem trong danh sách bạn bè xem có user này không
                             bool check = false;
                             foreach (listFriends item in user.lists)
@@ -382,6 +439,16 @@ namespace chessgames
                             {
                                 List<infoUser> lists3 = new List<infoUser>();
                                 displayListFriends(await getListUser(lists3, "friend"));
+
+                                //tiến hành xóa đi phòng chat của user này 
+                                await getListFriends();
+                                foreach(UserControlChatOne control in listChats)
+                                {
+                                    if(control.Tag.ToString().Contains(user.userName) &&  control.Tag.ToString().Contains(username)) {
+                                        listChats.Remove(control);
+                                        break;
+                                    }
+                                }
                             }
                             break;
                         case 7:
@@ -393,6 +460,8 @@ namespace chessgames
                             getListAllUser();
                             List<infoUser> lists2 = new List<infoUser>();
                             displayListFriends(await getListUser(lists2, "friend"));
+
+
                             break;
                     }
 
@@ -510,18 +579,6 @@ namespace chessgames
         {
             if (chat != null)
             {
-                string message = chat.TextBox.Text.Trim();
-                string msgSend = (int)setting.chatOne + "*" + user.userName + "(1):" + message + ":" + difUsernameUser;
-                sendData(msgSend);
-                writeData(null, message, 1, user.userName, rtbChat);
-            }
-            chat.TextBox.Clear();
-        }
-
-        private void Chat_btnSendMsgChatOne_click(object sender, EventArgs e)
-        {
-            if (chat != null)
-            {
                 if (chat.containsIcon.Visible)
                 {
                     chat.containsIcon.Hide();
@@ -536,7 +593,7 @@ namespace chessgames
                     for (int i = 0; i < iconNumbers; i++)
                     {
                         Button btnChatOne = null;
-                        if (chat.listIcons.Count % 7 == 0)
+                        if (chat.listIcons.Count % 4 == 0)
                         {
                             if (chat.listIcons.Count != 0)
                                 oldButton.Location = new Point(0, 30 + oldButton.Location.Y + 10);
@@ -555,7 +612,17 @@ namespace chessgames
                 }
             }
         }
-
+        private void Chat_btnSendMsgChatOne_click(object sender, EventArgs e)
+        {
+            if (chat != null)
+            {
+                string message = chat.TextBox.Text.Trim();
+                string msgSend = (int)setting.chatOne + "*" + user.userName + "(1):" + message + ":" + difUsernameUser;
+                sendData(msgSend);
+                writeData(null, message, 1, user.userName, chat.richTextBox);
+                chat.TextBox.Clear();
+            }
+        }
         private void BtnChatOne_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
@@ -698,9 +765,7 @@ namespace chessgames
             foreach (DataGridViewColumn column in dtListFriends.Columns)
                 column.Resizable = DataGridViewTriState.False;
             foreach (DataGridViewRow row in dtListFriends.Rows)
-            {
                 row.Resizable = DataGridViewTriState.False;
-            }
             dtListFriends.Rows.Clear();
             dtListFriends.Columns.Clear();
             //xóa đi dòng cuối cùng trong dataGridView
@@ -926,7 +991,7 @@ namespace chessgames
                             //gửi sự kiện tới server và cập nhật lại biến user.players lên 2 đơn vị
                             string message = (int)setting.joinRoom + "*" + difUser.userName;
                             sendData(message);
-                            Form1 player = new Form1(idMatch, 2000, 1000, false, false, 1, match.betPoints, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                            Form1 player = new Form1(idMatch, ipAddress, false, false, 1, match.betPoints, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                             player.Show();
                             this.Hide();
                         }
@@ -987,8 +1052,8 @@ namespace chessgames
                 }
                 else if (e.ColumnIndex == 4)
                 {
-                    loopChildPanel(pnlChatOne);
-
+                    pnlChatOne.Controls.Clear();
+                    pnlChatOne.Show();
                     foreach (UserControlChatOne userControl in listChats)
                     {
                         if (userControl.Tag.ToString().Contains(user.userName) && userControl.Tag.ToString().Contains(dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString()))
@@ -997,7 +1062,6 @@ namespace chessgames
                             {
                                 userControl1.Hide();
                             }
-
                             chat = userControl;
                             difUsernameUser = dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString();
                             chat.Show();
@@ -1012,6 +1076,7 @@ namespace chessgames
                     List<listFriends> listFriends = JsonConvert.DeserializeObject<List<listFriends>>(tkData.ToString());
                     string id1 = user.id;
                     string id2 = dataGridView.Rows[e.RowIndex].Cells[0].Value.ToString();
+                    string difUsername = dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString();
                     string newId = "";
                     foreach (listFriends item in listFriends)
                     {
@@ -1043,11 +1108,20 @@ namespace chessgames
 
                         //cập nhật lại danh sách tất cả người dùng
                         getListAllUser();
+
+                        //xóa bạn bè thì cũng coi như mất luồng chat 
+                        foreach(UserControlChatOne control in listChats)
+                        {
+                            if(control.Tag.ToString().Contains(user.userName) && control.Tag.ToString().Contains(difUsername))
+                            {
+                                listChats.Remove(control);
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
-
         private void Chat_btnCloseForm_click(object sender, EventArgs e)
         {
             pnlChatOne.Hide();
@@ -1099,6 +1173,8 @@ namespace chessgames
                         //cập nhật lại danh sách bạn bè
                         List<infoUser> getFriends = new List<infoUser>();
                         displayListFriends(await getListUser(getFriends, "friend"));
+
+                        createChatBetweenClientAndClient();
                     }
 
                 }
@@ -1118,6 +1194,10 @@ namespace chessgames
         {
             await handleLogOutRoom();
             login.showFormAgain.Show();
+
+            //xóa danh sách chat
+            listChats.Clear();
+
             //tiến hành đóng form lại
             this.Close();
         }
@@ -1144,7 +1224,7 @@ namespace chessgames
 
             loopChildPanel(pnlListFriends);
 
-            await createChatBetweenClientAndClient();
+            createChatBetweenClientAndClient();
         }
         private void btnRandomRoom_Click(object sender, EventArgs e)
         {
@@ -1161,7 +1241,9 @@ namespace chessgames
         }
         private void mainInterface_FormClosed(object sender, FormClosedEventArgs e)
         {
-
+            //tiến hành xóa doạn chat
+            listChats.Clear();
+            login.showFormAgain.Close();
         }
         private async void btnHistory_Click(object sender, EventArgs e)
         {
@@ -1214,7 +1296,7 @@ namespace chessgames
 
                         //tạo và tham gia vào phòng
                         this.Hide();
-                        Form1 admin = new Form1(match._id, 1000, 2000, true, true, 0, betPoint, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
+                        Form1 admin = new Form1(match._id, ipAddress, true, true, 0, betPoint, user.linkAvatar, user.point, user.userName, user.id);  //chủ phòng sẽ là cờ trắng
                         admin.Show();
                     }
                     else
@@ -1232,7 +1314,7 @@ namespace chessgames
         {
             pnlContainsChild.Hide();
         }
-        private async Task createChatBetweenClientAndClient()
+        private async void createChatBetweenClientAndClient()
         {
             //thêm tập hợp các bạn bè vào để chat
             List<string> listFriends = await getListFriends();
@@ -1256,8 +1338,8 @@ namespace chessgames
                         chat.btnSendMsgChatOne_click += Chat_btnSendMsgChatOne_click;
                         chat.btnSendIconChatOne_click += Chat_btnSendIconChatOne_click;
                         chat.btnCloseForm_click += Chat_btnCloseForm_click;
+                        chat.Dock = DockStyle.Bottom;
                         pnlChatOne.Controls.Add(chat);
-                        pnlChatOne.AutoSize = true;
                         listChats.Add(chat);
                     }
                 }

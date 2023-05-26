@@ -33,6 +33,7 @@
             this.txtAuthUserName = new System.Windows.Forms.TextBox();
             this.userNamLabel = new System.Windows.Forms.Label();
             this.btnNext = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtAuthEmail
@@ -69,19 +70,30 @@
             // 
             // btnNext
             // 
-            this.btnNext.Location = new System.Drawing.Point(276, 240);
+            this.btnNext.Location = new System.Drawing.Point(229, 240);
             this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(153, 45);
+            this.btnNext.Size = new System.Drawing.Size(136, 45);
             this.btnNext.TabIndex = 9;
             this.btnNext.Text = "Xác nhận";
             this.btnNext.UseVisualStyleBackColor = true;
             this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
+            // btnBack
+            // 
+            this.btnBack.Location = new System.Drawing.Point(371, 240);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(120, 45);
+            this.btnBack.TabIndex = 10;
+            this.btnBack.Text = "Quay lại";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // authAccount
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnNext);
             this.Controls.Add(this.txtAuthEmail);
             this.Controls.Add(this.gmailLabel);
@@ -101,5 +113,6 @@
         private System.Windows.Forms.TextBox txtAuthUserName;
         private System.Windows.Forms.Label userNamLabel;
         private System.Windows.Forms.Button btnNext;
+        private System.Windows.Forms.Button btnBack;
     }
 }

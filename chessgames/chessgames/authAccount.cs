@@ -59,5 +59,11 @@ namespace chessgames
 
             }
         }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            login.showFormAgain.Show();
+            this.Close();
+        }
     }
 }

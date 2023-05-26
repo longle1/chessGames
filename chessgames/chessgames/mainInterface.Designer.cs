@@ -308,9 +308,9 @@
             // pnlChatOne
             // 
             this.pnlChatOne.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.pnlChatOne.Location = new System.Drawing.Point(562, 20);
+            this.pnlChatOne.Location = new System.Drawing.Point(582, 36);
             this.pnlChatOne.Name = "pnlChatOne";
-            this.pnlChatOne.Size = new System.Drawing.Size(779, 470);
+            this.pnlChatOne.Size = new System.Drawing.Size(753, 454);
             this.pnlChatOne.TabIndex = 4;
             // 
             // dtAllUsers

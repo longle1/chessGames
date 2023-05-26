@@ -20,9 +20,9 @@ namespace chessgames
         {
             InitializeComponent();
             errorHideLabel.Hide();
-            txtPassword.Text = "123@Long";
             btnLogin.Enabled = true;
             showFormAgain = this;   //gán form hiện tại cho 1 form
+            txtPassword.PasswordChar = '*';
         }
         public Timer timer = null;
         public string apiUrlLogin = "https://chessmates.onrender.com/api/v1/auth/login";

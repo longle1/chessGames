@@ -84,9 +84,11 @@
             // 
             // pnlContainIconsChatOne
             // 
-            this.pnlContainIconsChatOne.Location = new System.Drawing.Point(423, 85);
+            this.pnlContainIconsChatOne.AutoScroll = true;
+            this.pnlContainIconsChatOne.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.pnlContainIconsChatOne.Location = new System.Drawing.Point(423, 82);
             this.pnlContainIconsChatOne.Name = "pnlContainIconsChatOne";
-            this.pnlContainIconsChatOne.Size = new System.Drawing.Size(256, 286);
+            this.pnlContainIconsChatOne.Size = new System.Drawing.Size(256, 289);
             this.pnlContainIconsChatOne.TabIndex = 5;
             // 
             // UserControlChatOne
