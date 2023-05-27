@@ -23,10 +23,7 @@ namespace chessgames
 {
     public partial class mainInterface : Form
     {
-        private infoUser user;
-        private string linkAvatar;
-        public static mainInterface showInter = null;
-        private string parentDirectory;
+        #region apiPath
         private string apiGetListMatches = "https://chessmates.onrender.com/api/v1/matches";
         private string apiCreateRoom = "https://chessmates.onrender.com/api/v1/matches/add";
         private string apiGetUser = "https://chessmates.onrender.com/api/v1/users/edit/";
@@ -37,20 +34,31 @@ namespace chessgames
         private string apiUpdaStatusFriend = "https://chessmates.onrender.com/api/v1/listFriends/edit/";
         private string apiDeleteFriend = "https://chessmates.onrender.com/api/v1/listFriends/delete/";
         private string apiAddUserIntoMatch = "https://chessmates.onrender.com/api/v1/matches/edit/addOrSubUser/";
-        TcpClient client = null;
-        List<Button> buttonListIcons = new List<Button>();
-        Button oldButton = new Button()
+        #endregion
+
+        #region infoUser
+        private infoUser user;
+        private string linkAvatar;
+        private string ipAddress = "";
+        private string difUsernameUser = "";
+        #endregion
+
+        #region variables
+        public static mainInterface showInter = null;
+        private string parentDirectory;
+        private int iconNumbers = 29;
+        private TcpClient client = null;
+        private List<Button> buttonListIcons = new List<Button>();
+        private Button oldButton = new Button()
         {
             Height = 0,
             Width = 0
         };
-        button btn = new button();
-        Thread rcvDataThread = null;
-        int iconNumbers = 29;
-        string ipAddress = "";
-        string difUsernameUser = "";
-        UserControlChatOne chat = null;
-        List<UserControlChatOne> listChats = new List<UserControlChatOne>();
+        private button btn = new button();
+        private Thread rcvDataThread = null;
+        private UserControlChatOne chat = null;
+        private List<UserControlChatOne> listChats = new List<UserControlChatOne>();
+        #endregion
         private enum setting
         {
             createRoom = 0,

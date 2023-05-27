@@ -1192,9 +1192,6 @@ namespace chessgames
             }
             chessboard.AllPossibleMoves = new int[8, 8];
         }
-
-
-
         //============================================  HÀM NHẬN VÀ GỬI DỮ LIỆU ===========================================================
         // Hàm gửi sự kiện chọn 1 quân cờ thay thế
         private void Btn1_Click(object sender, EventArgs e)
