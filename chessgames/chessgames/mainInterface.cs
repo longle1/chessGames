@@ -227,7 +227,6 @@ namespace chessgames
             sendData(message);
 
             displayListMatches();
-            createChatBetweenClientAndClient();
         }
         //=================================================================================================================================
 
@@ -1067,11 +1066,10 @@ namespace chessgames
                         if (userControl.Tag.ToString().Contains(user.userName) && userControl.Tag.ToString().Contains(dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString()))
                         {
                             foreach (UserControl userControl1 in listChats)
-                            {
                                 userControl1.Hide();
-                            }
                             chat = userControl;
                             difUsernameUser = dataGridView.Rows[e.RowIndex].Cells["userName"].Value.ToString();
+                            pnlChatOne.Controls.Add(chat);
                             chat.Show();
                             break;
                         }
@@ -1288,7 +1286,6 @@ namespace chessgames
                         chat.btnSendIconChatOne_click += Chat_btnSendIconChatOne_click;
                         chat.btnCloseForm_click += Chat_btnCloseForm_click;
                         chat.Dock = DockStyle.Bottom;
-                        pnlChatOne.Controls.Add(chat);
                         listChats.Add(chat);
                     }
                 }

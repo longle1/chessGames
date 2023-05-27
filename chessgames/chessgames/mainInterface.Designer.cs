@@ -47,6 +47,14 @@
             this.pnlContainsIcon = new System.Windows.Forms.Panel();
             this.pnlContainsChild = new System.Windows.Forms.Panel();
             this.btnExit = new System.Windows.Forms.Button();
+            this.pnlChildContainHistory = new System.Windows.Forms.Panel();
+            this.pnlRanker = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbCurrentRank = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.lbYourRank = new System.Windows.Forms.Label();
+            this.pnlYourLevel = new System.Windows.Forms.FlowLayoutPanel();
+            this.dtGridRank = new System.Windows.Forms.DataGridView();
             this.pnlListFriends = new System.Windows.Forms.Panel();
             this.tbControls = new System.Windows.Forms.TabControl();
             this.tbFindUser = new System.Windows.Forms.TabPage();
@@ -58,14 +66,6 @@
             this.dtListFriends = new System.Windows.Forms.DataGridView();
             this.tbAccept = new System.Windows.Forms.TabPage();
             this.dtAcceptFriend = new System.Windows.Forms.DataGridView();
-            this.pnlChildContainHistory = new System.Windows.Forms.Panel();
-            this.pnlRanker = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.lbCurrentRank = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lbYourRank = new System.Windows.Forms.Label();
-            this.pnlYourLevel = new System.Windows.Forms.FlowLayoutPanel();
-            this.dtGridRank = new System.Windows.Forms.DataGridView();
             this.pnlCreateRoom = new System.Windows.Forms.Panel();
             this.txtBetPoints = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -76,6 +76,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).BeginInit();
             this.pnlContainsChild.SuspendLayout();
+            this.pnlChildContainHistory.SuspendLayout();
+            this.pnlRanker.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).BeginInit();
             this.pnlListFriends.SuspendLayout();
             this.tbControls.SuspendLayout();
             this.tbFindUser.SuspendLayout();
@@ -84,11 +89,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).BeginInit();
             this.tbAccept.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).BeginInit();
-            this.pnlChildContainHistory.SuspendLayout();
-            this.pnlRanker.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).BeginInit();
             this.pnlCreateRoom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridViewHistory)).BeginInit();
             this.SuspendLayout();
@@ -253,6 +253,7 @@
             // 
             this.pnlContainsChild.AutoSize = true;
             this.pnlContainsChild.BackColor = System.Drawing.Color.Transparent;
+            this.pnlContainsChild.Controls.Add(this.pnlChatOne);
             this.pnlContainsChild.Controls.Add(this.btnExit);
             this.pnlContainsChild.Controls.Add(this.pnlChildContainHistory);
             this.pnlContainsChild.Location = new System.Drawing.Point(1, 2);
@@ -269,6 +270,82 @@
             this.btnExit.Text = "X";
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click_1);
+            // 
+            // pnlChildContainHistory
+            // 
+            this.pnlChildContainHistory.Controls.Add(this.pnlRanker);
+            this.pnlChildContainHistory.Controls.Add(this.pnlListFriends);
+            this.pnlChildContainHistory.Controls.Add(this.pnlCreateRoom);
+            this.pnlChildContainHistory.Controls.Add(this.dtGridViewHistory);
+            this.pnlChildContainHistory.Location = new System.Drawing.Point(147, 10);
+            this.pnlChildContainHistory.Name = "pnlChildContainHistory";
+            this.pnlChildContainHistory.Size = new System.Drawing.Size(866, 552);
+            this.pnlChildContainHistory.TabIndex = 5;
+            // 
+            // pnlRanker
+            // 
+            this.pnlRanker.Controls.Add(this.panel2);
+            this.pnlRanker.Controls.Add(this.panel1);
+            this.pnlRanker.Controls.Add(this.pnlYourLevel);
+            this.pnlRanker.Controls.Add(this.dtGridRank);
+            this.pnlRanker.Location = new System.Drawing.Point(93, 35);
+            this.pnlRanker.Name = "pnlRanker";
+            this.pnlRanker.Size = new System.Drawing.Size(576, 549);
+            this.pnlRanker.TabIndex = 2;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.IndianRed;
+            this.panel2.Controls.Add(this.lbCurrentRank);
+            this.panel2.Location = new System.Drawing.Point(292, 490);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(284, 59);
+            this.panel2.TabIndex = 4;
+            // 
+            // lbCurrentRank
+            // 
+            this.lbCurrentRank.AutoSize = true;
+            this.lbCurrentRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbCurrentRank.Location = new System.Drawing.Point(17, 10);
+            this.lbCurrentRank.Name = "lbCurrentRank";
+            this.lbCurrentRank.Size = new System.Drawing.Size(0, 38);
+            this.lbCurrentRank.TabIndex = 0;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panel1.Controls.Add(this.lbYourRank);
+            this.panel1.Location = new System.Drawing.Point(0, 490);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(293, 59);
+            this.panel1.TabIndex = 3;
+            // 
+            // lbYourRank
+            // 
+            this.lbYourRank.AutoSize = true;
+            this.lbYourRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbYourRank.Location = new System.Drawing.Point(17, 10);
+            this.lbYourRank.Name = "lbYourRank";
+            this.lbYourRank.Size = new System.Drawing.Size(232, 38);
+            this.lbYourRank.TabIndex = 4;
+            this.lbYourRank.Text = "Hạng của bạn";
+            // 
+            // pnlYourLevel
+            // 
+            this.pnlYourLevel.Location = new System.Drawing.Point(3, 490);
+            this.pnlYourLevel.Name = "pnlYourLevel";
+            this.pnlYourLevel.Size = new System.Drawing.Size(573, 59);
+            this.pnlYourLevel.TabIndex = 2;
+            // 
+            // dtGridRank
+            // 
+            this.dtGridRank.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtGridRank.Location = new System.Drawing.Point(3, 54);
+            this.dtGridRank.Name = "dtGridRank";
+            this.dtGridRank.RowHeadersWidth = 51;
+            this.dtGridRank.RowTemplate.Height = 24;
+            this.dtGridRank.Size = new System.Drawing.Size(573, 437);
+            this.dtGridRank.TabIndex = 1;
             // 
             // pnlListFriends
             // 
@@ -292,7 +369,6 @@
             // 
             // tbFindUser
             // 
-            this.tbFindUser.Controls.Add(this.pnlChatOne);
             this.tbFindUser.Controls.Add(this.dtAllUsers);
             this.tbFindUser.Controls.Add(this.btnFindUser);
             this.tbFindUser.Controls.Add(this.txtFindUser);
@@ -307,7 +383,7 @@
             // pnlChatOne
             // 
             this.pnlChatOne.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.pnlChatOne.Location = new System.Drawing.Point(582, 36);
+            this.pnlChatOne.Location = new System.Drawing.Point(0, 128);
             this.pnlChatOne.Name = "pnlChatOne";
             this.pnlChatOne.Size = new System.Drawing.Size(753, 454);
             this.pnlChatOne.TabIndex = 4;
@@ -383,82 +459,6 @@
             this.dtAcceptFriend.Size = new System.Drawing.Size(688, 429);
             this.dtAcceptFriend.TabIndex = 0;
             this.dtAcceptFriend.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtAcceptFriend_CellContentClick_1);
-            // 
-            // pnlChildContainHistory
-            // 
-            this.pnlChildContainHistory.Controls.Add(this.pnlRanker);
-            this.pnlChildContainHistory.Controls.Add(this.pnlListFriends);
-            this.pnlChildContainHistory.Controls.Add(this.pnlCreateRoom);
-            this.pnlChildContainHistory.Controls.Add(this.dtGridViewHistory);
-            this.pnlChildContainHistory.Location = new System.Drawing.Point(125, 10);
-            this.pnlChildContainHistory.Name = "pnlChildContainHistory";
-            this.pnlChildContainHistory.Size = new System.Drawing.Size(866, 552);
-            this.pnlChildContainHistory.TabIndex = 5;
-            // 
-            // pnlRanker
-            // 
-            this.pnlRanker.Controls.Add(this.panel2);
-            this.pnlRanker.Controls.Add(this.panel1);
-            this.pnlRanker.Controls.Add(this.pnlYourLevel);
-            this.pnlRanker.Controls.Add(this.dtGridRank);
-            this.pnlRanker.Location = new System.Drawing.Point(287, 35);
-            this.pnlRanker.Name = "pnlRanker";
-            this.pnlRanker.Size = new System.Drawing.Size(576, 549);
-            this.pnlRanker.TabIndex = 2;
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.IndianRed;
-            this.panel2.Controls.Add(this.lbCurrentRank);
-            this.panel2.Location = new System.Drawing.Point(292, 490);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(284, 59);
-            this.panel2.TabIndex = 4;
-            // 
-            // lbCurrentRank
-            // 
-            this.lbCurrentRank.AutoSize = true;
-            this.lbCurrentRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbCurrentRank.Location = new System.Drawing.Point(17, 10);
-            this.lbCurrentRank.Name = "lbCurrentRank";
-            this.lbCurrentRank.Size = new System.Drawing.Size(0, 38);
-            this.lbCurrentRank.TabIndex = 0;
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.panel1.Controls.Add(this.lbYourRank);
-            this.panel1.Location = new System.Drawing.Point(0, 490);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(293, 59);
-            this.panel1.TabIndex = 3;
-            // 
-            // lbYourRank
-            // 
-            this.lbYourRank.AutoSize = true;
-            this.lbYourRank.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbYourRank.Location = new System.Drawing.Point(17, 10);
-            this.lbYourRank.Name = "lbYourRank";
-            this.lbYourRank.Size = new System.Drawing.Size(232, 38);
-            this.lbYourRank.TabIndex = 4;
-            this.lbYourRank.Text = "Hạng của bạn";
-            // 
-            // pnlYourLevel
-            // 
-            this.pnlYourLevel.Location = new System.Drawing.Point(3, 490);
-            this.pnlYourLevel.Name = "pnlYourLevel";
-            this.pnlYourLevel.Size = new System.Drawing.Size(573, 59);
-            this.pnlYourLevel.TabIndex = 2;
-            // 
-            // dtGridRank
-            // 
-            this.dtGridRank.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dtGridRank.Location = new System.Drawing.Point(3, 54);
-            this.dtGridRank.Name = "dtGridRank";
-            this.dtGridRank.RowHeadersWidth = 51;
-            this.dtGridRank.RowTemplate.Height = 24;
-            this.dtGridRank.Size = new System.Drawing.Size(573, 437);
-            this.dtGridRank.TabIndex = 1;
             // 
             // pnlCreateRoom
             // 
@@ -554,6 +554,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.ptboxAvatar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridContainListRooms)).EndInit();
             this.pnlContainsChild.ResumeLayout(false);
+            this.pnlChildContainHistory.ResumeLayout(false);
+            this.pnlRanker.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).EndInit();
             this.pnlListFriends.ResumeLayout(false);
             this.tbControls.ResumeLayout(false);
             this.tbFindUser.ResumeLayout(false);
@@ -563,13 +570,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dtListFriends)).EndInit();
             this.tbAccept.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtAcceptFriend)).EndInit();
-            this.pnlChildContainHistory.ResumeLayout(false);
-            this.pnlRanker.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dtGridRank)).EndInit();
             this.pnlCreateRoom.ResumeLayout(false);
             this.pnlCreateRoom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtGridViewHistory)).EndInit();
